@@ -1,0 +1,117 @@
+.paper-card {
+  background: var(--bg-primary);
+  border-radius: 10px;
+  min-width: 140px;
+  max-width: 160px;
+  border: 2px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.paper-card.affordable {
+  border-color: var(--success);
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.2);
+}
+
+.card-header {
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-size: 12px;
+}
+
+.card-prestige {
+  font-weight: 700;
+}
+
+.card-tier {
+  opacity: 0.8;
+  font-size: 11px;
+}
+
+.card-body {
+  padding: 8px 10px;
+  flex: 1;
+}
+
+.card-name {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-bonus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--success);
+  background: rgba(76, 175, 80, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.bonus-icon {
+  font-size: 14px;
+}
+
+.card-cost {
+  padding: 6px 10px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.cost-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-buy, .btn-reserve {
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-buy {
+  background: var(--success);
+  color: white;
+}
+
+.btn-buy:hover {
+  background: #66bb6a;
+}
+
+.btn-reserve {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-reserve:hover {
+  background: var(--border);
+}

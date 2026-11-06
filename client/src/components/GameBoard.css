@@ -1,0 +1,415 @@
+/* Main layout: left sidebar | center | token pool | nobles, bottom bar */
+.game-board {
+  display: grid;
+  grid-template-columns: 200px 1fr 180px 160px;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "left center tokens nobles"
+    "bottom bottom bottom bottom";
+  min-height: 100vh;
+  gap: 12px;
+  padding: 12px;
+  position: relative;
+}
+
+/* Left sidebar: player panels */
+.left-sidebar {
+  grid-area: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* Center area: cards */
+.center-area {
+  grid-area: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.cards-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tier-row {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+}
+
+.tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tier-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.tier-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.tier-cards {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.empty-tier {
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 16px;
+  text-align: center;
+  width: 100%;
+  font-size: 13px;
+}
+
+/* Right sidebar: token pool */
+.right-sidebar {
+  grid-area: tokens;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.token-pool {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+}
+
+.token-pool h3 {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.token-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.token-actions .btn {
+  flex: 1;
+  font-size: 12px;
+  padding: 6px 8px;
+}
+
+/* Nobles sidebar */
+.nobles-sidebar {
+  grid-area: nobles;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+}
+
+.nobles-sidebar h3 {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.nobles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Bottom bar: current player resources */
+.bottom-bar {
+  grid-area: bottom;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+}
+
+.player-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-primary);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  justify-content: center;
+  border: 2px solid var(--accent);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.badge-avatar {
+  font-size: 20px;
+}
+
+.badge-prestige {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ffd54f;
+  color: #333;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-secondary);
+}
+
+.bar-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Card slots: squares */
+.bar-cards {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  max-width: 240px;
+  min-height: 28px;
+  align-items: center;
+}
+
+.card-slot {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border: 1.5px solid;
+  cursor: default;
+}
+
+.card-slot.tier-1 { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
+.card-slot.tier-2 { background: rgba(33, 150, 243, 0.2); border-color: #2196f3; }
+.card-slot.tier-3 { background: rgba(156, 39, 176, 0.2); border-color: #9c27b0; }
+.card-slot.reserved { border-style: dashed; opacity: 0.8; }
+
+/* Token circles: grouped by type */
+.bar-tokens {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 28px;
+}
+
+.bar-token-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.token-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.token-group-icon {
+  font-size: 14px;
+}
+
+.token-group-count {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.token-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.token-dot.data { background: #e8e8e8; border: 1px solid #bbb; }
+.token-dot.compute { background: #4fc3f7; border: 1px solid #29b6f6; }
+.token-dot.citation { background: #81c784; border: 1px solid #66bb6a; }
+.token-dot.collaborator { background: #e57373; border: 1px solid #ef5350; }
+.token-dot.funding { background: #fff176; border: 1px solid #fdd835; }
+.token-dot.coffee { background: #a1887f; border: 1px solid #8d6e63; }
+
+/* Reserved cards */
+.bar-reserved {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  min-height: 28px;
+}
+
+/* Turn Indicator */
+.turn-indicator {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  z-index: 100;
+}
+
+.turn-indicator.my-turn {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(233, 69, 96, 0.3); }
+  50% { box-shadow: 0 4px 30px rgba(233, 69, 96, 0.6); }
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 24px;
+  min-width: 300px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.modal h3 {
+  margin-bottom: 12px;
+}
+
+.modal p {
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Game Over */
+.game-over-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.game-over-card {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  border: 2px solid var(--accent);
+  max-width: 400px;
+  width: 90%;
+}
+
+.game-over-card h1 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.game-over-card h2 {
+  font-size: 24px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.final-standings {
+  margin: 20px 0;
+  text-align: left;
+}
+
+.standing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.standing.winner {
+  border: 1px solid var(--accent);
+  background: rgba(233, 69, 96, 0.1);
+}
+
+.standing span:first-child {
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.standing span:last-child {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 600;
+}

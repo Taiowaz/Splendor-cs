@@ -1,0 +1,178 @@
+.player-panel {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.player-panel.me {
+  border-color: var(--accent);
+}
+
+.player-panel.current-turn {
+  box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+  border-color: var(--accent);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.panel-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.player-avatar {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.player-name {
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.me-badge {
+  background: var(--accent);
+  color: white;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.player-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.prestige {
+  color: #ffd54f;
+}
+
+.token-count {
+  color: var(--text-secondary);
+}
+
+.panel-body {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-body h4 {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
+}
+
+.bonus-section, .tokens-section, .cards-section, .reserved-section {
+  background: var(--bg-primary);
+  border-radius: 5px;
+  padding: 6px;
+}
+
+.bonus-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.bonus-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--success);
+}
+
+.no-bonus {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.mini-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.mini-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  border-left: 2px solid;
+}
+
+.mini-card.tier-1 { border-left-color: #4caf50; background: rgba(76, 175, 80, 0.05); }
+.mini-card.tier-2 { border-left-color: #2196f3; background: rgba(33, 150, 243, 0.05); }
+.mini-card.tier-3 { border-left-color: #9c27b0; background: rgba(156, 39, 176, 0.05); }
+.mini-card.reserved { border-left-style: dashed; }
+
+.mini-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-prestige {
+  color: #ffd54f;
+  font-weight: 600;
+}
+
+.btn-buy-mini {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  background: var(--success);
+  color: white;
+  transition: all 0.2s;
+}
+
+.btn-buy-mini:hover:not(:disabled) {
+  background: #66bb6a;
+}
+
+.btn-buy-mini:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.no-cards {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 3px;
+}
