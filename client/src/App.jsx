@@ -68,6 +68,10 @@ function App() {
         setGameState(lastMessage.gameState)
         break
 
+      case 'debug_update':
+        setGameState(lastMessage.gameState)
+        break
+
       case 'noble_visit':
         showNotification(lastMessage.message)
         break
@@ -131,6 +135,7 @@ function App() {
           onBuyCard={handleBuyCard}
           onReserveCard={handleReserveCard}
           onRestart={handleRestart}
+          onDebugRandom={() => sendMessage({ type: 'debug_random' })}
         />
       )}
     </div>

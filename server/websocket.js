@@ -52,6 +52,9 @@ export function setupWebSocket(server) {
           case 'list_rooms':
             handleListRooms(ws);
             break;
+          case 'debug_random':
+            handleDebugRandom(ws);
+            break;
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
         }
@@ -392,6 +395,49 @@ export function setupWebSocket(server) {
       } else {
         ws.send(JSON.stringify({ type: 'error', message: result.error }));
       }
+    }
+
+    function handleDebugRandom(ws) {
+      const room = rooms.get(currentRoom);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      const playerIndex = game.players.findIndex(p => p.id === currentPlayerId);
+      if (playerIndex === -1) return;
+
+      const player = game.players[playerIndex];
+      const resources = ['data', 'compute', 'citation', 'collaborator', 'funding'];
+
+      // 随机加 2-5 个资源
+      const addCount = 2 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < addCount; i++) {
+        const r = resources[Math.floor(Math.random() * resources.length)];
+        if (game.bank.tokens[r] > 0) {
+          player.tokens[r]++;
+          game.bank.tokens[r]--;
+        }
+      }
+
+      // 随机获得 1-2 张低 tier 卡牌
+      const cardCount = 1 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < cardCount; i++) {
+        const tier = Math.random() < 0.6 ? 1 : 2;
+        const tierCards = game.bank[`tier${tier}`];
+        if (tierCards.length > 0) {
+          const idx = Math.floor(Math.random() * tierCards.length);
+          const card = tierCards.splice(idx, 1)[0];
+          card.tier = tier;
+          player.cards.push(card);
+          player.bonus[card.bonus]++;
+          player.prestige += card.prestige;
+        }
+      }
+
+      // 广播更新后的状态
+      broadcastToRoomWithPlayerState(currentRoom, {
+        type: 'debug_update',
+        message: '随机资源已添加'
+      }, game);
     }
 
     function handleListRooms(ws) {
