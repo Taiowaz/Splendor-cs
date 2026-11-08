@@ -90,7 +90,7 @@ export const VENUES = [
   { id: 'sacmat',   name: 'SACMAT',   fullName: 'ACM Symp. on Access Control Models and Technologies',       cn: '访问控制',     ccf: 'C', tier: 1, art: { type: 'wordmark', style: 'wm-serif-red' } },
   { id: 'srds',     name: 'SRDS',     fullName: 'IEEE Symp. on Reliable Distributed Systems',                cn: '可靠分布系统', ccf: 'C', tier: 1, art: { type: 'wordmark', style: 'wm-serif-blue' } },
   { id: 'dsn',      name: 'DSN',      fullName: 'IEEE/IFIP Int. Conf. on Dependable Systems and Networks',   cn: '可信系统',     ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/dsn.png', tone: 'color', aspect: 'square' } },
-  { id: 'icpp',     name: 'ICPP',     fullName: 'Int. Conf. on Parallel Processing',                         cn: '并行处理',     ccf: 'C', tier: 1, art: { type: 'wordmark', style: 'wm-serif-blue' } },
+  { id: 'icpp',     name: 'ICPP',     fullName: 'Int. Conf. on Parallel Processing',                         cn: '并行处理',     ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/icpp.png', tone: 'dark', aspect: 'wide' } },
   { id: 'pads',     name: 'PADS',     fullName: 'ACM SIGSIM Conf. on Principles of Advanced Discrete Simulation', cn: '高级离散仿真', ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/pads.png', tone: 'color', aspect: 'wide' } },
   { id: 'vmv',      name: 'VMV',      fullName: 'Vision, Modeling & Visualization',                          cn: '可视化',       ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/vmv.png', tone: 'color', aspect: 'wide' } },
   { id: 'sci',      name: 'SCI',      fullName: 'Int. Conf. on Scientific Computing',                        cn: '科学计算',     ccf: 'C', tier: 1, art: { type: 'wordmark', style: 'wm-serif-gold' } },
@@ -98,7 +98,7 @@ export const VENUES = [
   { id: 'iccc',     name: 'ICCC',     fullName: 'IEEE/CIC Int. Conf. on Communications in China',            cn: '中国通信',     ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/iccc.png', tone: 'color', aspect: 'wide' } },
   { id: 'icc',      name: 'IEEE ICC', fullName: 'IEEE Int. Conf. on Communications',                         cn: '通信',         ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/icc.png', tone: 'dark', aspect: 'wide' } },
   { id: 'globecom', name: 'GLOBECOM', fullName: 'IEEE Global Communications Conf.',                          cn: '全球通信',     ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/globecom.png', tone: 'dark', aspect: 'wide' } },
-  { id: 'infocomc', name: 'MSN',      fullName: 'Int. Conf. on Mobility and Sensing, Networking',            cn: '移动感知',     ccf: 'C', tier: 1, art: { type: 'wordmark', style: 'wm-serif-orange' } }
+  { id: 'infocomc', name: 'MSN',      fullName: 'Int. Conf. on Mobility and Sensing, Networking',            cn: '移动感知',     ccf: 'C', tier: 1, art: { type: 'logo', src: '/images/venues/infocomc.png', tone: 'color', aspect: 'square' } }
 ]
 
 export const VENUE_BY_ID = Object.fromEntries(VENUES.map(v => [v.id, v]))
