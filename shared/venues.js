@@ -28,13 +28,13 @@ export const VENUES = [
 
   // ---------- CCF-B (tier 2) ----------
   { id: 'emnlp',    name: 'EMNLP',    fullName: 'Conf. on Empirical Methods in Natural Language Processing', cn: '自然语言处理', ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/emnlp26.png', tone: 'color', aspect: 'wide' } },
-  { id: 'coling',   name: 'COLING',   fullName: 'Int. Conf. on Computational Linguistics',                   cn: '计算语言学',   ccf: 'B', tier: 2, art: { type: 'wordmark', style: 'wm-serif-purple' } },
+  { id: 'coling',   name: 'COLING',   fullName: 'Int. Conf. on Computational Linguistics',                   cn: '计算语言学',   ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/coling.png', tone: 'dark', aspect: 'wide' } },
   { id: 'naacl',    name: 'NAACL',    fullName: 'North American Chapter of the ACL',                         cn: '自然语言处理', ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/naacl.png', tone: 'color', aspect: 'square' } },
   { id: 'aistats',  name: 'AISTATS',  fullName: 'Int. Conf. on Artificial Intelligence and Statistics',      cn: '人工智能统计', ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/aistats.png', tone: 'color', aspect: 'wide' } },
   { id: 'uai',      name: 'UAI',      fullName: 'Conf. on Uncertainty in Artificial Intelligence',           cn: '不确定性推理', ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/uai.png', tone: 'color', aspect: 'square' } },
   { id: 'kr',       name: 'KR',       fullName: 'Int. Conf. on Principles of Knowledge Representation and Reasoning', cn: '知识表示', ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/kr.svg', tone: 'dark', aspect: 'wide' } },
   { id: 'icaps',    name: 'ICAPS',    fullName: 'Int. Conf. on Automated Planning and Scheduling',           cn: '自动规划',     ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/icaps.png', tone: 'color', aspect: 'square' } },
-  { id: 'accv',     name: 'ACCV',     fullName: 'Asian Conf. on Computer Vision',                            cn: '计算机视觉',   ccf: 'B', tier: 2, art: { type: 'wordmark', style: 'wm-serif-green' } },
+  { id: 'accv',     name: 'ACCV',     fullName: 'Asian Conf. on Computer Vision',                            cn: '计算机视觉',   ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/accv.png', tone: 'color', aspect: 'wide' } },
   { id: 'icassp',   name: 'ICASSP',   fullName: 'IEEE Int. Conf. on Acoustics, Speech and Signal Processing', cn: '语音信号',    ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/icassp.png', tone: 'color', aspect: 'wide' } },
   { id: 'interrobot', name: 'IROS',   fullName: 'IEEE/RSJ Int. Conf. on Intelligent Robots and Systems',     cn: '智能机器人',   ccf: 'B', tier: 2, art: { type: 'wordmark', style: 'wm-serif-orange' } },
   { id: 'sigir',    name: 'SIGIR',    fullName: 'ACM Int. Conf. on Research and Development in Information Retrieval', cn: '信息检索', ccf: 'B', tier: 2, art: { type: 'logo', src: '/images/venues/sigir.png', tone: 'color', aspect: 'square' } },
