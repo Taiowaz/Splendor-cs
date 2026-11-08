@@ -1,117 +1,144 @@
 .paper-card {
-  background: var(--bg-primary);
-  border-radius: 10px;
-  min-width: 140px;
-  max-width: 160px;
-  border: 2px solid var(--border);
-  overflow: hidden;
-  transition: all 0.2s;
-  flex-shrink: 0;
+  position: relative;
+  width: clamp(118px, 13vmin, 150px);
   display: flex;
   flex-direction: column;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  color: #ece3c8;
+  background: linear-gradient(180deg, rgba(24, 28, 46, 0.92), rgba(12, 14, 26, 0.94));
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  box-shadow: rgba(0, 0, 0, 0.9) -3px 2px 6px -1px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+  flex-shrink: 0;
+}
+
+.paper-card:hover {
+  transform: translateY(-4px);
+  box-shadow: rgba(0, 0, 0, 0.7) 0 6px 16px;
 }
 
 .paper-card.affordable {
-  border-color: var(--success);
-  box-shadow: 0 0 12px rgba(76, 175, 80, 0.2);
+  border-color: rgb(245, 204, 101);
+  box-shadow: 0 0 0 1px rgba(245, 204, 101, 0.5), rgba(0, 0, 0, 0.7) -3px 2px 8px -1px;
 }
 
 .card-header {
-  padding: 6px 10px;
+  padding: 0.35rem 0.6rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
-  font-size: 12px;
+  color: #fff;
+  font-size: 0.8rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 .card-prestige {
+  font-family: 'Lobster', cursive;
   font-weight: 700;
+  font-size: 0.95rem;
 }
 
 .card-tier {
-  opacity: 0.8;
-  font-size: 11px;
+  opacity: 0.85;
+  font-size: 0.72rem;
 }
 
 .card-body {
-  padding: 8px 10px;
+  padding: 0.5rem 0.6rem;
   flex: 1;
 }
 
 .card-name {
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text-primary);
-  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: #f2d675;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .card-bonus {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: var(--success);
-  background: rgba(76, 175, 80, 0.1);
-  padding: 3px 8px;
-  border-radius: 4px;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: #d8d2bd;
+  background: rgba(104, 105, 119, 0.25);
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(212, 175, 55, 0.25);
 }
 
 .bonus-icon {
-  font-size: 14px;
+  font-size: 0.95rem;
 }
 
 .card-cost {
-  padding: 6px 10px;
+  padding: 0.4rem 0.5rem;
   display: flex;
-  gap: 6px;
+  gap: 0.35rem;
   flex-wrap: wrap;
-  border-top: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(0, 0, 0, 0.28);
 }
 
 .cost-item {
   display: flex;
   align-items: center;
-  gap: 2px;
-  font-size: 12px;
-  color: var(--text-secondary);
+  gap: 0.15rem;
+  font-family: 'Lobster', cursive;
+  font-size: 0.85rem;
+  color: #ece3c8;
+  background: rgba(30, 81, 109, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 1.7rem;
+  height: 1.7rem;
+  justify-content: center;
+}
+.cost-item span:first-child {
+  font-size: 0.7rem;
 }
 
 .card-actions {
   display: flex;
-  gap: 4px;
-  padding: 6px;
-  border-top: 1px solid var(--border);
+  gap: 0.35rem;
+  padding: 0.4rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
 }
 
-.btn-buy, .btn-reserve {
+.btn-buy,
+.btn-reserve {
   flex: 1;
-  padding: 5px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.2s;
+  padding: 0.35rem 0.4rem;
+  border-radius: 0.4rem;
+  font-family: 'Judson', serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s ease;
 }
 
 .btn-buy {
-  background: var(--success);
-  color: white;
+  background: linear-gradient(to top, rgb(150, 110, 20), rgb(218, 165, 32), rgb(245, 204, 101));
+  color: #1a1408;
+  border: 1px solid rgb(245, 204, 101);
 }
 
 .btn-buy:hover {
-  background: #66bb6a;
+  filter: brightness(1.12);
 }
 
 .btn-reserve {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
+  background: rgba(104, 105, 119, 0.3);
+  color: #ece3c8;
+  border: 1px solid rgba(212, 175, 55, 0.5);
 }
 
 .btn-reserve:hover {
-  background: var(--border);
+  filter: brightness(1.2);
 }
