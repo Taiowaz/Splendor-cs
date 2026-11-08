@@ -1,415 +1,627 @@
-/* Main layout: left sidebar | center | token pool | nobles, bottom bar */
-.game-board {
-  display: grid;
-  grid-template-columns: 200px 1fr 180px 160px;
-  grid-template-rows: 1fr auto;
-  grid-template-areas:
-    "left center tokens nobles"
-    "bottom bottom bottom bottom";
+/* ===== 学术宝石 · 璀璨宝石风格主题 ===== */
+
+.gb-root {
   min-height: 100vh;
-  gap: 12px;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Judson', 'PingFang SC', 'Microsoft YaHei', serif;
+  color: #ece3c8;
+  background-image:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)),
+    url('/images/bluebackground.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  overflow: hidden;
+}
+
+/* ---- 顶部标题栏 ---- */
+.gb-topbar {
   position: relative;
-}
-
-/* Left sidebar: player panels */
-.left-sidebar {
-  grid-area: left;
+  height: 3.4rem;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
-}
-
-.sidebar-divider {
-  height: 1px;
-  background: var(--border);
-  margin: 4px 0;
-}
-
-/* Center area: cards */
-.center-area {
-  grid-area: center;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
-}
-
-.cards-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.tier-row {
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-}
-
-.tier-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(3, 3, 3, 0), rgba(156, 163, 177, 0.18));
+  box-shadow: 0 0.6rem 2.5rem rgba(0, 0, 0, 0.6);
+  z-index: 5;
 }
 
-.tier-badge {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
+.gb-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.15rem;
+  -webkit-text-stroke: 0.03rem rgb(82, 55, 24);
+  background: linear-gradient(to top, rgb(110, 81, 7), rgb(218, 165, 32), rgb(245, 204, 101));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(2px 2px 6px black);
 }
 
-.tier-count {
-  font-size: 11px;
-  color: var(--text-secondary);
-  opacity: 0.7;
+.gb-turnpill {
+  position: absolute;
+  right: 1rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 2rem;
+  font-size: 0.95rem;
+  color: #f2d675;
+  background: rgba(14, 16, 28, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.gb-turnpill.mine {
+  color: #1a1a28;
+  background: linear-gradient(to top, rgb(218, 165, 32), rgb(245, 204, 101));
+  border-color: rgb(245, 204, 101);
+  font-weight: 700;
 }
 
-.tier-cards {
+/* ---- 主体三栏 ---- */
+.gb-main {
+  flex: 1;
+  position: relative;
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: 3rem;
+  padding: 1rem 1.2rem 5rem;
+  overflow: hidden;
 }
 
-.empty-tier {
-  color: var(--text-secondary);
-  font-style: italic;
-  padding: 16px;
+/* 通用面板 */
+.inv-panel,
+.opp-panel {
+  position: relative;
+  background: rgba(104, 105, 119, 0.22);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 1rem;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 4px 12px;
+  backdrop-filter: blur(2px);
+}
+
+/* ---- 左侧：本人持有 ---- */
+.gb-inventory {
+  width: clamp(160px, 17vw, 220px);
+  display: flex;
+  flex-direction: column;
+}
+
+.inv-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1.4rem 0.8rem 0.9rem;
+  font-size: clamp(0.95rem, 1.6vmin, 1.15rem);
+}
+
+.inv-prestige {
+  position: absolute;
+  top: -0.9rem;
+  right: -0.6rem;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/images/bluebackground.jpg');
+  background-size: cover;
+  border: 0.22rem solid goldenrod;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
+}
+.inv-prestige span {
+  font-family: 'Lobster', cursive;
+  font-size: 1.4em;
+  color: rgb(245, 204, 101);
+  -webkit-text-stroke: 0.06rem black;
+  text-shadow: 1px 2px 4px black;
+}
+
+.inv-identity {
   text-align: center;
-  width: 100%;
-  font-size: 13px;
+  line-height: 1.2;
+}
+.inv-name {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #f2d675;
+}
+.inv-order {
+  font-size: 0.8em;
+  color: #b9b29a;
 }
 
-/* Right sidebar: token pool */
-.right-sidebar {
+.inv-tokens {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+.inv-gem {
+  position: relative;
+  width: 2.3em;
+  height: 2.3em;
+}
+
+/* 宝石圆片 */
+.gem-circle {
+  width: 2.3em;
+  height: 2.3em;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 3px 6px, inset 0 0 6px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+.gem-num {
+  font-family: 'Lobster', cursive;
+  font-size: 1.15em;
+  color: #fff;
+  -webkit-text-stroke: 0.06rem black;
+  text-shadow: 1px 2px 3px black;
+}
+.gem-badge {
+  position: absolute;
+  top: -0.35em;
+  right: -0.35em;
+  min-width: 1.2em;
+  height: 1.2em;
+  padding: 0 0.2em;
+  border-radius: 50%;
+  background-color: #1e516d;
+  border: 0.09em solid #fff;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 2px 5px;
+  font-family: 'Lobster', cursive;
+  font-size: 0.8em;
+  color: #fff;
+  line-height: 1.2em;
+  text-align: center;
+}
+
+/* 持有卡牌抽屉 */
+.inv-cards,
+.inv-reserved {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
+  min-height: 3.2em;
+}
+.mini-card {
+  position: relative;
+  width: 2.1em;
+  height: 3.1em;
+  border-radius: 0.4rem;
+  background-size: cover;
+  background-position: center;
+  box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
+  border: 1px solid rgba(212, 175, 55, 0.55);
+}
+.mini-card.reserved {
+  border-style: dashed;
+  opacity: 0.9;
+  cursor: pointer;
+}
+.mini-prestige {
+  position: absolute;
+  top: 0.1em;
+  left: 0.2em;
+  font-family: 'Lobster', cursive;
+  font-size: 0.85em;
+  color: rgb(245, 204, 101);
+  -webkit-text-stroke: 0.05rem black;
+  text-shadow: 1px 1px 2px black;
+}
+
+/* ---- 中间牌桌 ---- */
+.gb-board {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    "tokens tokens"
+    "cards  nobles";
+  align-content: center;
+  justify-content: center;
+  gap: 1.2rem 1.4rem;
+  min-width: 0;
+}
+
+.gb-tokenpool {
   grid-area: tokens;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+}
+.pool-gem {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.pool-gem .gem-circle {
+  width: 3em;
+  height: 3em;
+}
+.pool-gem .gem-num {
+  font-size: 1.5em;
+}
+.pool-gem:hover {
+  transform: translateY(-3px);
+}
+.pool-gem.selected .gem-circle {
+  border: 2px solid rgb(245, 204, 101);
+  box-shadow: 0 0 0 3px rgba(245, 204, 101, 0.35), rgba(0, 0, 0, 0.4) 0 3px 6px;
+}
+.pool-gem.empty {
+  cursor: default;
+  opacity: 0.35;
+  filter: grayscale(0.6);
+}
+.pool-gem .gem-badge {
+  top: -0.4em;
+  right: -0.4em;
+  background-color: rgb(218, 165, 32);
+  color: #1a1a28;
+  border-color: #1a1a28;
 }
 
-.token-pool {
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid var(--border);
-}
-
-.token-pool h3 {
-  font-size: 13px;
-  margin-bottom: 10px;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-.token-actions {
+/* 发展卡行 */
+.gb-cards {
+  grid-area: cards;
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.gb-tier-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.2rem;
+}
+.gb-deck {
+  position: relative;
+  flex: 0 0 auto;
+}
+.gb-deck img {
+  height: 6.2em;
+  aspect-ratio: 6 / 9;
+  border-radius: 0.5rem;
+  box-shadow: rgba(0, 0, 0, 0.9) -3px 2px 6px -1px;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+.deck-count {
+  position: absolute;
+  bottom: -0.5em;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 1.6em;
+  padding: 0 0.35em;
+  border-radius: 1em;
+  background: #1e516d;
+  border: 1px solid #fff;
+  font-family: 'Lobster', cursive;
+  font-size: 0.85em;
+  color: #fff;
+  text-align: center;
+  box-shadow: rgba(0, 0, 0, 0.3) 0 2px 4px;
+}
+.gb-tier-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.gb-empty-tier {
+  color: #8f8a76;
+  font-style: italic;
+  align-self: center;
 }
 
-.token-actions .btn {
-  flex: 1;
-  font-size: 12px;
-  padding: 6px 8px;
-}
-
-/* Nobles sidebar */
-.nobles-sidebar {
+/* 贵族 */
+.gb-nobles {
   grid-area: nobles;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid var(--border);
+  gap: 0.7rem;
+  align-self: center;
 }
 
-.nobles-sidebar h3 {
-  font-size: 13px;
-  margin-bottom: 4px;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
-.nobles-list {
+/* ---- 右侧：其他玩家 ---- */
+.gb-players {
+  position: absolute;
+  top: 1rem;
+  bottom: 5rem;
+  right: 0.4rem;
+  width: clamp(150px, 16vw, 200px);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-/* Bottom bar: current player resources */
-.bottom-bar {
-  grid-area: bottom;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--bg-secondary);
-  border-radius: 10px;
-  padding: 8px 16px;
-  border: 1px solid var(--border);
-}
-
-.player-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--bg-primary);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
   justify-content: center;
-  border: 2px solid var(--accent);
-  position: relative;
-  flex-shrink: 0;
+  gap: 0.9rem;
 }
-
-.badge-avatar {
-  font-size: 20px;
+.opp-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.2rem 0.7rem 0.7rem;
+  font-size: clamp(0.9rem, 1.5vmin, 1.05rem);
 }
-
-.badge-prestige {
+.opp-panel.active {
+  border-color: rgb(245, 204, 101);
+  box-shadow: 0 0 0 2px rgba(245, 204, 101, 0.4), rgba(0, 0, 0, 0.4) 0 4px 12px;
+}
+.opp-prestige {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  background: #ffd54f;
-  color: #333;
-  width: 20px;
-  height: 20px;
+  top: -0.8rem;
+  right: -0.5rem;
+  width: 2.3em;
+  height: 2.3em;
   border-radius: 50%;
-  font-size: 11px;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bg-secondary);
+  background-image: url('/images/bluebackground.jpg');
+  background-size: cover;
+  border: 0.2rem solid goldenrod;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
 }
-
-.bar-divider {
-  width: 1px;
-  height: 32px;
-  background: var(--border);
-  flex-shrink: 0;
+.opp-prestige span {
+  font-family: 'Lobster', cursive;
+  font-size: 1.25em;
+  color: rgb(245, 204, 101);
+  -webkit-text-stroke: 0.05rem black;
+  text-shadow: 1px 2px 4px black;
 }
-
-/* Card slots: squares */
-.bar-cards {
+.opp-identity { text-align: center; line-height: 1.2; }
+.opp-name { font-weight: 700; color: #f2d675; }
+.opp-order { font-size: 0.78em; color: #b9b29a; }
+.opp-stats {
   display: flex;
-  gap: 3px;
-  flex-wrap: wrap;
-  max-width: 240px;
-  min-height: 28px;
-  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.95em;
+  color: #d8d2bd;
 }
 
-.card-slot {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  border: 1.5px solid;
-  cursor: default;
-}
-
-.card-slot.tier-1 { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; }
-.card-slot.tier-2 { background: rgba(33, 150, 243, 0.2); border-color: #2196f3; }
-.card-slot.tier-3 { background: rgba(156, 39, 176, 0.2); border-color: #9c27b0; }
-.card-slot.reserved { border-style: dashed; opacity: 0.8; }
-
-/* Token circles: grouped by type */
-.bar-tokens {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  min-height: 28px;
-}
-
-.bar-token-count {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  white-space: nowrap;
-}
-
-.token-group {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: var(--bg-primary);
-  border-radius: 6px;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-}
-
-.token-group-icon {
-  font-size: 14px;
-}
-
-.token-group-count {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.token-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.token-dot.data { background: #e8e8e8; border: 1px solid #bbb; }
-.token-dot.compute { background: #4fc3f7; border: 1px solid #29b6f6; }
-.token-dot.citation { background: #81c784; border: 1px solid #66bb6a; }
-.token-dot.collaborator { background: #e57373; border: 1px solid #ef5350; }
-.token-dot.funding { background: #fff176; border: 1px solid #fdd835; }
-.token-dot.coffee { background: #a1887f; border: 1px solid #8d6e63; }
-
-/* Reserved cards */
-.bar-reserved {
-  display: flex;
-  gap: 3px;
-  align-items: center;
-  min-height: 28px;
-}
-
-/* Turn Indicator */
-.turn-indicator {
+/* ---- 资源选择确认条 ---- */
+.gb-actionbar {
   position: fixed;
-  bottom: 80px;
+  bottom: 6.4rem;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  padding: 8px 20px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border);
-  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 2rem;
+  background: rgba(14, 16, 28, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+.action-summary { color: #f2d675; font-weight: 700; }
+
+/* ---- 底部中间：我的卡牌 ---- */
+.gb-my-cards {
+  position: fixed;
+  bottom: 0.9rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0.55rem 0.9rem;
+  border-radius: 1rem;
+  background: rgba(14, 16, 28, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  box-shadow: rgba(0, 0, 0, 0.45) 0 4px 14px;
+  backdrop-filter: blur(2px);
+  z-index: 35;
+  max-width: 92vw;
+}
+.mc-pool,
+.mc-owned,
+.mc-reserved {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 3.2em;
+}
+.mc-pool {
+  padding-right: 0.9rem;
+  border-right: 1px solid rgba(212, 175, 55, 0.35);
+}
+.mc-reserved {
+  padding-left: 0.9rem;
+  border-left: 1px solid rgba(212, 175, 55, 0.35);
+}
+.mc-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-right: 0.9rem;
+  border-right: 1px solid rgba(212, 175, 55, 0.35);
+}
+.mc-prestige {
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/images/bluebackground.jpg');
+  background-size: cover;
+  border: 0.22rem solid goldenrod;
+  box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
+}
+.mc-prestige span {
+  font-family: 'Lobster', cursive;
+  font-size: 1.4em;
+  color: rgb(245, 204, 101);
+  -webkit-text-stroke: 0.06rem black;
+  text-shadow: 1px 2px 4px black;
+}
+.mc-id { display: flex; flex-direction: column; line-height: 1.15; }
+
+.mc-type {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.85rem;
+}
+.mc-type + .mc-type {
+  border-left: 1px solid rgba(212, 175, 55, 0.35);
+}
+.mc-counts {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35rem;
+}
+.cnt-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  cursor: default;
+}
+.cnt-chip.reserved {
+  border-style: dashed;
+  background: rgba(212, 175, 55, 0.12);
+  cursor: pointer;
+}
+.cnt-chip.reserved:hover {
+  background: rgba(212, 175, 55, 0.25);
+}
+.cnt-icon {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+.cnt-num {
+  font-family: 'Lobster', cursive;
+  font-size: 1.6em;
+  color: rgb(245, 204, 101);
+  -webkit-text-stroke: 0.05rem black;
+  text-shadow: 1px 1px 2px black;
 }
 
-.turn-indicator.my-turn {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  animation: pulse 1.5s infinite;
+.gb-my-cards .mini-card {
+  width: 2.3em;
+  height: 3.4em;
 }
 
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(233, 69, 96, 0.3); }
-  50% { box-shadow: 0 4px 30px rgba(233, 69, 96, 0.6); }
+/* ---- 按钮 ---- */
+.gb-btn {
+  font-family: 'Judson', serif;
+  font-size: 1rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(212, 175, 55, 0.6);
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.gb-btn:hover { filter: brightness(1.12); }
+.gb-btn:active { transform: translateY(1px); }
+.gb-btn-gold {
+  background: linear-gradient(to top, rgb(150, 110, 20), rgb(218, 165, 32), rgb(245, 204, 101));
+  color: #1a1408;
+  font-weight: 700;
+  border-color: rgb(245, 204, 101);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.gb-btn-ghost {
+  background: rgba(104, 105, 119, 0.25);
+  color: #ece3c8;
 }
 
-/* Modal */
-.modal-overlay {
+/* ---- 弹窗 ---- */
+.gb-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: 100;
 }
-
-.modal {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 24px;
-  min-width: 300px;
-  border: 1px solid var(--border);
+.gb-modal {
+  width: min(90vw, 360px);
+  padding: 1.6rem 1.8rem;
+  border-radius: 1rem;
   text-align: center;
+  background: rgba(20, 24, 40, 0.95);
+  border: 2px solid rgba(212, 175, 55, 0.7);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
 }
-
-.modal h3 {
-  margin-bottom: 12px;
+.gb-modal h3 {
+  font-size: 1.6rem;
+  color: #f2d675;
+  -webkit-text-stroke: 0.02rem rgb(82, 55, 24);
+  margin-bottom: 0.6rem;
 }
+.gb-modal p { color: #d8d2bd; margin-bottom: 1.2rem; }
+.gb-modal-buttons { display: flex; gap: 0.8rem; justify-content: center; }
 
-.modal p {
-  color: var(--text-secondary);
-  margin-bottom: 20px;
+/* ---- 游戏结束 ---- */
+.gb-gameover {
+  margin: auto;
+  width: min(90vw, 460px);
+  padding: 2rem 2.4rem;
+  text-align: center;
+  border-radius: 1.2rem;
+  background: rgba(20, 24, 40, 0.92);
+  border: 2px solid rgba(212, 175, 55, 0.7);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.6);
 }
-
-.modal-buttons {
+.gb-gameover h1 {
+  font-size: 2.4rem;
+  background: linear-gradient(to top, rgb(110, 81, 7), rgb(218, 165, 32), rgb(245, 204, 101));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(2px 2px 6px black);
+}
+.gb-gameover h2 { color: #f2d675; margin: 0.4rem 0 1.2rem; }
+.gb-standings { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
+.gb-standing {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.6rem;
+  background: rgba(104, 105, 119, 0.22);
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
+.gb-standing.winner {
+  border-color: rgb(245, 204, 101);
+  background: rgba(218, 165, 32, 0.22);
+}
+.standing-score { font-family: 'Lobster', cursive; color: #f2d675; }
 
-/* Game Over */
-.game-over-overlay {
+/* ---- 调试按钮 ---- */
+.btn-debug {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 300;
+  bottom: 12px;
+  right: 12px;
+  z-index: 150;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid #ff9800;
+  background: rgba(255, 152, 0, 0.85);
+  color: #1a1408;
+  cursor: pointer;
 }
-
-.game-over-card {
-  background: var(--bg-secondary);
-  border-radius: 16px;
-  padding: 40px;
-  text-align: center;
-  border: 2px solid var(--accent);
-  max-width: 400px;
-  width: 90%;
-}
-
-.game-over-card h1 {
-  font-size: 32px;
-  margin-bottom: 8px;
-}
-
-.game-over-card h2 {
-  font-size: 24px;
-  color: var(--accent);
-  margin-bottom: 8px;
-}
-
-.final-standings {
-  margin: 20px 0;
-  text-align: left;
-}
-
-.standing {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background: var(--bg-primary);
-  border-radius: 6px;
-  margin-bottom: 6px;
-}
-
-.standing.winner {
-  border: 1px solid var(--accent);
-  background: rgba(233, 69, 96, 0.1);
-}
-
-.standing span:first-child {
-  font-weight: bold;
-  color: var(--text-secondary);
-}
-
-.standing span:last-child {
-  margin-left: auto;
-  color: var(--accent);
-  font-weight: 600;
-}
+.btn-debug:hover { filter: brightness(1.1); }

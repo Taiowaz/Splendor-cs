@@ -1,23 +1,32 @@
 import { useState } from 'react'
-import PlayerPanel from './PlayerPanel.jsx'
-import ResourceTokens from './ResourceTokens.jsx'
 import PaperCard from './PaperCard.jsx'
 import NobleTile from './NobleTile.jsx'
 import './GameBoard.css'
 
 const TIER_NAMES = {
-  1: '入门论文 (Workshop)',
-  2: '期刊论文 (Journal)',
-  3: '顶会论文 (Top Conference)'
+  1: '入门论文',
+  2: '期刊论文',
+  3: '顶会论文'
 }
 
-const RESOURCE_INFO = {
-  data: { icon: '📊', name: '数据' },
-  compute: { icon: '💻', name: '算力' },
-  citation: { icon: '📄', name: '引用' },
-  collaborator: { icon: '🤝', name: '合作者' },
-  funding: { icon: '💰', name: '经费' }
+const TIER_DECK = {
+  3: '/images/BlueCard.jpg',
+  2: '/images/YellowCard.jpg',
+  1: '/images/GreenCard.jpg'
 }
+
+// CS 资源映射到宝石视觉
+const RESOURCE_INFO = {
+  data: { icon: '📊', name: '数据', gem: '/images/tokens/WhiteToken.jpg' },
+  compute: { icon: '💻', name: '算力', gem: '/images/tokens/BlueToken.jpg' },
+  citation: { icon: '📄', name: '引用', gem: '/images/tokens/GreenToken.jpg' },
+  collaborator: { icon: '🤝', name: '合作者', gem: '/images/tokens/RedToken.jpg' },
+  funding: { icon: '💰', name: '经费', gem: '/images/tokens/BrownToken.jpg' },
+  coffee: { icon: '☕', name: '咖啡', gem: '/images/tokens/GoldToken.jpg' }
+}
+
+const TOKEN_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding']
+const INVENTORY_TYPES = [...TOKEN_TYPES, 'coffee']
 
 export default function GameBoard({
   gameState,
@@ -26,118 +35,48 @@ export default function GameBoard({
   onTakeTokens,
   onBuyCard,
   onReserveCard,
-  onRestart
+  onRestart,
+  onDebugRandom
 }) {
   const [selectedTokens, setSelectedTokens] = useState({})
   const [showReserve, setShowReserve] = useState(false)
   const [reserveTarget, setReserveTarget] = useState(null)
 
   const myPlayer = gameState.players.find(p => p.id === myPlayerId)
-  const isMyTurn = gameState.players[gameState.currentPlayerIndex]?.id === myPlayerId
-  const tokenTypes = ['data', 'compute', 'citation', 'collaborator', 'funding']
+  const currentIndex = gameState.currentPlayerIndex
+  const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
+  const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
 
   const handleTokenClick = (type) => {
     if (!isMyTurn) return
-    // 咖啡（万能牌）不能直接拿取，只能通过预留卡牌获得
     if (type === 'coffee') return
 
     setSelectedTokens(prev => {
       const current = prev[type] || 0
       const totalSelected = Object.values(prev).reduce((a, b) => a + b, 0)
-      const distinctTypes = Object.keys(prev).length
       const bankCount = gameState.bank.tokens[type]
 
-      // 如果已经选择了这个类型
       if (current > 0) {
-        // 如果选了2个相同的，点击取消1个（变成1个）
-        if (current === 2) {
-          return { ...prev, [type]: 1 }
-        }
-        // 如果选了1个，且只有这1种类型，取消选择
-        if (distinctTypes === 1) {
-          const newTokens = { ...prev }
-          delete newTokens[type]
-          return newTokens
-        }
-        // 如果有多种类型，取消这个类型（从3个不同中移除）
+        if (current === 2) return { ...prev, [type]: 1 }
         const newTokens = { ...prev }
         delete newTokens[type]
         return newTokens
       }
 
-      // 还没选择这个类型，尝试添加
       if (bankCount <= 0) return prev
       if (totalSelected >= 3) return prev
-
-      // 如果已经有其他类型（说明在选3个不同），只能选1个
-      const hasOtherTypes = Object.keys(prev).some(t => t !== type)
-      if (hasOtherTypes) {
-        return { ...prev, [type]: 1 }
-      }
-
-      // 没有其他类型，第一次选择
       return { ...prev, [type]: 1 }
     })
   }
 
-  // 增加选择（+ 按钮）
-  const handleIncrease = (type) => {
-    if (!isMyTurn) return
-    if (type === 'coffee') return
-
-    setSelectedTokens(prev => {
-      const current = prev[type] || 0
-      const totalSelected = Object.values(prev).reduce((a, b) => a + b, 0)
-      const distinctTypes = Object.keys(prev).length
-      const bankCount = gameState.bank.tokens[type]
-
-      if (bankCount <= 0) return prev
-      if (totalSelected >= 3) return prev
-
-      // 如果已经有其他类型，只能选1个
-      const hasOtherTypes = Object.keys(prev).some(t => t !== type)
-      if (hasOtherTypes) {
-        if (current === 0) return { ...prev, [type]: 1 }
-        return prev
-      }
-
-      // 没有其他类型
-      if (current === 0) return { ...prev, [type]: 1 }
-      if (current === 1 && bankCount >= 4) return { ...prev, [type]: 2 }
-      return prev
-    })
-  }
-
-  // 减少选择（- 按钮）
-  const handleDecrease = (type) => {
-    if (!isMyTurn) return
-
-    setSelectedTokens(prev => {
-      const current = prev[type] || 0
-      if (current === 0) return prev
-
-      if (current === 2) return { ...prev, [type]: 1 }
-      if (current === 1) {
-        const newTokens = { ...prev }
-        delete newTokens[type]
-        return newTokens
-      }
-      return prev
-    })
-  }
-
-  // 双击资源可以选2个相同的（如果银行≥4）
   const handleTokenDoubleClick = (type) => {
     if (!isMyTurn) return
-    // 咖啡（万能牌）不能直接拿取
     if (type === 'coffee') return
 
     setSelectedTokens(prev => {
       const current = prev[type] || 0
       const distinctTypes = Object.keys(prev).length
       const bankCount = gameState.bank.tokens[type]
-
-      // 只有选了1个且没有其他类型时，才能选2个
       if (current === 1 && distinctTypes === 1 && bankCount >= 4) {
         return { ...prev, [type]: 2 }
       }
@@ -148,12 +87,9 @@ export default function GameBoard({
   const handleConfirmTokens = () => {
     const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
     if (totalSelected === 0) return
-
-    // 验证选择
     const types = Object.keys(selectedTokens)
     if (totalSelected === 3 && types.length !== 3) return
     if (totalSelected === 2 && (types.length !== 1 || gameState.bank.tokens[types[0]] < 4)) return
-
     onTakeTokens(selectedTokens)
     setSelectedTokens({})
   }
@@ -173,25 +109,23 @@ export default function GameBoard({
   if (gameState.gameOver) {
     const winner = gameState.winner
     return (
-      <div className="game-over-overlay">
-        <div className="game-over-card">
-          <h1>🎉 游戏结束！</h1>
+      <div className="gb gb-root">
+        <div className="gb-gameover">
+          <h1>游戏结束</h1>
           <h2>{winner.name} 获胜！</h2>
-          <p>最终声誉: {winner.prestige}</p>
-          <div className="final-standings">
+          <div className="gb-standings">
             {gameState.players
+              .slice()
               .sort((a, b) => b.prestige - a.prestige)
               .map((p, i) => (
-                <div key={p.id} className={`standing ${p.id === winner.id ? 'winner' : ''}`}>
-                  <span>#{i + 1}</span>
-                  <span>{p.name}</span>
-                  <span>{p.prestige} 声誉</span>
+                <div key={p.id} className={`gb-standing ${p.id === winner.id ? 'winner' : ''}`}>
+                  <span className="standing-rank">#{i + 1}</span>
+                  <span className="standing-name">{p.name}</span>
+                  <span className="standing-score">{p.prestige}</span>
                 </div>
               ))}
           </div>
-          <button className="btn btn-primary" onClick={onRestart}>
-            再来一局
-          </button>
+          <button className="gb-btn gb-btn-gold" onClick={onRestart}>再来一局</button>
         </div>
       </div>
     )
@@ -201,168 +135,179 @@ export default function GameBoard({
   const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
 
   return (
-    <div className="game-board">
-      {/* 左侧：玩家面板 */}
-      <div className="left-sidebar">
-        {opponents.map(player => (
-          <PlayerPanel
-            key={player.id}
-            player={player}
-            isMe={false}
-            isCurrentTurn={player.id === gameState.players[gameState.currentPlayerIndex]?.id}
-            myTokens={null}
-            onBuyReserved={null}
-          />
-        ))}
-        <div className="sidebar-divider"></div>
-        {myPlayer && (
-          <PlayerPanel
-            key={myPlayer.id}
-            player={myPlayer}
-            isMe={true}
-            isCurrentTurn={isMyTurn}
-            myTokens={myPlayer.tokens}
-            onBuyReserved={isMyTurn
-              ? (card) => onBuyCard(card.id, card.tier, true)
-              : null
-            }
-          />
-        )}
+    <div className="gb gb-root">
+      {/* 顶部标题栏 */}
+      <div className="gb-topbar">
+        <div className="gb-title">学术宝石</div>
+        <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''}`}>
+          {isMyTurn ? '轮到你行动' : `等待 ${gameState.players[currentIndex]?.name}`}
+        </div>
       </div>
 
-      {/* 中间：卡牌区 */}
-      <div className="center-area">
-        <div className="cards-section">
-          {[3, 2, 1].map(tier => (
-            <div key={tier} className={`tier-row tier-${tier}`}>
-              <div className="tier-header">
-                <span className="tier-badge">{TIER_NAMES[tier]}</span>
-                <span className="tier-count">{gameState.bank[`tier${tier}`]?.length || 0} 张</span>
+      <div className="gb-main">
+        {/* 中间：牌桌 */}
+        <div className="gb-board">
+          {/* 资源池 */}
+          <div className="gb-tokenpool">
+            {TOKEN_TYPES.map(type => {
+              const info = RESOURCE_INFO[type]
+              const bankCount = gameState.bank.tokens[type] || 0
+              const sel = selectedTokens[type] || 0
+              return (
+                <div
+                  key={type}
+                  className={`pool-gem ${sel > 0 ? 'selected' : ''} ${bankCount === 0 ? 'empty' : ''}`}
+                  onClick={() => handleTokenClick(type)}
+                  onDoubleClick={() => handleTokenDoubleClick(type)}
+                  title={`${info.name}｜银行 ${bankCount}｜单击选1，双击选2（银行≥4）`}
+                >
+                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
+                    <span className="gem-num">{bankCount}</span>
+                  </div>
+                  {sel > 0 && <span className="gem-badge">{sel}</span>}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* 发展卡（论文） */}
+          <div className="gb-cards">
+            {[3, 2, 1].map(tier => (
+              <div key={tier} className={`gb-tier-row tier-${tier}`}>
+                <div className="gb-deck" title={`${TIER_NAMES[tier]} 牌库`}>
+                  <img src={TIER_DECK[tier]} alt={`tier${tier}`} />
+                  <span className="deck-count">{gameState.bank[`tier${tier}`]?.length || 0}</span>
+                </div>
+                <div className="gb-tier-cards">
+                  {gameState.bank[`tier${tier}`]?.map((card, index) => (
+                    <PaperCard
+                      key={card.id}
+                      card={card}
+                      tier={tier}
+                      canAfford={isMyTurn && canAfford(myPlayer, card)}
+                      onBuy={() => handleBuyCard(card, tier)}
+                      onReserve={() => {
+                        setReserveTarget({ tier, index })
+                        setShowReserve(true)
+                      }}
+                      isMyTurn={isMyTurn}
+                    />
+                  ))}
+                  {(!gameState.bank[`tier${tier}`] || gameState.bank[`tier${tier}`].length === 0) && (
+                    <div className="gb-empty-tier">牌库已空</div>
+                  )}
+                </div>
               </div>
-              <div className="tier-cards">
-                {gameState.bank[`tier${tier}`]?.map((card, index) => (
-                  <PaperCard
-                    key={card.id}
-                    card={card}
-                    tier={tier}
-                    canAfford={isMyTurn && canAfford(myPlayer, card)}
-                    onBuy={() => handleBuyCard(card, tier)}
-                    onReserve={() => {
-                      setReserveTarget({ tier, index })
-                      setShowReserve(true)
-                    }}
-                    isMyTurn={isMyTurn}
-                  />
-                ))}
-                {(!gameState.bank[`tier${tier}`] || gameState.bank[`tier${tier}`].length === 0) && (
-                  <div className="empty-tier">已空</div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
 
-      {/* 右侧：资源池 */}
-      <div className="right-sidebar">
-        <div className="token-pool">
-          <h3>资源池</h3>
-          <ResourceTokens
-            tokens={gameState.bank.tokens}
-            selectedTokens={selectedTokens}
-            onIncrease={handleIncrease}
-            onDecrease={handleDecrease}
-            isBank={true}
-            disabled={!isMyTurn}
-            vertical={true}
-          />
-          {totalSelected > 0 && (
-            <div className="token-actions">
-              <button className="btn btn-primary" onClick={handleConfirmTokens}>
-                确认 ({totalSelected})
-              </button>
-              <button className="btn btn-secondary" onClick={() => setSelectedTokens({})}>
-                取消
-              </button>
-            </div>
-          )}
+          {/* 学术大佬 */}
+          <div className="gb-nobles">
+            {gameState.bank.nobles.map(noble => (
+              <NobleTile key={noble.id} noble={noble} />
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* 最右：贵族 */}
-      <div className="nobles-sidebar">
-        <h3>学术大佬</h3>
-        <div className="nobles-list">
-          {gameState.bank.nobles.map(noble => (
-            <NobleTile key={noble.id} noble={noble} />
-          ))}
-        </div>
-      </div>
-
-      {/* 底部：当前玩家资源栏 */}
-      <div className="bottom-bar">
-        <div className="player-badge">
-          <span className="badge-avatar">🧑‍💻</span>
-          <span className="badge-prestige">{myPlayer?.prestige || 0}</span>
-        </div>
-        <div className="bar-divider"></div>
-        {/* 论文：方形卡牌槽 */}
-        <div className="bar-cards">
-          {myPlayer?.cards?.map(card => (
-            <div key={card.id} className={`card-slot tier-${card.tier}`} title={`${card.name} ⭐${card.prestige} +1${RESOURCE_INFO[card.bonus]?.name}`}>
-              <span>{RESOURCE_INFO[card.bonus]?.icon}</span>
-            </div>
-          ))}
-        </div>
-        <div className="bar-divider"></div>
-        {/* 资源：圆形按类型分组 */}
-        <div className="bar-tokens">
-          <span className="bar-token-count">{myPlayer?.tokens ? Object.values(myPlayer.tokens).reduce((a, b) => a + b, 0) : 0}/10</span>
-          {myPlayer?.tokens && ['data','compute','citation','collaborator','funding','coffee'].map(type => {
-            const count = myPlayer.tokens[type] || 0
-            if (count === 0) return null
-            const icon = type === 'coffee' ? '☕' : RESOURCE_INFO[type]?.icon
+        {/* 右侧：其他玩家 */}
+        <div className="gb-players">
+          {opponents.map(player => {
+            const order = gameState.players.findIndex(p => p.id === player.id) + 1
+            const isTurn = player.id === gameState.players[currentIndex]?.id
             return (
-              <div key={type} className="token-group" title={RESOURCE_INFO[type]?.name || '咖啡'}>
-                <span className="token-group-icon">{icon}</span>
-                <span className="token-group-count">{count}</span>
+              <div key={player.id} className={`opp-panel ${isTurn ? 'active' : ''}`}>
+                <div className="opp-prestige"><span>{player.prestige}</span></div>
+                <div className="opp-identity">
+                  <p className="opp-name">{player.name}</p>
+                  <span className="opp-order">第 {order} 位</span>
+                </div>
+                <div className="opp-stats">
+                  <span title="论文数">📄 {player.cards?.length || 0}</span>
+                  <span title="预留数">🔖 {player.reservedCards?.length || 0}</span>
+                </div>
               </div>
             )
           })}
         </div>
-        <div className="bar-divider"></div>
-        {/* 预留 */}
-        <div className="bar-reserved">
-          {myPlayer?.reservedCards?.map(card => (
-            <div key={card.id} className={`card-slot reserved tier-${card.tier}`} title={`${card.name} ⭐${card.prestige}`}>
-              <span>{RESOURCE_INFO[card.bonus]?.icon}</span>
-            </div>
-          ))}
-        </div>
       </div>
+
+      {/* 底部中间：本人资源池 + 我的卡牌（横排） */}
+      <div className="gb-my-cards">
+        <div className="mc-me">
+          <div className="mc-prestige"><span>{myPlayer?.prestige ?? 0}</span></div>
+          <div className="mc-id">
+            <p className="inv-name">{myPlayer?.name}</p>
+            <span className="inv-order">第 {myOrder} 位</span>
+          </div>
+        </div>
+        {INVENTORY_TYPES.map(type => {
+          const info = RESOURCE_INFO[type]
+          const tokens = myPlayer?.tokens?.[type] || 0
+          const bonus = type === 'coffee' ? 0 : (myPlayer?.bonus?.[type] || 0)
+          const ownedCount = (myPlayer?.cards || []).filter(c => c.bonus === type).length
+          const reserved = (myPlayer?.reservedCards || []).filter(c => c.bonus === type)
+          if (tokens === 0 && bonus === 0 && ownedCount === 0 && reserved.length === 0) return null
+          const buyReserved = () => {
+            if (!isMyTurn) return
+            const target = reserved.find(c => canAfford(myPlayer, c)) || reserved[0]
+            if (target) onBuyCard(target.id, target.tier, true)
+          }
+          return (
+            <div key={type} className="mc-type">
+              <div className="inv-gem" title={`${info.name}｜资源 ${tokens}${bonus ? `｜论文 +${bonus}` : ''}`}>
+                <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
+                  <span className="gem-num">{tokens}</span>
+                </div>
+                {bonus > 0 && <span className="gem-badge">{bonus}</span>}
+              </div>
+              <div className="mc-counts">
+                {ownedCount > 0 && (
+                  <div className="cnt-chip" title={`${info.name}论文 ×${ownedCount}`}>
+                    <span className="cnt-icon">📄</span>
+                    <span className="cnt-num">{ownedCount}</span>
+                  </div>
+                )}
+                {reserved.length > 0 && (
+                  <div
+                    className="cnt-chip reserved"
+                    title={`预留 ${reserved.length}（点击购买最便宜可负担的一张）`}
+                    onClick={buyReserved}
+                  >
+                    <span className="cnt-icon">🔖</span>
+                    <span className="cnt-num">{reserved.length}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* 资源选择确认条 */}
+      {totalSelected > 0 && (
+        <div className="gb-actionbar">
+          <span className="action-summary">已选 {totalSelected} 个资源</span>
+          <button className="gb-btn gb-btn-gold" onClick={handleConfirmTokens}>确认拿取</button>
+          <button className="gb-btn gb-btn-ghost" onClick={() => setSelectedTokens({})}>取消</button>
+        </div>
+      )}
 
       {/* 预留确认弹窗 */}
       {showReserve && reserveTarget && (
-        <div className="modal-overlay" onClick={() => setShowReserve(false)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="gb-modal-overlay" onClick={() => setShowReserve(false)}>
+          <div className="gb-modal" onClick={e => e.stopPropagation()}>
             <h3>确认预留？</h3>
             <p>预留卡牌将获得 1 杯咖啡（万能资源）</p>
-            <div className="modal-buttons">
-              <button className="btn btn-primary" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>
-                确认预留
-              </button>
-              <button className="btn btn-secondary" onClick={() => setShowReserve(false)}>
-                取消
-              </button>
+            <div className="gb-modal-buttons">
+              <button className="gb-btn gb-btn-gold" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>确认预留</button>
+              <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserve(false)}>取消</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 回合指示 */}
-      <div className={`turn-indicator ${isMyTurn ? 'my-turn' : ''}`}>
-        {isMyTurn ? '你的回合！' : `等待 ${gameState.players[gameState.currentPlayerIndex]?.name}...`}
-      </div>
+      {/* 调试按钮 */}
+      <button className="btn-debug" onClick={onDebugRandom}>🎲 随机资源</button>
     </div>
   )
 }
@@ -377,10 +322,7 @@ function canAfford(player, card) {
     const has = player.tokens[resource] || 0
     const bonus = player.bonus?.[resource] || 0
     const effectiveCost = Math.max(0, cost - bonus)
-
-    if (has < effectiveCost) {
-      coffeeNeeded += effectiveCost - has
-    }
+    if (has < effectiveCost) coffeeNeeded += effectiveCost - has
   }
 
   return coffeeNeeded <= (player.tokens.coffee || 0)
