@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>样例卡预览 · 学术宝石</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Judson:wght@400;700&family=Lobster&family=Noto+Serif+SC:wght@500;700&family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #3a2a12;
+    --gold: rgb(245, 204, 101);
+    --gold-deep: rgb(110, 81, 7);
+    --frame: rgba(212, 175, 55, 0.55);
+    --tierA: #b8860b;   /* 金 · 顶会 CCF-A */
+    --tierB: #3b4a8c;   /* 蓝 · CCF-B */
+    --tierC: #4a7c43;   /* 绿 · CCF-C */
+    --data: #efe9dc; --compute: #2f6fb0; --citation: #3f8f52;
+    --collab: #8a6a3b; --funding: #b0433c; --coffee: #c99a2e;
+    --serif: 'Noto Serif SC', 'Judson', serif;
+    --num: 'Lobster', cursive;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 2.4rem;
+    background: #10131f url('/images/bluebackground.jpg') center/cover fixed;
+    color: #e9e4d6; font-family: var(--serif);
+    display: flex; flex-direction: column; align-items: center; gap: 2.2rem;
+  }
+  .note { font-size: .85rem; opacity: .7; letter-spacing: .04em; }
+  h1 { font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: .05em; }
+
+  /* ---------- 主样例卡 ---------- */
+  .card {
+    position: relative; width: 264px; min-height: 372px; display: flex; flex-direction: column;
+    padding: 0.7rem 0.85rem 0.9rem;
+    border-radius: 10px;
+    color: var(--ink);
+    background:
+      radial-gradient(130% 90% at 50% -10%, rgba(255,255,255,.38), transparent 55%),
+      radial-gradient(140% 120% at 50% 120%, rgba(80,55,20,.32), transparent 60%),
+      linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
+    border: 1px solid var(--frame);
+    box-shadow: rgba(0,0,0,.85) -4px 6px 14px -2px, inset 0 0 34px rgba(90,60,20,.14);
+  }
+  /* 纸纤维纹理 */
+  .card::after {
+    content: ''; position: absolute; inset: 0; border-radius: 10px; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(120,90,40,.05) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgba(120,90,40,.04) 0 1px, transparent 1px 4px);
+    mix-blend-mode: multiply; opacity: .5;
+  }
+  .ribbon {
+    display: flex; align-items: center; justify-content: center; gap: .45em;
+    margin: -0.15rem -0.85rem 0.6rem; padding: .32rem .6rem;
+    background: linear-gradient(180deg, var(--tierA), #7d5606);
+    color: #fff; font-weight: 700; font-size: .95rem; letter-spacing: .06em;
+    border-bottom: 1px solid rgba(0,0,0,.3);
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,.25);
+  }
+  .ribbon .dot { width: .5em; height: .5em; border-radius: 50%; background: var(--gold); }
+  .prestige {
+    position: absolute; top: .35rem; left: .5rem; z-index: 3;
+    width: 2.55em; height: 2.55em; border-radius: 50%;
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 38% 32%, #ffe9a8, #d9a520 62%, #9c7010);
+    border: .14em solid #8a6a15;
+    box-shadow: rgba(0,0,0,.45) 0 2px 5px, inset 0 0 6px rgba(120,80,10,.5);
+  }
+  .prestige span { font-family: var(--num); font-size: 1.5rem; color: #6b4d0a; text-shadow: 0 1px 0 #fff2c2; }
+
+  .title { margin-top: 1.1rem; font-family: var(--serif); font-weight: 700; font-size: 1.9rem; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: .02em; }
+
+  .card-art { display: grid; place-items: center; margin: .45rem 0 .1rem; color: #6a5326; flex: 0 0 auto; min-height: 52px; }
+  .card-art svg { width: 78%; height: 42px; overflow: visible; }
+  .card-art img { max-width: 78%; max-height: 46px; object-fit: contain; display: block; }
+  .card-art.tone-light { padding: 4px 10px; border-radius: 8px;
+    background: radial-gradient(ellipse at center, rgba(30,20,8,.85), rgba(30,20,8,.55) 65%, transparent 100%); }
+  .card-art.tone-light img { max-height: 40px; }
+  .card-art .art-wm { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .card-art .art-wm .m { font: 800 22px/1 'Judson', serif; letter-spacing: .06em; }
+  .card-art .art-wm .s { font: 400 8px/1.3 'Judson', serif; letter-spacing: .18em; text-transform: uppercase; color: #6a5326; }
+  .card-art .art-wm.wm-serif-blue .m { color: #2a3568; }
+  .card-art .art-wm.wm-serif-gold .m { color: #8a6a15; letter-spacing: .18em; }
+  .card-art .art-wm.wm-serif-green .m { color: #2c552a; }
+  .card-art .art-wm.wm-serif-red .m { color: #8a2a25; }
+  .card-art .art-wm.wm-serif-purple .m { color: #5a2a7a; }
+  .card-art .art-wm.wm-serif-teal .m { color: #1e516d; }
+  .card-art .art-wm.wm-serif-orange .m { color: #a05a1a; }
+
+  .body { display: flex; align-items: stretch; justify-content: space-between; margin-top: 2.2rem; gap: .6rem; }
+
+  /* 产出宝石 */
+  .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .4rem .5rem; border-radius: 8px; background: rgba(120,90,40,.10); }
+  .bonus .gem { position: relative; width: 58px; height: 58px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.4) 0 3px 6px, inset 0 0 8px rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.25); display: grid; place-items: center; }
+  .bonus .gem svg { width: 30px; height: 30px; stroke: #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,.7)); }
+  .bonus .plus { position: absolute; top: -6px; right: -6px; background: var(--tierA); color: #fff; font-family: var(--num); font-size: .95rem; border: .1em solid #fff; border-radius: 50%; padding: 0 .28em; line-height: 1.3; }
+  .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1rem; color: #4a3410; letter-spacing: .02em; }
+
+  /* 费用 */
+  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: .28rem; justify-content: center; padding-right: .2rem; }
+  .cost .row { display: flex; align-items: center; gap: .45rem; }
+  .cost .mini { width: 24px; height: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.35) 0 1px 3px, inset 0 0 4px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.22); display: grid; place-items: center; flex: 0 0 auto; }
+  .cost .mini svg { width: 14px; height: 14px; stroke: #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,.6)); }
+  .cost .n { font-family: var(--num); font-size: 1.15rem; color: #4a3410; min-width: .8em; }
+  .cost .lbl { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.05rem; color: #4a3410; letter-spacing: .03em; margin-left: .1rem; }
+
+  .foot { margin-top: auto; padding-top: .5rem; display: flex; gap: .4rem; }
+  .btn { flex: 1; text-align: center; font-family: var(--serif); font-size: .85rem; padding: .35rem; border-radius: 6px; border: 1px solid var(--frame); background: rgba(255,255,255,.12); color: var(--ink); }
+  .btn.buy { background: linear-gradient(180deg,#3f8f52,#2c6b3c); color:#fff; border-color:#2c6b3c; }
+
+  /* ---------- 图标系统行 ---------- */
+  .icons { display: flex; gap: .8rem; flex-wrap: wrap; justify-content: center; }
+  .icon-chip { display: flex; align-items: center; gap: .5rem; padding: .4rem .7rem .4rem .45rem; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid var(--frame); color: #e9e4d6; }
+  .icon-chip .c { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; }
+  .icon-chip svg { width: 18px; height: 18px; stroke: #fff; }
+  .icon-chip .lbl { font-size: .82rem; }
+  .tiers { display: flex; gap: .7rem; }
+  .tb { padding: .28rem .7rem; border-radius: 6px; color: #fff; font-weight: 700; font-size: .82rem; letter-spacing: .05em; }
+
+  .card-row { display: flex; gap: 1.4rem; flex-wrap: nowrap; justify-content: center; align-items: flex-start; max-width: 100%; overflow-x: auto; padding-bottom: .5rem; }
+  .card.tierB .ribbon { background: linear-gradient(180deg, var(--tierB), #2a3568); }
+  .card.tierC .ribbon { background: linear-gradient(180deg, var(--tierC), #2c552a); }
+  .card.tierB .bonus .plus { background: var(--tierB); }
+  .card.tierC .bonus .plus { background: var(--tierC); }
+
+  /* 文字徽标 (wordmark) 对比 */
+  .wm-row { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: center; }
+  .wm { width: 210px; height: 104px; display: grid; place-items: center; }
+  .wm-badge { display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 12px 16px; border-radius: 12px; text-align: center;
+    background: linear-gradient(180deg, #f6efdb, #e6d5a9); box-shadow: rgba(0,0,0,.4) 0 4px 10px; }
+  .wm-sub { font-family: 'Judson', serif; font-size: 8px; letter-spacing: .16em;
+    text-transform: uppercase; color: #6a5326; max-width: 170px; line-height: 1.25; }
+  .wm-a { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 2px #2a3568; }
+  .wm-a .wm-main { font: 800 32px/1 'Judson', serif; color: #2a3568; letter-spacing: .01em; }
+  .wm-b { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 1.5px #8a6a15, inset 0 0 0 3px #d9c07a; }
+  .wm-b .wm-main { font: 700 28px/1 'Noto Serif SC', serif; color: #6b4d0a; letter-spacing: .26em; }
+  .wm-c { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 2px #2c552a; }
+  .wm-c .wm-main { font: 800 26px/1 'Judson', serif; color: #2c552a; letter-spacing: .18em; }
+
+  /* 混合素材：真 logo + wordmark 兜底 */
+  .hybrid-row { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: center; }
+  .vmark { width: 210px; height: 104px; display: grid; place-items: center; padding: 10px 12px;
+    border-radius: 12px; text-align: center;
+    background: linear-gradient(180deg, #f6efdb, #e6d5a9);
+    box-shadow: rgba(0,0,0,.4) 0 4px 10px;
+    position: relative; overflow: hidden; }
+  .vmark img { max-width: 88%; max-height: 74%; object-fit: contain; display: block; }
+  .vmark .cap { position: absolute; bottom: 4px; left: 0; right: 0; font: 700 8px/1 'Judson', serif; letter-spacing: .18em; text-transform: uppercase; color: #7a5f24; }
+  .vmark.wm-fallback .fb-main { font: 800 30px/1 'Judson', serif; color: #2a3568; letter-spacing: .06em; }
+  .vmark.wm-fallback .fb-sub { font: 400 8px/1.3 'Judson', serif; letter-spacing: .16em; text-transform: uppercase; color: #6a5326; margin-top: 4px; }
+  .tag { position: absolute; top: 4px; right: 6px; font: 700 8px/1 sans-serif; letter-spacing: .1em; color: #a07a2a; opacity: .8; }
+
+  /* venue 全览网格 */
+  .tier-group { margin-bottom: 1.4rem; width: 100%; }
+  .tier-h { display: flex; align-items: center; gap: .7rem; margin-bottom: .7rem; }
+  .tier-h .badge { padding: .28rem .7rem; border-radius: 6px; color: #fff; font-weight: 700; font-size: .82rem; letter-spacing: .05em; }
+  .tier-h .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--frame), transparent); }
+  .tier-h .count { font-size: .78rem; opacity: .7; }
+  .venue-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .8rem; }
+  .vcell { height: 92px; padding: 8px 10px; border-radius: 10px; position: relative; overflow: hidden;
+    background: linear-gradient(180deg, #f6efdb, #e6d5a9);
+    box-shadow: rgba(0,0,0,.35) 0 3px 8px;
+    display: grid; place-items: center; }
+  .vcell img { max-width: 84%; max-height: 52px; object-fit: contain; display: block; }
+  .vcell.tone-light { background: linear-gradient(180deg, #2a1e08, #1a1206); }
+  .vcell.tone-light .name { color: #d9c07a; }
+  .vcell .name { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center;
+    font: 700 9px/1 'Judson', serif; letter-spacing: .16em; text-transform: uppercase; color: #7a5f24; }
+  .vcell .kind { position: absolute; top: 3px; right: 5px; font: 700 7px/1 sans-serif; letter-spacing: .1em; opacity: .55; }
+  .vcell.wm-cell .wm-m { font: 800 22px/1 'Judson', serif; letter-spacing: .06em; }
+  .vcell.wm-cell .wm-s { font: 400 7px/1.2 'Judson', serif; letter-spacing: .14em; text-transform: uppercase; color: #6a5326; margin-top: 3px; text-align: center; }
+</style>
+</head>
+<body>
+  <p class="note">样例预览页 · 未接入游戏逻辑 · 仅供确认风格</p>
+  <h1>三档样例卡 · CCF-A / B / C</h1>
+
+  <!-- SVG 图标定义（Lucide 风格线条，stroke=currentColor）-->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="ic-data" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5"/>
+      <path d="M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>
+    </g>
+    <g id="ic-compute" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="7" y="7" width="10" height="10" rx="1.5"/><rect x="10" y="10" width="4" height="4"/>
+      <path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/>
+    </g>
+    <g id="ic-citation" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="6" cy="7" r="2.3"/><circle cx="18" cy="6.5" r="2.3"/><circle cx="12.5" cy="18" r="2.3"/>
+      <path d="M7.6 8.8 11.2 16"/><path d="M16.9 8.4 13.6 16"/><path d="M8.3 6.7 15.7 6.5"/>
+    </g>
+    <g id="ic-collab" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="8" cy="8" r="3"/><path d="M2.5 20a5.5 5.5 0 0 1 11 0"/>
+      <circle cx="17" cy="9" r="2.4"/><path d="M15 20a4.8 4.8 0 0 1 7.5-4"/>
+    </g>
+    <g id="ic-funding" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10.5"/>
+      <path d="M7.5 8 12 12.5 16.5 8"/>
+      <path d="M12 12.5v5.5"/>
+      <path d="M8.5 14.5h7"/>
+      <path d="M8.5 16.5h7"/>
+    </g>
+    <g id="ic-coffee" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 9h1.5a2.5 2.5 0 0 1 0 5H17"/>
+      <path d="M7 3v2M11 3v2M15 3v2"/>
+    </g>
+    <g id="art-ai" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="1.25" d="M14 12L52 8M14 12L52 24M14 12L52 40M14 12L52 56M14 32L52 8M14 32L52 24M14 32L52 40M14 32L52 56M14 52L52 8M14 52L52 24M14 52L52 40M14 52L52 56M52 8L92 22M52 8L92 42M52 24L92 22M52 24L92 42M52 40L92 22M52 40L92 42M52 56L92 22M52 56L92 42"/>
+      <g fill="#e8d8ab">
+        <circle cx="14" cy="12" r="4"/><circle cx="14" cy="32" r="4"/><circle cx="14" cy="52" r="4"/>
+        <circle cx="52" cy="8" r="4"/><circle cx="52" cy="24" r="4"/><circle cx="52" cy="40" r="4"/><circle cx="52" cy="56" r="4"/>
+        <circle cx="92" cy="22" r="4.6"/><circle cx="92" cy="42" r="4.6"/>
+      </g>
+    </g>
+    <g id="art-hci" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="20" cy="20" r="6.5"/><path d="M9 47a11 11 0 0 1 22 0"/>
+      <rect x="46" y="13" width="28" height="24" rx="2.5"/><path d="M60 37v9M52 46h16"/>
+      <path stroke-width="1.4" d="M51 31l5-7 4 5 6-9"/>
+      <circle cx="100" cy="20" r="6.5"/><path d="M89 47a11 11 0 0 1 22 0"/>
+      <path d="M33 28h10M36 25l-3 3 3 3M40 25l3 3-3 3"/>
+      <path d="M77 28h10M80 25l-3 3 3 3M84 25l3 3-3 3"/>
+    </g>
+    <g id="art-theory" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke-width="1.4" d="M60 10L36 32M60 10L84 32M36 32L20 54M36 32L46 54M84 32L74 54M84 32L100 54"/>
+      <g fill="#e8d8ab">
+        <circle cx="60" cy="10" r="4.5"/><circle cx="36" cy="32" r="4"/><circle cx="84" cy="32" r="4"/>
+        <circle cx="20" cy="54" r="4"/><circle cx="46" cy="54" r="4"/><circle cx="74" cy="54" r="4"/><circle cx="100" cy="54" r="4"/>
+      </g>
+    </g>
+  </defs></svg>
+
+  <div id="sample-cards"></div>
+
+  <h1 style="margin-top:.6rem">全部 venue 素材一览（真 logo + wordmark 兜底）</h1>
+  <p class="note">按 CCF 档位分组 · 深色 logo 直接放羊皮纸 · 浅色 logo 加暗底衬 · wordmark 用不同色系区分领域</p>
+  <div id="venue-grid"></div>
+
+  <h1 style="margin-top:.6rem">资源图标系统（宝石色 + 统一线条）</h1>
+  <div class="icons">
+    <div class="icon-chip"><div class="c" style="background:var(--data);"><svg viewBox="0 0 24 24" style="stroke:#4a3a18"><use href="#ic-data"/></svg></div><span class="lbl">数据 · 白</span></div>
+    <div class="icon-chip"><div class="c" style="background:var(--compute)"><svg viewBox="0 0 24 24"><use href="#ic-compute"/></svg></div><span class="lbl">算力 · 蓝</span></div>
+    <div class="icon-chip"><div class="c" style="background:var(--citation)"><svg viewBox="0 0 24 24"><use href="#ic-citation"/></svg></div><span class="lbl">引用 · 绿</span></div>
+    <div class="icon-chip"><div class="c" style="background:var(--collab)"><svg viewBox="0 0 24 24"><use href="#ic-collab"/></svg></div><span class="lbl">合作者 · 棕</span></div>
+    <div class="icon-chip"><div class="c" style="background:var(--funding)"><svg viewBox="0 0 24 24"><use href="#ic-funding"/></svg></div><span class="lbl">经费 · 红</span></div>
+    <div class="icon-chip"><div class="c" style="background:var(--coffee)"><svg viewBox="0 0 24 24"><use href="#ic-coffee"/></svg></div><span class="lbl">咖啡 · 金(万能)</span></div>
+  </div>
+
+  <h1 style="margin-top:.6rem">三级配色</h1>
+  <div class="tiers">
+    <div class="tb" style="background:var(--tierC)">CCF-C · tier1 · 绿</div>
+    <div class="tb" style="background:var(--tierB)">CCF-B · tier2 · 蓝</div>
+    <div class="tb" style="background:var(--tierA)">CCF-A · tier3 · 金</div>
+  </div>
+
+  <script type="module">
+    const { VENUES } = await import('/shared/venues.js');
+    const wmColor = {
+      'wm-serif-blue':   '#2a3568',
+      'wm-serif-gold':   '#8a6a15',
+      'wm-serif-green':  '#2c552a',
+      'wm-serif-red':    '#8a2a25',
+      'wm-serif-purple': '#5a2a7a',
+      'wm-serif-teal':   '#1e516d',
+      'wm-serif-orange': '#a05a1a'
+    };
+    const tierColor = { A: 'var(--tierA)', B: 'var(--tierB)', C: 'var(--tierC)' };
+    const grid = document.getElementById('venue-grid');
+    ['A','B','C'].forEach(ccf => {
+      const list = VENUES.filter(v => v.ccf === ccf);
+      const logoN = list.filter(v => v.art.type === 'logo').length;
+      const group = document.createElement('div');
+      group.className = 'tier-group';
+      group.innerHTML = `<div class="tier-h"><span class="badge" style="background:${tierColor[ccf]}">CCF-${ccf}</span><span class="count">${list.length} 个 · ${logoN} 真 logo · ${list.length - logoN} wordmark</span><span class="rule"></span></div>`;
+      const cells = document.createElement('div');
+      cells.className = 'venue-grid';
+      list.forEach(v => {
+        const cell = document.createElement('div');
+        if (v.art.type === 'logo') {
+          cell.className = 'vcell' + (v.art.tone === 'light' ? ' tone-light' : '');
+          cell.innerHTML = `<span class="kind">LOGO</span><img src="${v.art.src}" alt="${v.name}" /><span class="name">${v.name}</span>`;
+        } else {
+          cell.className = 'vcell wm-cell';
+          const col = wmColor[v.art.style] || '#2a3568';
+          cell.innerHTML = `<span class="kind">WORDMARK</span><div><div class="wm-m" style="color:${col}">${v.name}</div><div class="wm-s">${v.cn}</div></div>`;
+        }
+        cells.appendChild(cell);
+      });
+      group.appendChild(cells);
+      grid.appendChild(group);
+    });
+
+    // ---------- 样例卡生成 ----------
+    const RES = {
+      data:       { tok: '/images/tokens/WhiteToken.jpg',  ic: '#ic-data',       cn: '数据',   ink: '#4a3a18' },
+      compute:    { tok: '/images/tokens/BlueToken.jpg',   ic: '#ic-compute',    cn: '算力' },
+      citation:   { tok: '/images/tokens/GreenToken.jpg',  ic: '#ic-citation',   cn: '引用' },
+      collaborator:{ tok: '/images/tokens/BrownToken.jpg', ic: '#ic-collab',     cn: '合作' },
+      funding:    { tok: '/images/tokens/RedToken.jpg',    ic: '#ic-funding',    cn: '经费' }
+    };
+    const SAMPLES = [
+      // CCF-A (tier 3)
+      { id: 'cvpr',     prestige: 5, bonus: 'funding',     cost: { data: 3, compute: 3, citation: 2 } },
+      { id: 'neurips',  prestige: 5, bonus: 'compute',     cost: { data: 3, citation: 3, collaborator: 2 } },
+      { id: 'siggraph', prestige: 4, bonus: 'collaborator',cost: { compute: 3, citation: 3, funding: 3 } },
+      { id: 'chi',      prestige: 4, bonus: 'citation',    cost: { data: 3, compute: 3, funding: 2 } },
+      { id: 'acl',      prestige: 5, bonus: 'data',        cost: { data: 4, compute: 4, citation: 2 } },
+      { id: 'sosp',     prestige: 4, bonus: 'compute',     cost: { data: 3, compute: 3, collaborator: 3 } },
+      { id: 'isca',     prestige: 5, bonus: 'funding',     cost: { compute: 4, citation: 3, funding: 3 } },
+      { id: 'asplos',   prestige: 4, bonus: 'collaborator',cost: { data: 3, compute: 3, funding: 2 } },
+      { id: 'nsdi',     prestige: 4, bonus: 'citation',    cost: { data: 3, compute: 3, citation: 3 } },
+      { id: 'focs',     prestige: 5, bonus: 'data',        cost: { data: 4, citation: 3, collaborator: 3 } },
+      // CCF-B (tier 2)
+      { id: 'kr',       prestige: 3, bonus: 'citation',    cost: { data: 2, compute: 3, collaborator: 2 } },
+      { id: 'emnlp',    prestige: 3, bonus: 'data',        cost: { compute: 3, citation: 3, funding: 2 } },
+      { id: 'acsac',    prestige: 2, bonus: 'funding',     cost: { data: 3, compute: 2, funding: 2 } },
+      { id: 'cikm',     prestige: 2, bonus: 'collaborator',cost: { data: 3, citation: 2, funding: 2 } },
+      // CCF-C (tier 1)
+      { id: 'eacl',     prestige: 1, bonus: 'collaborator',cost: { data: 2, compute: 1, citation: 1 } },
+      { id: 'wacv',     prestige: 1, bonus: 'compute',     cost: { data: 2, citation: 2 } },
+      { id: 'icnp',     prestige: 0, bonus: 'funding',     cost: { compute: 2, collaborator: 1 } },
+      { id: 'isaac',    prestige: 0, bonus: 'citation',    cost: { data: 1, compute: 1, citation: 1 } }
+    ];
+    const tierClass = { A: '', B: ' tierB', C: ' tierC' };
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:1.6rem;width:100%;align-items:center';
+    ['A','B','C'].forEach(ccf => {
+      const tierList = SAMPLES.filter(s => {
+        const v = VENUES.find(x => x.id === s.id);
+        return v && v.ccf === ccf;
+      });
+      const block = document.createElement('div');
+      block.style.cssText = 'display:flex;flex-direction:column;gap:.9rem;width:100%;align-items:center';
+      const head = document.createElement('div');
+      head.className = 'tier-h';
+      head.style.cssText = 'width:100%;max-width:1200px';
+      head.innerHTML = `<span class="badge" style="background:${tierColor[ccf]}">CCF-${ccf}</span><span class="count">${tierList.length} 张样例</span><span class="rule"></span>`;
+      const row = document.createElement('div');
+      row.className = 'card-row';
+      tierList.forEach(s => {
+        const v = VENUES.find(x => x.id === s.id);
+        const art = v.art.type === 'logo'
+          ? `<div class="card-art${v.art.tone === 'light' ? ' tone-light' : ''}"><img src="${v.art.src}" alt="${v.name}" /></div>`
+          : `<div class="card-art"><div class="art-wm" style="color:${wmColor[v.art.style] || '#2a3568'}"><div class="m">${v.name}</div></div></div>`;
+        const b = RES[s.bonus];
+        const bonusHtml = `<div class="gem" style="background-image:url('${b.tok}')"><svg viewBox="0 0 24 24"${b.ink ? ` style="stroke:${b.ink}"` : ''}><use href="${b.ic}"/></svg><span class="plus">+1</span></div><span class="cap">产出 ${b.cn}</span>`;
+        const costHtml = Object.entries(s.cost).map(([r, n]) => {
+          const c = RES[r];
+          return `<div class="row"><div class="mini" style="background-image:url('${c.tok}')"><svg viewBox="0 0 24 24"${c.ink ? ` style="stroke:${c.ink}"` : ''}><use href="${c.ic}"/></svg></div><span class="n">${n}</span><span class="lbl">${c.cn}</span></div>`;
+        }).join('');
+        const card = document.createElement('div');
+        card.className = 'card' + tierClass[ccf];
+        card.innerHTML = `
+          <div class="prestige"><span>${s.prestige}</span></div>
+          <div class="ribbon"><span class="dot"></span>CCF-${ccf}<span class="dot"></span></div>
+          <div class="title">${v.name}</div>
+          ${art}
+          <div class="body">
+            <div class="bonus">${bonusHtml}</div>
+            <div class="cost">${costHtml}</div>
+          </div>
+          <div class="foot"><div class="btn buy">购买</div><div class="btn">预留</div></div>`;
+        row.appendChild(card);
+      });
+      block.appendChild(head);
+      block.appendChild(row);
+      wrap.appendChild(block);
+    });
+    document.getElementById('sample-cards').appendChild(wrap);
+  </script>
+</body>
+</html>
