@@ -182,7 +182,7 @@
   .nobles-preview .noble-flag {
     --card-w: clamp(118px, 13vmin, 150px);
     --rect-w: calc(var(--card-w) * 1.25);
-    --flag-h: calc(var(--card-w) * 0.85);
+    --flag-h: min(var(--card-w), calc((100vh - 15.3rem) / 5));
     --flag-d: calc(var(--flag-h) / 2);
     --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
     position: relative; flex-shrink: 0; padding: 2px; clip-path: var(--flag-shape);
@@ -192,9 +192,10 @@
   .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #b8860b); }
   .nobles-preview .noble-flag.bench { opacity: .5; filter: grayscale(.35) drop-shadow(-3px 2px 6px rgba(0,0,0,.85)); }
   .nobles-preview .noble-tile {
+    font-size: calc(var(--flag-h) / 7.375);
     position: relative; width: calc(var(--rect-w) + var(--flag-d)); height: var(--flag-h);
-    display: flex; flex-direction: column; justify-content: center; gap: 0.3rem;
-    padding: 0.5rem calc(var(--flag-d) + 0.7rem) 0.5rem 0.7rem; clip-path: var(--flag-shape);
+    display: flex; flex-direction: column; justify-content: center; gap: 0.42em;
+    padding: 0.5em calc(var(--flag-d) + 0.7em) 0.5em 0.7em; clip-path: var(--flag-shape);
     color: #ece3c8;
     font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     background: linear-gradient(180deg, rgba(30, 40, 72, 0.96), rgba(12, 16, 32, 0.97));
@@ -203,28 +204,29 @@
     background: linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
   }
   .nobles-preview .noble-prestige {
-    position: absolute; left: calc(100% - var(--flag-d) * 0.62); top: 50%;
-    transform: translate(-50%, -50%); width: 1.7rem; height: 1.7rem;
+    --star: min(2.6em, calc(var(--flag-d) * 0.68));
+    position: absolute; left: calc(100% - var(--flag-d) * 0.7); top: 50%;
+    transform: translate(-50%, -50%); width: var(--star); height: var(--star);
     display: grid; place-items: center; pointer-events: none;
   }
   .nobles-preview .noble-prestige::before {
-    content: '\2605'; position: absolute; font-size: 1.9rem; line-height: 1;
-    color: rgb(245, 204, 101); -webkit-text-stroke: 0.05rem black; text-shadow: 1px 1px 3px black;
+    content: '\2605'; position: absolute; font-size: var(--star); line-height: 1;
+    color: rgb(245, 204, 101); -webkit-text-stroke: 0.06rem black; text-shadow: 1px 1px 3px black;
   }
   .nobles-preview .noble-prestige span {
-    position: relative; font-family: 'Lobster', cursive; font-size: 0.78rem; line-height: 1;
-    color: #241a06; transform: translateY(-0.05rem);
+    position: relative; font-family: 'Lobster', cursive; font-size: calc(var(--star) * 0.46); line-height: 1;
+    color: #241a06; transform: translateY(calc(var(--star) * -0.03));
   }
-  .nobles-preview .noble-name { font-size: 0.95rem; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
-  .nobles-preview .noble-sub { font-size: 0.72rem; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
-  .nobles-preview .noble-requirements { display: flex; gap: 0.32rem; flex-wrap: wrap; margin-top: 0.15rem; }
+  .nobles-preview .noble-name { font-size: 0.95em; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
+  .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
+  .nobles-preview .noble-requirements { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.1em; }
   .nobles-preview .requirement-item {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: min(2.1rem, 29%); aspect-ratio: 1; border-radius: 50%;
+    width: min(2.4em, 29%); aspect-ratio: 1; border-radius: 50%;
     background: rgba(30, 81, 109, 0.5); border: 1px solid rgba(255, 255, 255, 0.22);
   }
   .nobles-preview .requirement-token { width: 44%; height: 44%; border-radius: 50%; object-fit: cover; }
-  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.78rem; line-height: 1; color: #ece3c8; }
+  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.88em; line-height: 1; color: #ece3c8; }
 </style>
 </head>
 <body>
