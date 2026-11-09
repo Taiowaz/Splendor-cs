@@ -294,6 +294,10 @@
 
   <div id="sample-cards"></div>
 
+  <h1 style="margin-top:.6rem">FC 尺寸对比 · 与上方样例卡同一屏，直接看实际大小</h1>
+  <p class="note" id="size-readout">按游戏内公式渲染（--card-w / --flag-h 与 NobleTile.css 一致）</p>
+  <div class="nobles-preview"><div id="size-compare" class="noble-row"></div></div>
+
   <h1 style="margin-top:.6rem">全部 venue 素材一览（真 logo + wordmark 兜底）</h1>
   <p class="note">按 CCF 档位分组 · 深色 logo 直接放羊皮纸 · 浅色 logo 加暗底衬 · wordmark 用不同色系区分领域</p>
   <div id="venue-grid"></div>
@@ -451,14 +455,35 @@
       <div class="noble-cap dim">${n.cn}</div>`;
 
     const nobleRow = document.getElementById('nobles-row');
-    [['双色 · 4+4', NOBLES.filter(n => n.enabled && n.tier === 'pair')],
-     ['三色 · 3+3+3', NOBLES.filter(n => n.enabled && n.tier === 'triple')],
+    // 挪几张到样例卡下方做尺寸对比，剩下的仍按档位分组显示
+    // 3 张刚好和上面每档 3 张样例卡对齐；再多会被 .noble-row 的 1180px 上限挤到换行
+    const COMPARE = ['acm', 'ieee', 'cas'];
+    document.getElementById('size-compare').innerHTML =
+      COMPARE.map(id => `<div class="noble-col">${nobleHtml(NOBLES.find(n => n.id === id))}</div>`).join('');
+    const rest = n => !COMPARE.includes(n.id);
+    [['双色 · 4+4', NOBLES.filter(n => n.enabled && n.tier === 'pair' && rest(n))],
+     ['三色 · 3+3+3', NOBLES.filter(n => n.enabled && n.tier === 'triple' && rest(n))],
      ['bench · 不进牌池', NOBLES.filter(n => !n.enabled)]].forEach(([label, list]) => {
       const col = document.createElement('div');
       col.className = 'noble-col';
       col.innerHTML = `<div class="noble-cap">${label}</div>` + list.map(nobleHtml).join('');
       nobleRow.appendChild(col);
     });
+
+    // 实测尺寸，随窗口变化更新
+    const readout = document.getElementById('size-readout');
+    const measure = () => {
+      const f = document.querySelector('#size-compare .noble-tile');
+      const c = document.querySelector('#sample-cards .card');
+      if (!f || !c) return;
+      const fr = f.getBoundingClientRect(), cr = c.getBoundingClientRect();
+      readout.textContent =
+        `视口 ${innerWidth}×${innerHeight} · FC ${fr.width.toFixed(0)}×${fr.height.toFixed(0)} px` +
+        `（宽是样例卡的 ${(fr.width / cr.width * 100).toFixed(0)}%，高是 ${(fr.height / cr.height * 100).toFixed(0)}%）` +
+        ` · 样例卡 ${cr.width.toFixed(0)}×${cr.height.toFixed(0)} px`;
+    };
+    measure();
+    addEventListener('resize', measure);
   </script>
 </body>
 </html>
