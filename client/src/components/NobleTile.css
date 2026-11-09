@@ -122,10 +122,10 @@
   margin-top: 0.1em;
 }
 
-/* 需求筹码：圆盘的底色、描边、数字都保持原样，只把里面那张宝石照片
-   换成线条资源符号。符号取资源色——颜色是分辨资源的主要线索，全画成米色
-   就只剩图形能区分了。底色偏暗，所以每个资源色都提亮一档（比羊皮纸卡上
-   那套原色亮），棕、红在原色下几乎看不见。 */
+/* 需求筹码：圈里不留任何填充——原来那块半透明蓝底本身就是颗"蓝宝石"，
+   现在只留一圈细边定住圆形，圈内透出卡面底色，符号和数字浮在上面。
+   符号按资源着色（颜色是分辨资源的主要线索），用提亮一档的色值，
+   因为底下是暗 navy，原色的棕、红几乎看不见。 */
 .requirement-item {
   display: flex;
   flex-direction: column;
@@ -135,8 +135,8 @@
   width: min(2.4em, 29%);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(30, 81, 109, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: none;
+  border: 1px solid rgba(236, 227, 200, 0.3);
 }
 
 .requirement-item[data-res='data'] { color: #efe9dc; }
