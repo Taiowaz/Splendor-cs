@@ -173,6 +173,47 @@
   .vcell .kind { position: absolute; top: 3px; right: 5px; font: 700 7px/1 sans-serif; letter-spacing: .1em; opacity: .55; }
   .vcell.wm-cell .wm-m { font: 800 22px/1 'Judson', serif; letter-spacing: .06em; }
   .vcell.wm-cell .wm-s { font: 400 7px/1.2 'Judson', serif; letter-spacing: .14em; text-transform: uppercase; color: #6a5326; margin-top: 3px; text-align: center; }
+
+  /* ---------- 贵族卡（FC）· 样式同步 client/src/components/NobleTile.css ---------- */
+  .noble-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.6rem 1.2rem; max-width: 1180px; }
+  .noble-col { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
+  .noble-cap { font-size: .7rem; letter-spacing: .05em; opacity: .8; }
+  .noble-cap.dim { opacity: .45; font-size: .62rem; }
+  .nobles-preview .noble-tile {
+    position: relative; width: clamp(96px, 11vmin, 128px); padding: 0.5rem 0.6rem 0.55rem;
+    border-radius: 0.6rem; flex-shrink: 0; color: #ece3c8;
+    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(180deg, rgba(30, 40, 72, 0.9), rgba(12, 16, 32, 0.94));
+    border: 1.5px solid rgba(212, 175, 55, 0.55);
+    box-shadow: rgba(0, 0, 0, 0.85) -3px 2px 6px -1px;
+  }
+  .nobles-preview .noble-tile[data-tier='triple'] {
+    border-color: rgba(212, 175, 55, 0.9);
+    background: linear-gradient(180deg, rgba(44, 34, 66, 0.92), rgba(14, 12, 30, 0.95));
+  }
+  .nobles-preview .noble-tile.bench { opacity: .5; filter: grayscale(.35); }
+  .nobles-preview .noble-prestige {
+    position: absolute; top: -0.3rem; right: -0.28rem; width: 1.4rem; height: 1.4rem;
+    display: grid; place-items: center; pointer-events: none;
+  }
+  .nobles-preview .noble-prestige::before {
+    content: '\2605'; position: absolute; font-size: 1.55rem; line-height: 1;
+    color: rgb(245, 204, 101); -webkit-text-stroke: 0.04rem black; text-shadow: 1px 1px 2px black;
+  }
+  .nobles-preview .noble-prestige span {
+    position: relative; font-family: 'Lobster', cursive; font-size: 0.62rem; line-height: 1;
+    color: #241a06; transform: translateY(-0.03rem);
+  }
+  .nobles-preview .noble-name { font-size: 0.7rem; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
+  .nobles-preview .noble-sub { margin-top: 0.08rem; font-size: 0.56rem; line-height: 1.25; color: rgba(236, 227, 200, 0.6); }
+  .nobles-preview .noble-requirements { display: flex; gap: 0.22rem; flex-wrap: wrap; margin-top: 0.42rem; }
+  .nobles-preview .requirement-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: min(1.6rem, 29%); aspect-ratio: 1; border-radius: 50%;
+    background: rgba(30, 81, 109, 0.5); border: 1px solid rgba(255, 255, 255, 0.22);
+  }
+  .nobles-preview .requirement-token { width: 44%; height: 44%; border-radius: 50%; object-fit: cover; }
+  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.58rem; line-height: 1; color: #ece3c8; }
 </style>
 </head>
 <body>
@@ -256,8 +297,13 @@
     <div class="tb" style="background:var(--tierA)">CCF-A · tier3 · 金</div>
   </div>
 
+  <h1 style="margin-top:.6rem">贵族卡 · FC（5 双色会士 + 5 三色院士，各 3 分）</h1>
+  <p class="note">主标题=英文称谓 · 小字=协会中文名 · 星徽=声誉分 · 需求按已拥有的论文卡数计（不是 token 数）· 每局翻 playerCount+1 张</p>
+  <div class="nobles-preview"><div id="nobles-row" class="noble-row"></div></div>
+
   <script type="module">
     const { VENUES } = await import('/shared/venues.js');
+    const { NOBLES } = await import('/shared/nobles.js');
     const wmColor = {
       'wm-serif-blue':   '#2a3568',
       'wm-serif-gold':   '#8a6a15',
@@ -361,6 +407,35 @@
       wrap.appendChild(block);
     });
     document.getElementById('sample-cards').appendChild(wrap);
+
+    // ---------- 贵族卡 ----------
+    const TOK = {
+      data: 'WhiteToken', compute: 'BlueToken', citation: 'GreenToken',
+      collaborator: 'BrownToken', funding: 'RedToken'
+    };
+    const nobleHtml = n => `
+      <div class="noble-tile${n.enabled ? '' : ' bench'}" data-tier="${n.tier}" title="${n.cn} · ${n.prestige} 声誉">
+        <div class="noble-prestige"><span>${n.prestige}</span></div>
+        <div class="noble-name">${n.name}</div>
+        <div class="noble-sub">${n.sub}</div>
+        <div class="noble-requirements">${Object.entries(n.requirement).map(([r, c]) => `
+          <div class="requirement-item">
+            <img class="requirement-token" src="/images/tokens/${TOK[r]}.jpg" alt="${r}" />
+            <span class="requirement-count">${c}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="noble-cap dim">${n.cn}</div>`;
+
+    const nobleRow = document.getElementById('nobles-row');
+    [['双色 · 4+4', NOBLES.filter(n => n.enabled && n.tier === 'pair')],
+     ['三色 · 3+3+3', NOBLES.filter(n => n.enabled && n.tier === 'triple')],
+     ['bench · 不进牌池', NOBLES.filter(n => !n.enabled)]].forEach(([label, list]) => {
+      const col = document.createElement('div');
+      col.className = 'noble-col';
+      col.innerHTML = `<div class="noble-cap">${label}</div>` + list.map(nobleHtml).join('');
+      nobleRow.appendChild(col);
+    });
   </script>
 </body>
 </html>

@@ -1,25 +1,26 @@
 import './NobleTile.css'
 
-const RESOURCE_INFO = {
-  data: { icon: '📊' },
-  compute: { icon: '💻' },
-  citation: { icon: '📄' },
-  collaborator: { icon: '🤝' },
-  funding: { icon: '💰' }
+const TOKEN_IMG = {
+  data: '/images/tokens/WhiteToken.jpg',
+  compute: '/images/tokens/BlueToken.jpg',
+  citation: '/images/tokens/GreenToken.jpg',
+  collaborator: '/images/tokens/BrownToken.jpg',
+  funding: '/images/tokens/RedToken.jpg'
 }
 
 export default function NobleTile({ noble }) {
   return (
-    <div className="noble-tile">
-      <div className="noble-header">
-        <span className="noble-name">{noble.name}</span>
-        <span className="noble-prestige">⭐ {noble.prestige}</span>
+    <div className="noble-tile" data-tier={noble.tier} title={`${noble.cn} · ${noble.prestige} 声誉`}>
+      <div className="noble-prestige">
+        <span>{noble.prestige}</span>
       </div>
+      <div className="noble-name">{noble.name}</div>
+      <div className="noble-sub">{noble.sub}</div>
       <div className="noble-requirements">
         {Object.entries(noble.requirement).map(([resource, count]) => (
           <div key={resource} className="requirement-item">
-            <span>{RESOURCE_INFO[resource]?.icon}</span>
-            <span>×{count}</span>
+            <img className="requirement-token" src={TOKEN_IMG[resource]} alt={resource} />
+            <span className="requirement-count">{count}</span>
           </div>
         ))}
       </div>
