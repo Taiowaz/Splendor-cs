@@ -92,18 +92,25 @@
 
   .body { display: flex; align-items: stretch; justify-content: space-between; margin-top: 2.2rem; gap: .6rem; }
 
-  /* 产出宝石 */
+  /* 产出 / 费用：圆里的宝石照片拿掉，只留一圈细边和线条符号，
+     符号按资源着色（羊皮纸底上要选够深的色），背景就是卡面本身 */
   .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .4rem .5rem; border-radius: 8px; background: rgba(120,90,40,.10); }
-  .bonus .gem { position: relative; width: 58px; height: 58px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.4) 0 3px 6px, inset 0 0 8px rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.25); display: grid; place-items: center; }
-  .bonus .gem svg { width: 30px; height: 30px; stroke: #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,.7)); }
+  .bonus .gem { position: relative; width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(74,52,16,.32); display: grid; place-items: center; }
+  .bonus .gem svg { width: 30px; height: 30px; stroke: currentColor; }
   .bonus .plus { position: absolute; top: -6px; right: -6px; background: var(--tierA); color: #fff; font-family: var(--num); font-size: .95rem; border: .1em solid #fff; border-radius: 50%; padding: 0 .28em; line-height: 1.3; }
   .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1rem; color: #4a3410; letter-spacing: .02em; }
 
   /* 费用 */
   .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: .28rem; justify-content: center; padding-right: .2rem; }
   .cost .row { display: flex; align-items: center; gap: .45rem; }
-  .cost .mini { width: 24px; height: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.35) 0 1px 3px, inset 0 0 4px rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.22); display: grid; place-items: center; flex: 0 0 auto; }
-  .cost .mini svg { width: 14px; height: 14px; stroke: #fff; filter: drop-shadow(0 1px 1px rgba(0,0,0,.6)); }
+  .cost .mini { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(74,52,16,.32); display: grid; place-items: center; flex: 0 0 auto; }
+  .cost .mini svg { width: 14px; height: 14px; stroke: currentColor; }
+  .gem[data-res='data'], .mini[data-res='data'] { color: #4a3a18; }
+  .gem[data-res='compute'], .mini[data-res='compute'] { color: #2f6fb0; }
+  .gem[data-res='citation'], .mini[data-res='citation'] { color: #3f8f52; }
+  .gem[data-res='collaborator'], .mini[data-res='collaborator'] { color: #7a5a2f; }
+  .gem[data-res='funding'], .mini[data-res='funding'] { color: #b0433c; }
+  .gem[data-res='coffee'], .mini[data-res='coffee'] { color: #a97e1f; }
   .cost .n { font-family: var(--num); font-size: 1.15rem; color: #4a3410; min-width: .8em; }
   .cost .lbl { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.05rem; color: #4a3410; letter-spacing: .03em; margin-left: .1rem; }
 
@@ -372,11 +379,11 @@
 
     // ---------- 样例卡生成 ----------
     const RES = {
-      data:       { tok: '/images/tokens/WhiteToken.jpg',  ic: '#ic-data',       cn: '数据',   ink: '#4a3a18' },
-      compute:    { tok: '/images/tokens/BlueToken.jpg',   ic: '#ic-compute',    cn: '算力' },
-      citation:   { tok: '/images/tokens/GreenToken.jpg',  ic: '#ic-citation',   cn: '引用' },
-      collaborator:{ tok: '/images/tokens/BrownToken.jpg', ic: '#ic-collab',     cn: '合作' },
-      funding:    { tok: '/images/tokens/RedToken.jpg',    ic: '#ic-funding',    cn: '经费' }
+      data:        { ic: '#ic-data',     cn: '数据' },
+      compute:     { ic: '#ic-compute',  cn: '算力' },
+      citation:    { ic: '#ic-citation', cn: '引用' },
+      collaborator:{ ic: '#ic-collab',   cn: '合作' },
+      funding:     { ic: '#ic-funding',  cn: '经费' }
     };
     const SAMPLES = [
       // CCF-A (tier 3)
@@ -414,10 +421,10 @@
           ? `<div class="card-art${v.art.tone === 'light' ? ' tone-light' : ''}"><img src="${v.art.src}" alt="${v.name}" /></div>`
           : `<div class="card-art"><div class="art-wm" style="color:${wmColor[v.art.style] || '#2a3568'}"><div class="m">${v.name}</div></div></div>`;
         const b = RES[s.bonus];
-        const bonusHtml = `<div class="gem" style="background-image:url('${b.tok}')"><svg viewBox="0 0 24 24"${b.ink ? ` style="stroke:${b.ink}"` : ''}><use href="${b.ic}"/></svg><span class="plus">+1</span></div><span class="cap">产出 ${b.cn}</span>`;
+        const bonusHtml = `<div class="gem" data-res="${s.bonus}"><svg viewBox="0 0 24 24"><use href="${b.ic}"/></svg><span class="plus">+1</span></div><span class="cap">产出 ${b.cn}</span>`;
         const costHtml = Object.entries(s.cost).map(([r, n]) => {
           const c = RES[r];
-          return `<div class="row"><div class="mini" style="background-image:url('${c.tok}')"><svg viewBox="0 0 24 24"${c.ink ? ` style="stroke:${c.ink}"` : ''}><use href="${c.ic}"/></svg></div><span class="n">${n}</span><span class="lbl">${c.cn}</span></div>`;
+          return `<div class="row"><div class="mini" data-res="${r}"><svg viewBox="0 0 24 24"><use href="${c.ic}"/></svg></div><span class="n">${n}</span><span class="lbl">${c.cn}</span></div>`;
         }).join('');
         const card = document.createElement('div');
         card.className = 'card' + tierClass[ccf];
