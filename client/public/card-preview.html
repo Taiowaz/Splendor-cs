@@ -179,30 +179,40 @@
   .noble-col { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
   .noble-cap { font-size: .7rem; letter-spacing: .05em; opacity: .8; }
   .noble-cap.dim { opacity: .45; font-size: .62rem; }
+  .nobles-preview .noble-flag {
+    --card-w: clamp(118px, 13vmin, 150px);
+    --rect-w: calc(var(--card-w) * 1.25);
+    --flag-h: calc(var(--card-w) * 0.85);
+    --flag-d: calc(var(--flag-h) / 2);
+    --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
+    position: relative; flex-shrink: 0; padding: 2px; clip-path: var(--flag-shape);
+    background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
+    filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
+  }
+  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #b8860b); }
+  .nobles-preview .noble-flag.bench { opacity: .5; filter: grayscale(.35) drop-shadow(-3px 2px 6px rgba(0,0,0,.85)); }
   .nobles-preview .noble-tile {
-    position: relative; width: calc(clamp(118px, 13vmin, 150px) * 1.25); aspect-ratio: 1.25;
-    display: flex; flex-direction: column; justify-content: center; gap: 0.32rem;
-    padding: 0.55rem 0.7rem; border-radius: 0.7rem; flex-shrink: 0; color: #ece3c8;
+    position: relative; width: calc(var(--rect-w) + var(--flag-d)); height: var(--flag-h);
+    display: flex; flex-direction: column; justify-content: center; gap: 0.3rem;
+    padding: 0.5rem calc(var(--flag-d) + 0.7rem) 0.5rem 0.7rem; clip-path: var(--flag-shape);
+    color: #ece3c8;
     font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: linear-gradient(180deg, rgba(30, 40, 72, 0.9), rgba(12, 16, 32, 0.94));
-    border: 1.5px solid rgba(212, 175, 55, 0.55);
-    box-shadow: rgba(0, 0, 0, 0.85) -3px 2px 6px -1px;
+    background: linear-gradient(180deg, rgba(30, 40, 72, 0.96), rgba(12, 16, 32, 0.97));
   }
-  .nobles-preview .noble-tile[data-tier='triple'] {
-    border-color: rgba(212, 175, 55, 0.9);
-    background: linear-gradient(180deg, rgba(44, 34, 66, 0.92), rgba(14, 12, 30, 0.95));
+  .nobles-preview .noble-flag[data-tier='triple'] .noble-tile {
+    background: linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
   }
-  .nobles-preview .noble-tile.bench { opacity: .5; filter: grayscale(.35); }
   .nobles-preview .noble-prestige {
-    position: absolute; top: -0.42rem; right: -0.4rem; width: 1.9rem; height: 1.9rem;
+    position: absolute; left: calc(100% - var(--flag-d) * 0.62); top: 50%;
+    transform: translate(-50%, -50%); width: 1.7rem; height: 1.7rem;
     display: grid; place-items: center; pointer-events: none;
   }
   .nobles-preview .noble-prestige::before {
-    content: '\2605'; position: absolute; font-size: 2.1rem; line-height: 1;
+    content: '\2605'; position: absolute; font-size: 1.9rem; line-height: 1;
     color: rgb(245, 204, 101); -webkit-text-stroke: 0.05rem black; text-shadow: 1px 1px 3px black;
   }
   .nobles-preview .noble-prestige span {
-    position: relative; font-family: 'Lobster', cursive; font-size: 0.85rem; line-height: 1;
+    position: relative; font-family: 'Lobster', cursive; font-size: 0.78rem; line-height: 1;
     color: #241a06; transform: translateY(-0.05rem);
   }
   .nobles-preview .noble-name { font-size: 0.95rem; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
@@ -415,15 +425,17 @@
       collaborator: 'BrownToken', funding: 'RedToken'
     };
     const nobleHtml = n => `
-      <div class="noble-tile${n.enabled ? '' : ' bench'}" data-tier="${n.tier}" title="${n.cn} · ${n.prestige} 声誉">
-        <div class="noble-prestige"><span>${n.prestige}</span></div>
-        <div class="noble-name">${n.name}</div>
-        <div class="noble-sub">${n.sub}</div>
-        <div class="noble-requirements">${Object.entries(n.requirement).map(([r, c]) => `
-          <div class="requirement-item">
-            <img class="requirement-token" src="/images/tokens/${TOK[r]}.jpg" alt="${r}" />
-            <span class="requirement-count">${c}</span>
-          </div>`).join('')}
+      <div class="noble-flag${n.enabled ? '' : ' bench'}" data-tier="${n.tier}" title="${n.cn} · ${n.prestige} 声誉">
+        <div class="noble-tile">
+          <div class="noble-name">${n.name}</div>
+          <div class="noble-sub">${n.sub}</div>
+          <div class="noble-requirements">${Object.entries(n.requirement).map(([r, c]) => `
+            <div class="requirement-item">
+              <img class="requirement-token" src="/images/tokens/${TOK[r]}.jpg" alt="${r}" />
+              <span class="requirement-count">${c}</span>
+            </div>`).join('')}
+          </div>
+          <div class="noble-prestige"><span>${n.prestige}</span></div>
         </div>
       </div>
       <div class="noble-cap dim">${n.cn}</div>`;

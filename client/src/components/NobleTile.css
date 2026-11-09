@@ -1,36 +1,60 @@
-.noble-tile {
+/* 旗帜形（pennant）：左侧矩形放正文，右侧收成一个 45°-45°-90° 的三角尖。
+   三角深度 = 牌高的一半才能拿到 90° 顶角，所以牌宽 = 正文宽 + 三角深度，
+   正文可用宽度与非旗帜版一致，不会因为剪形而挤字。 */
+.noble-flag {
+  --card-w: clamp(118px, 13vmin, 150px);
+  --rect-w: calc(var(--card-w) * 1.25);
+  --flag-h: calc(var(--card-w) * 0.85);
+  --flag-d: calc(var(--flag-h) / 2);
+  --flag-shape: polygon(
+    0 0,
+    calc(100% - var(--flag-d)) 0,
+    100% 50%,
+    calc(100% - var(--flag-d)) 100%,
+    0 100%
+  );
+
   position: relative;
-  /* 官方贵族板块是正方形、比发展卡宽；跟着卡宽缩放，比例不会跑偏 */
-  width: calc(clamp(118px, 13vmin, 150px) * 1.25);
-  aspect-ratio: 1.25;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.32rem;
-  padding: 0.55rem 0.7rem;
-  border-radius: 0.7rem;
   flex-shrink: 0;
-  color: #ece3c8;
-  background:
-    linear-gradient(180deg, rgba(30, 40, 72, 0.9), rgba(12, 16, 32, 0.94));
-  border: 1.5px solid rgba(212, 175, 55, 0.55);
-  box-shadow: rgba(0, 0, 0, 0.85) -3px 2px 6px -1px;
+  padding: 2px;
+  clip-path: var(--flag-shape);
+  background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
+  filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
 }
 
 /* 三色院士牌：金边更亮，压住双色会士牌 */
-.noble-tile[data-tier='triple'] {
-  border-color: rgba(212, 175, 55, 0.9);
-  background:
-    linear-gradient(180deg, rgba(44, 34, 66, 0.92), rgba(14, 12, 30, 0.95));
+.noble-flag[data-tier='triple'] {
+  background: linear-gradient(180deg, #ffe6a0, #b8860b);
 }
 
-/* 声誉分：右上角星徽，不占名字行宽度 */
+.noble-tile {
+  position: relative;
+  width: calc(var(--rect-w) + var(--flag-d));
+  height: var(--flag-h);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem calc(var(--flag-d) + 0.7rem) 0.5rem 0.7rem;
+  clip-path: var(--flag-shape);
+  color: #ece3c8;
+  background:
+    linear-gradient(180deg, rgba(30, 40, 72, 0.96), rgba(12, 16, 32, 0.97));
+}
+
+.noble-flag[data-tier='triple'] .noble-tile {
+  background:
+    linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
+}
+
+/* 声誉分：星徽落在三角尖正中，不占正文宽度 */
 .noble-prestige {
   position: absolute;
-  top: -0.42rem;
-  right: -0.4rem;
-  width: 1.9rem;
-  height: 1.9rem;
+  left: calc(100% - var(--flag-d) * 0.62);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 1.7rem;
+  height: 1.7rem;
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -39,7 +63,7 @@
 .noble-prestige::before {
   content: '\2605';
   position: absolute;
-  font-size: 2.1rem;
+  font-size: 1.9rem;
   line-height: 1;
   color: rgb(245, 204, 101);
   -webkit-text-stroke: 0.05rem black;
@@ -49,7 +73,7 @@
 .noble-prestige span {
   position: relative;
   font-family: 'Lobster', cursive;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   line-height: 1;
   color: #241a06;
   transform: translateY(-0.05rem);
