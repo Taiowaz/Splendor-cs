@@ -227,12 +227,21 @@
   .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
   .nobles-preview .noble-requirements { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.1em; }
   .nobles-preview .requirement-item {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: min(2.4em, 29%); aspect-ratio: 1; border-radius: 50%;
-    background: rgba(30, 81, 109, 0.5); border: 1px solid rgba(255, 255, 255, 0.22);
+    --res-bg: #4a4a55; --res-ink: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.06em;
+    width: min(2.4em, 29%); aspect-ratio: 1; border-radius: 50%; color: var(--res-ink);
+    background: radial-gradient(circle at 38% 30%, rgba(255,255,255,.26), rgba(255,255,255,0) 58%), var(--res-bg);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 -0.12em 0.28em rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.35);
   }
-  .nobles-preview .requirement-token { width: 44%; height: 44%; border-radius: 50%; object-fit: cover; }
-  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.88em; line-height: 1; color: #ece3c8; }
+  .nobles-preview .requirement-item[data-res='data'] { --res-bg: var(--data); --res-ink: #4a3a18; }
+  .nobles-preview .requirement-item[data-res='compute'] { --res-bg: var(--compute); }
+  .nobles-preview .requirement-item[data-res='citation'] { --res-bg: var(--citation); }
+  .nobles-preview .requirement-item[data-res='collaborator'] { --res-bg: var(--collab); }
+  .nobles-preview .requirement-item[data-res='funding'] { --res-bg: var(--funding); }
+  .nobles-preview .requirement-item[data-res='coffee'] { --res-bg: var(--coffee); }
+  .nobles-preview .requirement-icon { width: 46%; height: 46%; stroke: currentColor; }
+  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.88em; line-height: 1; color: var(--res-ink); }
 </style>
 </head>
 <body>
@@ -432,9 +441,9 @@
     document.getElementById('sample-cards').appendChild(wrap);
 
     // ---------- 贵族卡 ----------
-    const TOK = {
-      data: 'WhiteToken', compute: 'BlueToken', citation: 'GreenToken',
-      collaborator: 'BrownToken', funding: 'RedToken'
+    const RES_IC = {
+      data: 'ic-data', compute: 'ic-compute', citation: 'ic-citation',
+      collaborator: 'ic-collab', funding: 'ic-funding', coffee: 'ic-coffee'
     };
     const nobleHtml = n => `
       <div class="noble-flag${n.enabled ? '' : ' bench'}" data-tier="${n.tier}" title="${n.cn} · ${n.prestige} 声誉">
@@ -445,8 +454,8 @@
           </div>
           <div class="noble-sub">${n.sub}</div>
           <div class="noble-requirements">${Object.entries(n.requirement).map(([r, c]) => `
-            <div class="requirement-item">
-              <img class="requirement-token" src="/images/tokens/${TOK[r]}.jpg" alt="${r}" />
+            <div class="requirement-item" data-res="${r}">
+              <svg class="requirement-icon" viewBox="0 0 24 24"><use href="#${RES_IC[r]}"/></svg>
               <span class="requirement-count">${c}</span>
             </div>`).join('')}
           </div>

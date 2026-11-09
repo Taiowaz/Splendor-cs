@@ -122,28 +122,44 @@
   margin-top: 0.1em;
 }
 
+/* 需求筹码：底色用我们自己的资源色，圈内是线条符号 + 数字，不再贴宝石照片。
+   浅底（数据）配深墨，其余配白墨，数字和符号同色，避免浅底上白字看不见。 */
 .requirement-item {
+  --res-bg: #4a4a55;
+  --res-ink: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.06em;
   width: min(2.4em, 29%);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: rgba(30, 81, 109, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--res-ink);
+  background:
+    radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 58%),
+    var(--res-bg);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 -0.12em 0.28em rgba(0, 0, 0, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-.requirement-token {
-  width: 44%;
-  height: 44%;
-  border-radius: 50%;
-  object-fit: cover;
+.requirement-item[data-res='data'] { --res-bg: #efe9dc; --res-ink: #4a3a18; }
+.requirement-item[data-res='compute'] { --res-bg: #2f6fb0; }
+.requirement-item[data-res='citation'] { --res-bg: #3f8f52; }
+.requirement-item[data-res='collaborator'] { --res-bg: #8a6a3b; }
+.requirement-item[data-res='funding'] { --res-bg: #b0433c; }
+.requirement-item[data-res='coffee'] { --res-bg: #c99a2e; }
+
+.requirement-icon {
+  width: 46%;
+  height: 46%;
 }
 
 .requirement-count {
   font-family: 'Lobster', cursive;
   font-size: 0.88em;
   line-height: 1;
-  color: #ece3c8;
+  color: var(--res-ink);
 }

@@ -1,12 +1,5 @@
 import './NobleTile.css'
-
-const TOKEN_IMG = {
-  data: '/images/tokens/WhiteToken.jpg',
-  compute: '/images/tokens/BlueToken.jpg',
-  citation: '/images/tokens/GreenToken.jpg',
-  collaborator: '/images/tokens/BrownToken.jpg',
-  funding: '/images/tokens/RedToken.jpg'
-}
+import ResourceIcon from './ResourceIcon.jsx'
 
 export default function NobleTile({ noble }) {
   return (
@@ -19,8 +12,8 @@ export default function NobleTile({ noble }) {
         <div className="noble-sub">{noble.sub}</div>
         <div className="noble-requirements">
           {Object.entries(noble.requirement).map(([resource, count]) => (
-            <div key={resource} className="requirement-item">
-              <img className="requirement-token" src={TOKEN_IMG[resource]} alt={resource} />
+            <div key={resource} className="requirement-item" data-res={resource}>
+              <ResourceIcon resource={resource} className="requirement-icon" />
               <span className="requirement-count">{count}</span>
             </div>
           ))}
