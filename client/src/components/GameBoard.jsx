@@ -20,8 +20,8 @@ const RESOURCE_INFO = {
   data: { icon: '📊', name: '数据', gem: '/images/tokens/WhiteToken.jpg' },
   compute: { icon: '💻', name: '算力', gem: '/images/tokens/BlueToken.jpg' },
   citation: { icon: '📄', name: '引用', gem: '/images/tokens/GreenToken.jpg' },
-  collaborator: { icon: '🤝', name: '合作者', gem: '/images/tokens/RedToken.jpg' },
-  funding: { icon: '💰', name: '经费', gem: '/images/tokens/BrownToken.jpg' },
+  collaborator: { icon: '🤝', name: '合作者', gem: '/images/tokens/BrownToken.jpg' },
+  funding: { icon: '💰', name: '经费', gem: '/images/tokens/RedToken.jpg' },
   coffee: { icon: '☕', name: '咖啡', gem: '/images/tokens/GoldToken.jpg' }
 }
 
