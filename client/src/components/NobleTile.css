@@ -51,39 +51,34 @@
     linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
 }
 
-/* 声誉分：星徽落在三角尖正中，不占正文宽度。
-   星的最大边长受 45° 斜边限制（半侧 s 需满足 0.3d + 2s ≤ d），
-   所以按三角深度取 0.68d，小屏上自动缩，不会被剪掉。 */
+/* 声誉分：三角尖上放一枚圆形声誉筹码，和本人/对手面板的声誉徽记同一套视觉。
+   圆要贴住 45° 斜边：半径 r ≤ (d - u)/√2（u 是圆心到三角底的距离），
+   取圆心在 0.6d、直径 0.76d 时留 0.04d 余量，不会被剪形削掉。 */
 .noble-prestige {
-  --star: min(2.6em, calc(var(--flag-d) * 0.68));
+  --badge: calc(var(--flag-d) * 0.76);
   position: absolute;
-  left: calc(100% - var(--flag-d) * 0.7);
+  left: calc(100% - var(--flag-d) * 0.6);
   top: 50%;
   transform: translate(-50%, -50%);
-  width: var(--star);
-  height: var(--star);
+  width: var(--badge);
+  height: var(--badge);
+  border-radius: 50%;
   display: grid;
   place-items: center;
+  background-image: url('/images/bluebackground.jpg');
+  background-size: cover;
+  border: 0.16em solid goldenrod;
+  box-shadow: inset 0 0 0.6em rgba(0, 0, 0, 0.55);
   pointer-events: none;
 }
 
-.noble-prestige::before {
-  content: '\2605';
-  position: absolute;
-  font-size: var(--star);
+.noble-prestige span {
+  font-family: 'Lobster', cursive;
+  font-size: calc(var(--badge) * 0.5);
   line-height: 1;
   color: rgb(245, 204, 101);
-  -webkit-text-stroke: 0.06rem black;
-  text-shadow: 1px 1px 3px black;
-}
-
-.noble-prestige span {
-  position: relative;
-  font-family: 'Lobster', cursive;
-  font-size: calc(var(--star) * 0.46);
-  line-height: 1;
-  color: #241a06;
-  transform: translateY(calc(var(--star) * -0.03));
+  -webkit-text-stroke: 0.05rem black;
+  text-shadow: 1px 2px 4px black;
 }
 
 .noble-name {
