@@ -34,6 +34,8 @@
   position: relative;
   /* 牌内所有字号/间距走 em，基准 = 牌高 / 7.375（即 118px 牌高对应 1rem），牌缩字跟着缩，不会撑破剪形 */
   font-size: calc(var(--flag-h) / 7.375);
+  /* 字体不写死，继承 .gb-root 的 Judson + 中文回退，和论文卡同一套；
+     这里塞 sans 栈会让卡面中文变黑体、卡面英文和牌桌其它文字分家。 */
   width: calc(var(--rect-w) + var(--flag-d));
   height: var(--flag-h);
   display: flex;

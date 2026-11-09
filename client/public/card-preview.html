@@ -198,7 +198,8 @@
     display: flex; flex-direction: column; justify-content: center; gap: 0.42em;
     padding: 0.5em calc(var(--flag-d) + 0.7em) 0.5em 0.7em; clip-path: var(--flag-shape);
     color: #ece3c8;
-    font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    /* 不写 font-family，和 client/src/components/NobleTile.css 一样继承页面基准，
+       否则 FC 的中文会掉到黑体、和羊皮纸卡的宋体不一致 */
     background: linear-gradient(180deg, rgba(30, 40, 72, 0.96), rgba(12, 16, 32, 0.97));
   }
   .nobles-preview .noble-flag[data-tier='triple'] .noble-tile {
