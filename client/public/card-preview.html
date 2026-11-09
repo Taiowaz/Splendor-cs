@@ -227,21 +227,20 @@
   .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
   .nobles-preview .noble-requirements { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.1em; }
   .nobles-preview .requirement-item {
-    --res-bg: #4a4a55; --res-ink: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.06em;
-    width: min(2.4em, 29%); aspect-ratio: 1; border-radius: 50%; color: var(--res-ink);
-    background: radial-gradient(circle at 38% 30%, rgba(255,255,255,.26), rgba(255,255,255,0) 58%), var(--res-bg);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    box-shadow: inset 0 -0.12em 0.28em rgba(0,0,0,.28), 0 1px 2px rgba(0,0,0,.35);
+    width: min(2.4em, 29%); aspect-ratio: 1; border-radius: 50%;
+    background: rgba(30, 81, 109, 0.5); border: 1px solid rgba(255, 255, 255, 0.22);
   }
-  .nobles-preview .requirement-item[data-res='data'] { --res-bg: var(--data); --res-ink: #4a3a18; }
-  .nobles-preview .requirement-item[data-res='compute'] { --res-bg: var(--compute); }
-  .nobles-preview .requirement-item[data-res='citation'] { --res-bg: var(--citation); }
-  .nobles-preview .requirement-item[data-res='collaborator'] { --res-bg: var(--collab); }
-  .nobles-preview .requirement-item[data-res='funding'] { --res-bg: var(--funding); }
-  .nobles-preview .requirement-item[data-res='coffee'] { --res-bg: var(--coffee); }
-  .nobles-preview .requirement-icon { width: 46%; height: 46%; stroke: currentColor; }
-  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.88em; line-height: 1; color: var(--res-ink); }
+  /* 圆盘保持原样，只把宝石照片换成线条符号；符号用提亮一档的资源色，
+     原色（棕 #8a6a3b / 红 #b0433c）在这种暗底上几乎糊成一片 */
+  .nobles-preview .requirement-item[data-res='data'] { color: #efe9dc; }
+  .nobles-preview .requirement-item[data-res='compute'] { color: #7fb3e0; }
+  .nobles-preview .requirement-item[data-res='citation'] { color: #79c78f; }
+  .nobles-preview .requirement-item[data-res='collaborator'] { color: #cfa26b; }
+  .nobles-preview .requirement-item[data-res='funding'] { color: #e58a82; }
+  .nobles-preview .requirement-item[data-res='coffee'] { color: #e6b95c; }
+  .nobles-preview .requirement-icon { width: 52%; height: 52%; stroke: currentColor; }
+  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.88em; line-height: 1; color: #ece3c8; }
 </style>
 </head>
 <body>

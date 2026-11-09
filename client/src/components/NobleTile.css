@@ -122,11 +122,11 @@
   margin-top: 0.1em;
 }
 
-/* 需求筹码：底色用我们自己的资源色，圈内是线条符号 + 数字，不再贴宝石照片。
-   浅底（数据）配深墨，其余配白墨，数字和符号同色，避免浅底上白字看不见。 */
+/* 需求筹码：圆盘的底色、描边、数字都保持原样，只把里面那张宝石照片
+   换成线条资源符号。符号取资源色——颜色是分辨资源的主要线索，全画成米色
+   就只剩图形能区分了。底色偏暗，所以每个资源色都提亮一档（比羊皮纸卡上
+   那套原色亮），棕、红在原色下几乎看不见。 */
 .requirement-item {
-  --res-bg: #4a4a55;
-  --res-ink: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -135,31 +135,25 @@
   width: min(2.4em, 29%);
   aspect-ratio: 1;
   border-radius: 50%;
-  color: var(--res-ink);
-  background:
-    radial-gradient(circle at 38% 30%, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 58%),
-    var(--res-bg);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow:
-    inset 0 -0.12em 0.28em rgba(0, 0, 0, 0.28),
-    0 1px 2px rgba(0, 0, 0, 0.35);
+  background: rgba(30, 81, 109, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
-.requirement-item[data-res='data'] { --res-bg: #efe9dc; --res-ink: #4a3a18; }
-.requirement-item[data-res='compute'] { --res-bg: #2f6fb0; }
-.requirement-item[data-res='citation'] { --res-bg: #3f8f52; }
-.requirement-item[data-res='collaborator'] { --res-bg: #8a6a3b; }
-.requirement-item[data-res='funding'] { --res-bg: #b0433c; }
-.requirement-item[data-res='coffee'] { --res-bg: #c99a2e; }
+.requirement-item[data-res='data'] { color: #efe9dc; }
+.requirement-item[data-res='compute'] { color: #7fb3e0; }
+.requirement-item[data-res='citation'] { color: #79c78f; }
+.requirement-item[data-res='collaborator'] { color: #cfa26b; }
+.requirement-item[data-res='funding'] { color: #e58a82; }
+.requirement-item[data-res='coffee'] { color: #e6b95c; }
 
 .requirement-icon {
-  width: 46%;
-  height: 46%;
+  width: 52%;
+  height: 52%;
 }
 
 .requirement-count {
   font-family: 'Lobster', cursive;
   font-size: 0.88em;
   line-height: 1;
-  color: var(--res-ink);
+  color: #ece3c8;
 }
