@@ -6,12 +6,14 @@
 // 每种资源 2 次；三色走同一 5-圈的相邻三元组，每种资源 3 次。
 // 三色不能取 6 张：18 ÷ 5 非整数，所以三色只能 5 的倍数。
 // enabled:false 的是 bench，不进牌池。
+// logo: 机构徽标，放在 client/public/images/nobles/；没有该字段时卡面自动降级为纯文字。
 
 export const NOBLES = [
   // ---------- 双色会士（4+4） ----------
   {
     id: 'acm',
     name: 'ACM Fellow',
+    logo: '/images/nobles/acm.png',
     cn: 'ACM 会士',
     sub: '美国计算机学会',
     requirement: { compute: 4, citation: 4 },
@@ -22,6 +24,7 @@ export const NOBLES = [
   {
     id: 'ieee',
     name: 'IEEE Fellow',
+    logo: '/images/nobles/ieee.png',
     cn: 'IEEE 会士',
     sub: '电气电子工程师学会',
     requirement: { collaborator: 4, funding: 4 },
@@ -32,6 +35,7 @@ export const NOBLES = [
   {
     id: 'aaai',
     name: 'AAAI Fellow',
+    logo: '/images/nobles/aaai.png',
     cn: 'AAAI 会士',
     sub: '国际先进人工智能协会',
     requirement: { data: 4, compute: 4 },
@@ -42,6 +46,7 @@ export const NOBLES = [
   {
     id: 'acl',
     name: 'ACL Fellow',
+    logo: '/images/nobles/acl.png',
     cn: 'ACL 会士',
     sub: '国际计算语言学学会',
     requirement: { funding: 4, data: 4 },
@@ -52,6 +57,7 @@ export const NOBLES = [
   {
     id: 'ccf',
     name: 'CCF Fellow',
+    logo: '/images/nobles/ccf.png',
     cn: 'CCF 会士',
     sub: '中国计算机学会',
     requirement: { citation: 4, collaborator: 4 },
@@ -64,6 +70,7 @@ export const NOBLES = [
   {
     id: 'cas',
     name: 'CAS Member',
+    logo: '/images/nobles/cas.png',
     cn: '中科院院士',
     sub: '中国科学院',
     requirement: { data: 3, compute: 3, citation: 3 },
@@ -74,6 +81,7 @@ export const NOBLES = [
   {
     id: 'cae',
     name: 'CAE Member',
+    logo: '/images/nobles/cae.png',
     cn: '工程院院士',
     sub: '中国工程院',
     requirement: { compute: 3, citation: 3, collaborator: 3 },
@@ -84,6 +92,7 @@ export const NOBLES = [
   {
     id: 'ae',
     name: 'AE Member',
+    logo: '/images/nobles/ae.png',
     cn: '欧科院院士',
     sub: '欧洲人文和自然科学院',
     requirement: { citation: 3, collaborator: 3, funding: 3 },
@@ -94,6 +103,7 @@ export const NOBLES = [
   {
     id: 'rs',
     name: 'RS Fellow',
+    logo: '/images/nobles/rs.png',
     cn: '皇家学会会士',
     sub: '英国皇家学会',
     requirement: { collaborator: 3, funding: 3, data: 3 },
@@ -104,6 +114,7 @@ export const NOBLES = [
   {
     id: 'nas',
     name: 'NAS Member',
+    logo: '/images/nobles/nas.png',
     cn: '美国科学院院士',
     sub: '美国国家科学院',
     requirement: { funding: 3, data: 3, compute: 3 },

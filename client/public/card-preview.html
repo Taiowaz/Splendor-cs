@@ -181,7 +181,7 @@
   .noble-cap.dim { opacity: .45; font-size: .62rem; }
   .nobles-preview .noble-flag {
     --card-w: clamp(118px, 13vmin, 150px);
-    --rect-w: calc(var(--card-w) * 1.25);
+    --rect-w: calc(var(--card-w) * 1.4);
     --flag-h: min(var(--card-w), calc((100vh - 15.3rem) / 5));
     --flag-d: calc(var(--flag-h) / 2);
     --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
@@ -216,7 +216,12 @@
     font-family: 'Lobster', cursive; font-size: calc(var(--badge) * 0.55); line-height: 1;
     color: rgb(230, 192, 95); -webkit-text-stroke: 0.05rem black; text-shadow: 1px 2px 4px black;
   }
-  .nobles-preview .noble-name { font-size: 0.95em; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
+  .nobles-preview .noble-head { display: flex; align-items: center; gap: 0.45em; min-width: 0; }
+  .nobles-preview .noble-mark {
+    flex-shrink: 0; width: 2em; height: 2em; object-fit: contain;
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.45));
+  }
+  .nobles-preview .noble-name { flex-shrink: 0; font-size: 0.95em; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
   .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
   .nobles-preview .noble-requirements { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.1em; }
   .nobles-preview .requirement-item {
@@ -428,7 +433,10 @@
     const nobleHtml = n => `
       <div class="noble-flag${n.enabled ? '' : ' bench'}" data-tier="${n.tier}" title="${n.cn} · ${n.prestige} 声誉">
         <div class="noble-tile">
-          <div class="noble-name">${n.name}</div>
+          <div class="noble-head">
+            ${n.logo ? `<img class="noble-mark" src="${n.logo}" alt="" />` : ''}
+            <div class="noble-name">${n.name}</div>
+          </div>
           <div class="noble-sub">${n.sub}</div>
           <div class="noble-requirements">${Object.entries(n.requirement).map(([r, c]) => `
             <div class="requirement-item">

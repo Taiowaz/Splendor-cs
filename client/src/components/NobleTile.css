@@ -3,7 +3,7 @@
    正文可用宽度与非旗帜版一致，不会因为剪形而挤字。 */
 .noble-flag {
   --card-w: clamp(118px, 13vmin, 150px);
-  --rect-w: calc(var(--card-w) * 1.25);
+  --rect-w: calc(var(--card-w) * 1.4);
   /* 竖向预算：100vh 减去顶栏 3.4rem + 上边距 1rem + 资源池约 6.5rem + 底部留白 4.4rem。
      5 张牌（4 人局）一列放得下为准，屏矮时整列一起缩，避免最后一张被 overflow:hidden 切掉。 */
   --flag-h: min(var(--card-w), calc((100vh - 15.3rem) / 5));
@@ -81,6 +81,7 @@
 }
 
 .noble-name {
+  flex-shrink: 0;
   font-size: 0.95em;
   font-weight: 700;
   line-height: 1.15;
@@ -92,6 +93,23 @@
   font-size: 0.72em;
   line-height: 1.25;
   color: rgba(236, 227, 200, 0.62);
+}
+
+/* 机构徽标：原始 mark 由 tools/noble-logos.py 统一压成米色墨章，
+   深浅和底色都在图上处理过了，这里直接贴卡面；没有 logo 时该行自动退回纯文字。 */
+.noble-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  min-width: 0;
+}
+
+.noble-mark {
+  flex-shrink: 0;
+  width: 2em;
+  height: 2em;
+  object-fit: contain;
+  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.45));
 }
 
 .noble-requirements {
