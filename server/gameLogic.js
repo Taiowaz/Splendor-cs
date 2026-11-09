@@ -1,4 +1,6 @@
 // 学术资源类型
+import { ACTIVE_NOBLES } from '../shared/nobles.js';
+
 export const RESOURCE_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding'];
 
 export const RESOURCE_NAMES = {
@@ -107,80 +109,18 @@ function generateCards() {
   return cards;
 }
 
-// 学术大佬（贵族）
-function generateNobles() {
-  const nobleTemplates = [
-    {
-      name: '图灵奖得主',
-      prestige: 3,
-      requirement: { data: 4, compute: 4 }
-    },
-    {
-      name: 'IEEE Fellow',
-      prestige: 3,
-      requirement: { compute: 4, citation: 4 }
-    },
-    {
-      name: 'ACM Fellow',
-      prestige: 3,
-      requirement: { citation: 4, collaborator: 4 }
-    },
-    {
-      name: '长江学者',
-      prestige: 3,
-      requirement: { collaborator: 4, funding: 4 }
-    },
-    {
-      name: '杰青',
-      prestige: 3,
-      requirement: { funding: 4, data: 4 }
-    },
-    {
-      name: '院士',
-      prestige: 4,
-      requirement: { data: 5, compute: 3, citation: 3 }
-    },
-    {
-      name: 'Nature 审稿人',
-      prestige: 4,
-      requirement: { citation: 5, collaborator: 3, funding: 3 }
-    },
-    {
-      name: '国家重点实验室主任',
-      prestige: 4,
-      requirement: { funding: 5, data: 3, compute: 3 }
-    },
-    {
-      name: '千人计划',
-      prestige: 4,
-      requirement: { data: 3, citation: 3, collaborator: 3, funding: 3 }
-    },
-    {
-      name: '长江特聘教授',
-      prestige: 4,
-      requirement: { compute: 3, collaborator: 3, funding: 3, data: 3 }
-    }
-  ];
-
-  return nobleTemplates.map((n, i) => ({
-    id: i,
-    ...n
-  }));
-}
-
 // 初始化游戏
 export function initializeGame(playerCount) {
   const allCards = generateCards();
-  const allNobles = generateNobles();
 
   // 按等级分组并洗牌
   const tier1Cards = shuffle(allCards.filter(c => c.tier === 1)).slice(0, 4);
   const tier2Cards = shuffle(allCards.filter(c => c.tier === 2)).slice(0, 4);
   const tier3Cards = shuffle(allCards.filter(c => c.tier === 3)).slice(0, 4);
 
-  // 根据玩家数量决定贵族数量
+  // 根据玩家数量决定贵族数量（官方规则：翻 playerCount+1 张，其余移出本局）
   const nobleCount = playerCount + 1;
-  const nobles = shuffle(allNobles).slice(0, nobleCount);
+  const nobles = shuffle(ACTIVE_NOBLES).slice(0, nobleCount);
 
   // 资源token数量
   const tokenCounts = {

@@ -332,7 +332,7 @@ export function setupWebSocket(server) {
             type: 'noble_visit',
             playerId: currentPlayerId,
             noble,
-            message: `${noble.name} 认可了你的学术成就！+${noble.prestige} 声誉`
+            message: `${noble.cn} 认可了你的学术成就！+${noble.prestige} 声誉`
           });
         }
 

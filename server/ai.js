@@ -90,7 +90,7 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
             type: 'noble_visit',
             playerId: currentPlayerId,
             noble,
-            message: `${noble.name} 认可了 ${player.name} 的学术成就！+${noble.prestige} 声誉`
+            message: `${noble.cn} 认可了 ${player.name} 的学术成就！+${noble.prestige} 声誉`
           });
         }
 
