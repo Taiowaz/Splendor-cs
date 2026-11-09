@@ -180,9 +180,10 @@
   .noble-cap { font-size: .7rem; letter-spacing: .05em; opacity: .8; }
   .noble-cap.dim { opacity: .45; font-size: .62rem; }
   .nobles-preview .noble-flag {
-    --card-w: clamp(118px, 13vmin, 150px);
+    /* 竖向预算实测：顶栏 3.4 + 上 1 + 下 5 + 资源池 3 + 行间距 1.2 + 4×0.7 = 16.4rem，留 0.1rem 余量 */
+    --card-w: clamp(118px, 15vmin, 168px);
     --rect-w: calc(var(--card-w) * 1.4);
-    --flag-h: min(var(--card-w), calc((100vh - 15.3rem) / 5));
+    --flag-h: min(var(--card-w), calc((100vh - 16.5rem) / 5));
     --flag-d: calc(var(--flag-h) / 2);
     --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
     position: relative; flex-shrink: 0; padding: 2px; clip-path: var(--flag-shape);
@@ -205,16 +206,16 @@
   }
   .nobles-preview .noble-prestige {
     --badge: calc(var(--flag-d) * 0.6);
-    position: absolute; left: calc(100% - var(--flag-d) * 0.5); top: 50%;
+    position: absolute; left: calc(100% - var(--flag-d) * 0.62); top: 50%;
     transform: translate(-50%, -50%); width: var(--badge); height: var(--badge);
     border-radius: 50%; display: grid; place-items: center;
-    background: radial-gradient(circle at 35% 30%, #175070, #0c3045 58%, #03121c);
-    border: 0.12em solid goldenrod; box-shadow: inset 0 0 0.5em rgba(0, 0, 0, 0.6);
+    background: radial-gradient(circle at 42% 36%, #969089, #8a837d 55%, #6b655f);
+    border: 0.12em solid goldenrod; box-shadow: inset 0 0 0.45em rgba(20, 18, 16, 0.55);
     pointer-events: none;
   }
   .nobles-preview .noble-prestige span {
     font-family: 'Lobster', cursive; font-size: calc(var(--badge) * 0.55); line-height: 1;
-    color: rgb(230, 192, 95); -webkit-text-stroke: 0.05rem black; text-shadow: 1px 2px 4px black;
+    color: rgb(200, 200, 200); -webkit-text-stroke: 0.07em rgb(6, 10, 16); text-shadow: 0 1px 2px rgba(8, 12, 18, 0.7);
   }
   .nobles-preview .noble-head { display: flex; align-items: center; gap: 0.45em; min-width: 0; }
   .nobles-preview .noble-mark {

@@ -2,11 +2,12 @@
    三角深度 = 牌高的一半才能拿到 90° 顶角，所以牌宽 = 正文宽 + 三角深度，
    正文可用宽度与非旗帜版一致，不会因为剪形而挤字。 */
 .noble-flag {
-  --card-w: clamp(118px, 13vmin, 150px);
+  --card-w: clamp(118px, 15vmin, 168px);
   --rect-w: calc(var(--card-w) * 1.4);
-  /* 竖向预算：100vh 减去顶栏 3.4rem + 上边距 1rem + 资源池约 6.5rem + 底部留白 4.4rem。
-     5 张牌（4 人局）一列放得下为准，屏矮时整列一起缩，避免最后一张被 overflow:hidden 切掉。 */
-  --flag-h: min(var(--card-w), calc((100vh - 15.3rem) / 5));
+  /* 竖向预算实测值：顶栏 3.4rem + 上边距 1rem + 下边距 5rem + 资源池 3rem
+     + 池与牌列的行间距 1.2rem + 5 张牌之间 4×0.7rem = 16.4rem，留 0.1rem 余量。
+     屏矮时整列一起缩，避免最后一张被 .gb-main 的 overflow:hidden 切掉。 */
+  --flag-h: min(var(--card-w), calc((100vh - 16.5rem) / 5));
   --flag-d: calc(var(--flag-h) / 2);
   --flag-shape: polygon(
     0 0,
@@ -51,13 +52,14 @@
     linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
 }
 
-/* 声誉分：三角尖上放一枚圆形声誉筹码，配色照官方客户端取样
-   （金环 rgb(218,165,32) + 蓝色渐变内底 亮 #175070 → 暗 #03121c）。
-   圆要贴住 45° 斜边：半径 r ≤ (d - u)/√2，取直径 0.6d、圆心在 0.5d 时余量 0.054d。 */
+/* 声誉筹码：底色照官方客户端 FC 卡左上角那个声誉数字取样 ——
+   数字本体 rgb(152,152,152) 带近黑描边，压在暖灰羊皮纸 rgb(138,131,127) 上，
+   所以筹码是银灰底 + 浅字深描边，不再是玩家面板那种蓝底金字。
+   圆心从三角深度 0.5d 推到 0.62d（往牌身方向挪），斜边余量反而从 0.054d 涨到 0.138d。 */
 .noble-prestige {
   --badge: calc(var(--flag-d) * 0.6);
   position: absolute;
-  left: calc(100% - var(--flag-d) * 0.5);
+  left: calc(100% - var(--flag-d) * 0.62);
   top: 50%;
   transform: translate(-50%, -50%);
   width: var(--badge);
@@ -65,9 +67,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 35% 30%, #175070, #0c3045 58%, #03121c);
+  background: radial-gradient(circle at 42% 36%, #969089, #8a837d 55%, #6b655f);
   border: 0.12em solid goldenrod;
-  box-shadow: inset 0 0 0.5em rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 0.45em rgba(20, 18, 16, 0.55);
   pointer-events: none;
 }
 
@@ -75,9 +77,9 @@
   font-family: 'Lobster', cursive;
   font-size: calc(var(--badge) * 0.55);
   line-height: 1;
-  color: rgb(230, 192, 95);
-  -webkit-text-stroke: 0.05rem black;
-  text-shadow: 1px 2px 4px black;
+  color: rgb(200, 200, 200);
+  -webkit-text-stroke: 0.07em rgb(6, 10, 16);
+  text-shadow: 0 1px 2px rgba(8, 12, 18, 0.7);
 }
 
 .noble-name {
