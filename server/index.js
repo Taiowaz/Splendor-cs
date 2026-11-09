@@ -15,13 +15,13 @@ const server = createServer(app);
 app.use(cors());
 app.use(express.json());
 
-// 服务前端静态文件（生产模式）
-const clientDistPath = join(__dirname, '../client/dist');
-app.use(express.static(clientDistPath));
-
 // 共享数据（venue 注册表等）
 const sharedPath = join(__dirname, '../shared');
 app.use('/shared', express.static(sharedPath));
+
+// 服务前端静态文件（生产模式）
+const clientDistPath = join(__dirname, '../client/dist');
+app.use(express.static(clientDistPath));
 
 // API: 获取服务器状态
 app.get('/api/status', (req, res) => {
