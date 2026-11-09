@@ -180,8 +180,9 @@
   .noble-cap { font-size: .7rem; letter-spacing: .05em; opacity: .8; }
   .noble-cap.dim { opacity: .45; font-size: .62rem; }
   .nobles-preview .noble-tile {
-    position: relative; width: clamp(96px, 11vmin, 128px); padding: 0.5rem 0.6rem 0.55rem;
-    border-radius: 0.6rem; flex-shrink: 0; color: #ece3c8;
+    position: relative; width: calc(clamp(118px, 13vmin, 150px) * 1.25); aspect-ratio: 1.25;
+    display: flex; flex-direction: column; justify-content: center; gap: 0.32rem;
+    padding: 0.55rem 0.7rem; border-radius: 0.7rem; flex-shrink: 0; color: #ece3c8;
     font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     background: linear-gradient(180deg, rgba(30, 40, 72, 0.9), rgba(12, 16, 32, 0.94));
     border: 1.5px solid rgba(212, 175, 55, 0.55);
@@ -193,27 +194,27 @@
   }
   .nobles-preview .noble-tile.bench { opacity: .5; filter: grayscale(.35); }
   .nobles-preview .noble-prestige {
-    position: absolute; top: -0.3rem; right: -0.28rem; width: 1.4rem; height: 1.4rem;
+    position: absolute; top: -0.42rem; right: -0.4rem; width: 1.9rem; height: 1.9rem;
     display: grid; place-items: center; pointer-events: none;
   }
   .nobles-preview .noble-prestige::before {
-    content: '\2605'; position: absolute; font-size: 1.55rem; line-height: 1;
-    color: rgb(245, 204, 101); -webkit-text-stroke: 0.04rem black; text-shadow: 1px 1px 2px black;
+    content: '\2605'; position: absolute; font-size: 2.1rem; line-height: 1;
+    color: rgb(245, 204, 101); -webkit-text-stroke: 0.05rem black; text-shadow: 1px 1px 3px black;
   }
   .nobles-preview .noble-prestige span {
-    position: relative; font-family: 'Lobster', cursive; font-size: 0.62rem; line-height: 1;
-    color: #241a06; transform: translateY(-0.03rem);
+    position: relative; font-family: 'Lobster', cursive; font-size: 0.85rem; line-height: 1;
+    color: #241a06; transform: translateY(-0.05rem);
   }
-  .nobles-preview .noble-name { font-size: 0.7rem; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
-  .nobles-preview .noble-sub { margin-top: 0.08rem; font-size: 0.56rem; line-height: 1.25; color: rgba(236, 227, 200, 0.6); }
-  .nobles-preview .noble-requirements { display: flex; gap: 0.22rem; flex-wrap: wrap; margin-top: 0.42rem; }
+  .nobles-preview .noble-name { font-size: 0.95rem; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
+  .nobles-preview .noble-sub { font-size: 0.72rem; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
+  .nobles-preview .noble-requirements { display: flex; gap: 0.32rem; flex-wrap: wrap; margin-top: 0.15rem; }
   .nobles-preview .requirement-item {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    width: min(1.6rem, 29%); aspect-ratio: 1; border-radius: 50%;
+    width: min(2.1rem, 29%); aspect-ratio: 1; border-radius: 50%;
     background: rgba(30, 81, 109, 0.5); border: 1px solid rgba(255, 255, 255, 0.22);
   }
   .nobles-preview .requirement-token { width: 44%; height: 44%; border-radius: 50%; object-fit: cover; }
-  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.58rem; line-height: 1; color: #ece3c8; }
+  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.78rem; line-height: 1; color: #ece3c8; }
 </style>
 </head>
 <body>
