@@ -64,9 +64,11 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  justify-content: center;
-  gap: 3rem;
-  padding: 1rem 1.2rem 5rem;
+  justify-content: flex-start;
+  /* 原来居中，右侧那列对手面板是绝对定位，等于把 ~200px 的空档全留在左边。
+     改成贴左起排，牌桌直接吃到左边那块空白。 */
+  gap: 2.4rem;
+  padding: 1rem 1.2rem 5rem 2.5rem;
   overflow: hidden;
 }
 

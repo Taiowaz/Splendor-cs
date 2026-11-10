@@ -195,15 +195,15 @@
   .noble-cap { font-size: .7rem; letter-spacing: .05em; opacity: .8; }
   .noble-cap.dim { opacity: .45; font-size: .62rem; }
   .nobles-preview .noble-flag {
-    /* 与 client/src/components/NobleTile.css 同步：字号基准和牌高分开算，
-       牌加高、变窄，字和徽标不变。竖向预算实测只有 12.6rem 出头。 */
+    /* 与 client/src/components/NobleTile.css 同步：整张牌统一缩用 zoom。 */
+    --fc-scale: 0.9;
     --card-w: clamp(118px, 15vmin, 168px);
     --flag-font-ref: min(var(--card-w), calc((100vh - 16.5rem) / 5));
     --rect-w: calc(var(--card-w) * 1.3);
     --flag-h: min(calc((100vh - 12.6rem) / 5), calc(var(--card-w) * 1.12));
     --flag-d: calc(var(--flag-h) * 0.4);
     --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
-    position: relative; flex-shrink: 0; padding: 2px; clip-path: var(--flag-shape);
+    position: relative; flex-shrink: 0; zoom: var(--fc-scale); padding: 2px; clip-path: var(--flag-shape);
     background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
     filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
   }

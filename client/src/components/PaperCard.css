@@ -5,11 +5,10 @@
    尺寸全用 em：em 的基准是 --vc-font-ref 那条"老卡宽 / 16.5"比例，
    所以预览页的 1rem 在这里就是 1em。 */
 .paper-card {
-  /* 字号基准仍按 140~168px 卡宽算（118px 时基准字号只有 7px 读不动），
-     而实际卡宽 --vc-w 收到 126~148px：字和徽标保持原大小，卡变小靠的是压掉留白，
-     不是整体缩——整体缩会把已经只有 9px 的正文再缩一遍。 */
-  --vc-font-ref: clamp(140px, 15vmin, 168px);
-  --vc-w: clamp(126px, 13.2vmin, 148px);
+  /* 留白已经压到紧凑档（见下面各处 margin/padding），尺寸就交回给卡宽本身：
+     字号 = 卡宽 / 16.5，卡放大时字和徽标等比跟着大，不会再出现"卡大字小"的空档。
+     牌桌左靠后横向很宽裕，1600×1000 下 4 张 165px 的卡 + 牌背 + FC 列只用掉约 900px。 */
+  --vc-w: clamp(150px, 16.5vmin, 182px);
   --tier-A: #b8860b;
   --tier-B: #3b4a8c;
   --tier-C: #4a7c43;
@@ -19,7 +18,7 @@
   position: relative;
   width: var(--vc-w);
   min-height: 18.5em;
-  font-size: calc(var(--vc-font-ref) / 16.5);
+  font-size: calc(var(--vc-w) / 16.5);
   display: flex;
   flex-direction: column;
   padding: 0.45em 0.6em 0.5em;
