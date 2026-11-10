@@ -2,11 +2,12 @@
    样式与 client/public/card-preview.html 的样例卡一一对应，改这边要同步那边；
    那边这些类是裸的（整页只有它一套卡），这里一律挂在 .paper-card 下，
    免得和 index.css 的 .btn、PlayerPanel.css 的 .prestige 撞名。
-   尺寸全用 em：em 的基准是 --vc-font-ref 那条"老卡宽 / 16.5"比例，
-   所以预览页的 1rem 在这里就是 1em。 */
+   尺寸全用 em：em 的基准是 --vc-w 那条"卡宽 / 15"比例。
+   预览页那张 264px 的卡基准因此是 17.6px，它用 rem 写死，
+   所以那边的数值 = 这边的 em × 1.1（17.6 / 根字号 16），改 em 要换算着同步。 */
 .paper-card {
   /* 留白已经压到紧凑档（见下面各处 margin/padding），尺寸就交回给卡宽本身：
-     字号 = 卡宽 / 16.5，卡放大时字和徽标等比跟着大，不会再出现"卡大字小"的空档。
+     字号 = 卡宽 / 15，卡放大时字和徽标等比跟着大，不会再出现"卡大字小"的空档。
      牌桌左靠后横向很宽裕，1600×1000 下 4 张 165px 的卡 + 牌背 + FC 列只用掉约 900px。
      竖向是更紧的那头：6:9 的卡三行叠起来要吃掉 4.5 × 卡宽，加上顶栏 + 资源池 ~8.6rem、
      行距 1.4rem、底栏 padding 5rem，1366×768 只放得下 115px 宽的卡，
@@ -23,7 +24,7 @@
   /* 长宽比跟左侧牌背对齐（.gb-deck img 是 aspect-ratio: 6/9），
      不然 VC 看着比抽牌堆矮一截、扁扁的。多出来的高度由 .card-art 吸收。 */
   aspect-ratio: 6 / 9;
-  font-size: calc(var(--vc-w) / 16.5);
+  font-size: calc(var(--vc-w) / 15);
   display: flex;
   flex-direction: column;
   padding: 0.45em 0.6em 0.5em;
@@ -182,8 +183,8 @@
 /* 产出/费用圆圈直接贴牌桌那枚筹码图（images/tokens/*Token.png），资源符号已经烧在图里 */
 .paper-card .gem {
   position: relative;
-  width: 3.625em;
-  height: 3.625em;
+  width: 3.9em;
+  height: 3.9em;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
@@ -228,8 +229,8 @@
 }
 
 .paper-card .cost .mini {
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.65em;
+  height: 1.65em;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
