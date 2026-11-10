@@ -20,6 +20,11 @@
     --collab: #8a6a3b; --funding: #b0433c; --coffee: #c99a2e;
     --serif: 'Noto Serif SC', 'Judson', serif;
     --num: 'Lobster', cursive;
+    /* VC 论文卡整体缩放：卡面配色/排版/筹码一律不动，只按比例缩尺寸。
+       用 zoom 而不是 transform:scale —— scale 不改变占位，缩完行里会留一堆空白，
+       zoom 连布局盒子一起缩，卡与卡之间的间距自动跟着收紧。
+       和 client/src/components/PaperCard.css 里的 --vc-scale 保持一致。 */
+    --vc-scale: 0.85;
   }
   * { box-sizing: border-box; }
   body {
@@ -34,6 +39,7 @@
   /* ---------- 主样例卡 ---------- */
   .card {
     position: relative; width: 264px; min-height: 372px; display: flex; flex-direction: column;
+    zoom: var(--vc-scale);
     padding: 0.7rem 0.85rem 0.9rem;
     border-radius: 10px;
     color: var(--ink);
@@ -72,6 +78,7 @@
   .prestige span { font-family: var(--num); font-size: 1.5rem; color: #6b4d0a; text-shadow: 0 1px 0 #fff2c2; }
 
   .title { margin-top: 1.1rem; font-family: var(--serif); font-weight: 700; font-size: 1.9rem; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: .02em; }
+  .sub { margin-top: .15rem; font-family: 'Ma Shan Zheng', var(--serif); font-size: .9rem; line-height: 1.2; text-align: center; color: #6a5326; letter-spacing: .06em; }
 
   .card-art { display: grid; place-items: center; margin: .45rem 0 .1rem; color: #6a5326; flex: 0 0 auto; min-height: 52px; }
   .card-art svg { width: 78%; height: 42px; overflow: visible; }
@@ -95,22 +102,14 @@
   /* 产出 / 费用：圆里的宝石照片拿掉，只留一圈细边和线条符号，
      符号按资源着色（羊皮纸底上要选够深的色），背景就是卡面本身 */
   .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .4rem .5rem; border-radius: 8px; background: rgba(120,90,40,.10); }
-  .bonus .gem { position: relative; width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(74,52,16,.32); display: grid; place-items: center; }
-  .bonus .gem svg { width: 30px; height: 30px; stroke: currentColor; }
+  .bonus .gem { position: relative; width: 58px; height: 58px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.26) 0 2px 5px, inset 0 0 0 1px rgba(74,52,16,.18); }
   .bonus .plus { position: absolute; top: -6px; right: -6px; background: var(--tierA); color: #fff; font-family: var(--num); font-size: .95rem; border: .1em solid #fff; border-radius: 50%; padding: 0 .28em; line-height: 1.3; }
   .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1rem; color: #4a3410; letter-spacing: .02em; }
 
   /* 费用 */
   .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: .28rem; justify-content: center; padding-right: .2rem; }
   .cost .row { display: flex; align-items: center; gap: .45rem; }
-  .cost .mini { width: 24px; height: 24px; border-radius: 50%; border: 1px solid rgba(74,52,16,.32); display: grid; place-items: center; flex: 0 0 auto; }
-  .cost .mini svg { width: 14px; height: 14px; stroke: currentColor; }
-  .gem[data-res='data'], .mini[data-res='data'] { color: #4a3a18; }
-  .gem[data-res='compute'], .mini[data-res='compute'] { color: #2f6fb0; }
-  .gem[data-res='citation'], .mini[data-res='citation'] { color: #3f8f52; }
-  .gem[data-res='collaborator'], .mini[data-res='collaborator'] { color: #7a5a2f; }
-  .gem[data-res='funding'], .mini[data-res='funding'] { color: #b0433c; }
-  .gem[data-res='coffee'], .mini[data-res='coffee'] { color: #a97e1f; }
+  .cost .mini { width: 24px; height: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.2) 0 1px 3px, inset 0 0 0 1px rgba(74,52,16,.18); flex: 0 0 auto; }
   .cost .n { font-family: var(--num); font-size: 1.15rem; color: #4a3410; min-width: .8em; }
   .cost .lbl { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.05rem; color: #4a3410; letter-spacing: .03em; margin-left: .1rem; }
 
@@ -124,6 +123,16 @@
   .icon-chip .c { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; }
   .icon-chip svg { width: 18px; height: 18px; stroke: #fff; }
   .icon-chip .lbl { font-size: .82rem; }
+  /* 资源筹码（P 图后） */
+  .chips { display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+  .chip-row { display: flex; gap: 1.2rem; align-items: flex-end; }
+  .chip-cell { text-align: center; color: #e9e4d6; }
+  .chip-cell img { display: block; margin: 0 auto; border-radius: 50%; }
+  .chip-cell .nm { font-size: .78rem; margin-top: .3rem; }
+  .chip-cell .sz { font-size: .7rem; opacity: .6; }
+  .chip-strip { display: flex; gap: .4rem; align-items: center; padding: .55rem .8rem; border-radius: 10px; background: rgba(255,255,255,.06); border: 1px solid var(--frame); }
+  .chip-strip img { border-radius: 50%; display: block; }
+  .chip-strip .cap { font-size: .74rem; opacity: .7; margin-right: .3rem; }
   .tiers { display: flex; gap: .7rem; }
   .tb { padding: .28rem .7rem; border-radius: 6px; color: #fff; font-weight: 700; font-size: .82rem; letter-spacing: .05em; }
 
@@ -202,8 +211,8 @@
   .nobles-preview .noble-tile {
     font-size: calc(var(--flag-h) / 7.375);
     position: relative; width: calc(var(--rect-w) + var(--flag-d)); height: var(--flag-h);
-    display: flex; flex-direction: column; justify-content: center; gap: 0.42em;
-    padding: 0.5em calc(var(--flag-d) + 0.7em) 0.5em 0.7em; clip-path: var(--flag-shape);
+    display: flex; flex-direction: column; justify-content: center; gap: 0.8em;
+    padding: 0.35em calc(var(--flag-d) + 0.7em) 0.95em 0.7em; clip-path: var(--flag-shape);
     color: #ece3c8;
     /* 不写 font-family，和 client/src/components/NobleTile.css 一样继承页面基准，
        否则 FC 的中文会掉到黑体、和羊皮纸卡的宋体不一致 */
@@ -225,29 +234,27 @@
     font-family: 'Lobster', cursive; font-size: calc(var(--badge) * 0.55); line-height: 1;
     color: #6b4d0a; text-shadow: 0 1px 0 rgba(255, 242, 194, 0.75);
   }
-  .nobles-preview .noble-head { display: flex; align-items: center; gap: 0.45em; min-width: 0; }
+  .nobles-preview .noble-head { display: flex; align-items: center; gap: 0.3em; min-width: 0; }
+  .nobles-preview .noble-text { min-width: 0; }
   .nobles-preview .noble-mark {
-    flex-shrink: 0; width: 2em; height: 2em; object-fit: contain;
+    flex-shrink: 0; width: 1.75em; height: 1.75em; object-fit: contain;
     filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.45));
   }
   .nobles-preview .noble-name { flex-shrink: 0; font-size: 0.95em; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
-  .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(236, 227, 200, 0.62); }
+  .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(236, 227, 200, 0.62); white-space: nowrap; }
   .nobles-preview .noble-requirements { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.1em; }
-  .nobles-preview .requirement-item {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.06em;
-    width: min(2.4em, 29%); aspect-ratio: 1; border-radius: 50%;
-    background: none; border: 1px solid rgba(236, 227, 200, 0.3);
+  .nobles-preview .requirement-item { position: relative; width: min(2.4em, 29%); aspect-ratio: 1; }
+  /* 需求筹码直接用牌桌那枚筹码图，数量改成右下角角标（符号已烧在图里，圈内没地方再放数字） */
+  .nobles-preview .requirement-disc {
+    position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%;
+    object-fit: cover; box-shadow: 0 0.08em 0.2em rgba(0, 0, 0, 0.5);
   }
-  /* 圈内不留填充（那块半透明蓝底本身就是一颗蓝宝石），只留细边定住圆形；
-     符号按资源着色并提亮一档，暗 navy 底上原色的棕、红几乎糊成一片 */
-  .nobles-preview .requirement-item[data-res='data'] { color: #efe9dc; }
-  .nobles-preview .requirement-item[data-res='compute'] { color: #7fb3e0; }
-  .nobles-preview .requirement-item[data-res='citation'] { color: #79c78f; }
-  .nobles-preview .requirement-item[data-res='collaborator'] { color: #cfa26b; }
-  .nobles-preview .requirement-item[data-res='funding'] { color: #e58a82; }
-  .nobles-preview .requirement-item[data-res='coffee'] { color: #e6b95c; }
-  .nobles-preview .requirement-icon { width: 52%; height: 52%; stroke: currentColor; }
-  .nobles-preview .requirement-count { font-family: 'Lobster', cursive; font-size: 0.88em; line-height: 1; color: #ece3c8; }
+  .nobles-preview .requirement-count {
+    position: absolute; right: -0.12em; bottom: -0.1em;
+    font-family: 'Lobster', cursive; font-size: 0.72em; line-height: 1.35; min-width: 1.35em;
+    text-align: center; color: #4a3410; background: #f4ead0; border: 0.09em solid #a8811f;
+    border-radius: 50%; box-shadow: 0 0.06em 0.14em rgba(0, 0, 0, 0.45);
+  }
 </style>
 </head>
 <body>
@@ -328,6 +335,10 @@
     <div class="icon-chip"><div class="c" style="background:var(--coffee)"><svg viewBox="0 0 24 24"><use href="#ic-coffee"/></svg></div><span class="lbl">咖啡 · 金(万能)</span></div>
   </div>
 
+  <h1 style="margin-top:.6rem">资源筹码 · 宝石换成资源符号（C 版配色）</h1>
+  <p class="note">外圈色环和羊皮纸质感保留，中间那颗宝石挖掉后按真实纸面补纹，再盖上线稿符号。文件在 images/tokens/*Token.png，旧的 *Token.jpg 还在，确认后再替换引用。</p>
+  <div id="token-chips" class="chips"></div>
+
   <h1 style="margin-top:.6rem">三级配色</h1>
   <div class="tiers">
     <div class="tb" style="background:var(--tierC)">CCF-C · tier1 · 绿</div>
@@ -385,53 +396,53 @@
       collaborator:{ ic: '#ic-collab',   cn: '合作' },
       funding:     { ic: '#ic-funding',  cn: '经费' }
     };
-    const SAMPLES = [
-      // CCF-A (tier 3)
-      { id: 'cvpr',     prestige: 5, bonus: 'funding',     cost: { data: 3, compute: 3, citation: 2 } },
-      { id: 'aaai',     prestige: 5, bonus: 'compute',     cost: { data: 3, citation: 3, collaborator: 2 } },
-      { id: 'siggraph', prestige: 4, bonus: 'collaborator',cost: { compute: 3, citation: 3, funding: 3 } },
-      // CCF-B (tier 2)
-      { id: 'emnlp',    prestige: 3, bonus: 'data',        cost: { compute: 3, citation: 3, funding: 2 } },
-      { id: 'ismar',    prestige: 3, bonus: 'citation',    cost: { data: 2, compute: 3, collaborator: 2 } },
-      { id: 'acsac',    prestige: 2, bonus: 'funding',     cost: { data: 3, compute: 2, funding: 2 } },
-      // CCF-C (tier 1)
-      { id: 'icann',    prestige: 1, bonus: 'compute',     cost: { data: 2, compute: 1, citation: 1 } },
-      { id: 'ecir',     prestige: 1, bonus: 'collaborator',cost: { data: 2, citation: 2 } },
-      { id: 'sat',      prestige: 0, bonus: 'citation',    cost: { data: 1, compute: 1, citation: 1 } }
-    ];
+    // 筹码图按官方宝石色命名，和资源一一对应；卡面上的圆圈直接用这张图。
+    // 必须声明在使用它的样例卡/贵族卡渲染之前，const 有暂时性死区
+    const DISC = {
+      data: 'White', compute: 'Blue', citation: 'Green',
+      collaborator: 'Brown', funding: 'Red', coffee: 'Gold'
+    };
+    // 样例卡不再手抄数值：成本和产出直接读 shared/venues.js 的注册表（由 tools/vc-matrix.js 生成），
+    // 每档挑前 3 种不同产出的会议，保证一行里能看出产出差别。
+    const pickSamples = ccf => {
+      const seen = new Set();
+      return VENUES.filter(v => v.ccf === ccf).filter(v => {
+        if (seen.size >= 3 || seen.has(v.bonus)) return false;
+        seen.add(v.bonus);
+        return true;
+      });
+    };
     const tierClass = { A: '', B: ' tierB', C: ' tierC' };
     const wrap = document.createElement('div');
     wrap.style.cssText = 'display:flex;flex-direction:column;gap:1.6rem;width:100%;align-items:center';
     ['A','B','C'].forEach(ccf => {
-      const tierList = SAMPLES.filter(s => {
-        const v = VENUES.find(x => x.id === s.id);
-        return v && v.ccf === ccf;
-      });
+      const tierList = pickSamples(ccf);
       const block = document.createElement('div');
       block.style.cssText = 'display:flex;flex-direction:column;gap:.9rem;width:100%;align-items:center';
       const head = document.createElement('div');
       head.className = 'tier-h';
       head.style.cssText = 'width:100%;max-width:1200px';
-      head.innerHTML = `<span class="badge" style="background:${tierColor[ccf]}">CCF-${ccf}</span><span class="count">${tierList.length} 张样例</span><span class="rule"></span>`;
+      head.innerHTML = `<span class="badge" style="background:${tierColor[ccf]}">CCF-${ccf}</span><span class="count">${tierList.length} 张样例 · 数值取自注册表</span><span class="rule"></span>`;
       const row = document.createElement('div');
       row.className = 'card-row';
-      tierList.forEach(s => {
-        const v = VENUES.find(x => x.id === s.id);
+      tierList.forEach(v => {
         const art = v.art.type === 'logo'
           ? `<div class="card-art${v.art.tone === 'light' ? ' tone-light' : ''}"><img src="${v.art.src}" alt="${v.name}" /></div>`
           : `<div class="card-art"><div class="art-wm" style="color:${wmColor[v.art.style] || '#2a3568'}"><div class="m">${v.name}</div></div></div>`;
-        const b = RES[s.bonus];
-        const bonusHtml = `<div class="gem" data-res="${s.bonus}"><svg viewBox="0 0 24 24"><use href="${b.ic}"/></svg><span class="plus">+1</span></div><span class="cap">产出 ${b.cn}</span>`;
-        const costHtml = Object.entries(s.cost).map(([r, n]) => {
+        const b = RES[v.bonus];
+        const disc = r => `background-image:url(/images/tokens/${DISC[r]}Token.png)`;
+        const bonusHtml = `<div class="gem" style="${disc(v.bonus)}"><span class="plus">+1</span></div><span class="cap">产出 ${b.cn}</span>`;
+        const costHtml = Object.entries(v.cost).map(([r, n]) => {
           const c = RES[r];
-          return `<div class="row"><div class="mini" data-res="${r}"><svg viewBox="0 0 24 24"><use href="${c.ic}"/></svg></div><span class="n">${n}</span><span class="lbl">${c.cn}</span></div>`;
+          return `<div class="row"><div class="mini" style="${disc(r)}"></div><span class="n">${n}</span><span class="lbl">${c.cn}</span></div>`;
         }).join('');
         const card = document.createElement('div');
         card.className = 'card' + tierClass[ccf];
         card.innerHTML = `
-          <div class="prestige"><span>${s.prestige}</span></div>
+          <div class="prestige"><span>${v.prestige}</span></div>
           <div class="ribbon"><span class="dot"></span>CCF-${ccf}<span class="dot"></span></div>
           <div class="title">${v.name}</div>
+          <div class="sub">${v.cn}</div>
           ${art}
           <div class="body">
             <div class="bonus">${bonusHtml}</div>
@@ -447,21 +458,19 @@
     document.getElementById('sample-cards').appendChild(wrap);
 
     // ---------- 贵族卡 ----------
-    const RES_IC = {
-      data: 'ic-data', compute: 'ic-compute', citation: 'ic-citation',
-      collaborator: 'ic-collab', funding: 'ic-funding', coffee: 'ic-coffee'
-    };
     const nobleHtml = n => `
       <div class="noble-flag${n.enabled ? '' : ' bench'}" data-tier="${n.tier}" title="${n.cn} · ${n.prestige} 声誉">
         <div class="noble-tile">
           <div class="noble-head">
             ${n.logo ? `<img class="noble-mark" src="${n.logo}" alt="" />` : ''}
-            <div class="noble-name">${n.name}</div>
+            <div class="noble-text">
+              <div class="noble-name">${n.name}</div>
+              <div class="noble-sub">${n.sub}</div>
+            </div>
           </div>
-          <div class="noble-sub">${n.sub}</div>
           <div class="noble-requirements">${Object.entries(n.requirement).map(([r, c]) => `
-            <div class="requirement-item" data-res="${r}">
-              <svg class="requirement-icon" viewBox="0 0 24 24"><use href="#${RES_IC[r]}"/></svg>
+            <div class="requirement-item">
+              <img class="requirement-disc" src="/images/tokens/${DISC[r]}Token.png" alt="" />
               <span class="requirement-count">${c}</span>
             </div>`).join('')}
           </div>
@@ -485,6 +494,21 @@
       col.innerHTML = `<div class="noble-cap">${label}</div>` + list.map(nobleHtml).join('');
       nobleRow.appendChild(col);
     });
+
+    // 资源筹码：同一张图给三个尺寸，118 看细节，48/37 是牌桌和持有列的实际渲染
+    const TOKEN_IMG = {
+      data: 'White', compute: 'Blue', citation: 'Green',
+      collaborator: 'Brown', funding: 'Red', coffee: 'Gold'
+    };
+    const TOKEN_CN = { data: '数据', compute: '算力', citation: '引用', collaborator: '合作者', funding: '经费', coffee: '咖啡' };
+    const strip = (size, cap) => `<div class="chip-strip"><span class="cap">${cap}</span>` +
+      Object.keys(TOKEN_IMG).map(k =>
+        `<img src="/images/tokens/${TOKEN_IMG[k]}Token.png" style="width:${size}px;height:${size}px" alt="${TOKEN_CN[k]}">`).join('') + '</div>';
+    document.getElementById('token-chips').innerHTML =
+      `<div class="chip-row">` + Object.keys(TOKEN_IMG).map(k =>
+        `<div class="chip-cell"><img src="/images/tokens/${TOKEN_IMG[k]}Token.png" style="width:118px;height:118px" alt="${TOKEN_CN[k]}">` +
+        `<div class="nm">${TOKEN_CN[k]}</div><div class="sz">118px</div></div>`).join('') + '</div>' +
+      strip(48, '牌桌资源池 48px') + strip(37, '玩家持有列 37px');
 
     // 实测尺寸，随窗口变化更新
     const readout = document.getElementById('size-readout');
