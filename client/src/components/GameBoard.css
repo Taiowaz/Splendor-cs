@@ -165,6 +165,7 @@
 
 /* 宝石圆片 */
 .gem-circle {
+  position: relative; /* 计数徽标贴在圆片上，见 .gem-num */
   width: 2.3em;
   height: 2.3em;
   border-radius: 50%;
@@ -176,16 +177,30 @@
   box-shadow: rgba(0, 0, 0, 0.35) 0 3px 6px, inset 0 0 6px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
+/* 数量：右上角圆形小标。原来印在圆心，正好盖住筹码中间那枚 AR 线稿符号
+   （FC 需求圈是符号居中 + 数字在右下，这里跟它同一套约定）。 */
 .gem-num {
+  position: absolute;
+  top: -0.3em;
+  right: -0.3em;
+  z-index: 2;
+  min-width: 1.3em;
+  height: 1.3em;
+  padding: 0 0.12em;
+  border-radius: 50%;
+  background: rgba(12, 18, 26, 0.92);
+  border: 0.08em solid #fff;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
-  font-size: 1.15em;
+  font-size: 0.72em;
   color: #fff;
-  -webkit-text-stroke: 0.06rem black;
-  text-shadow: 1px 2px 3px black;
+  line-height: 1.3em;
+  text-align: center;
 }
+/* 选中数 / 论文加成：让位到右下，右上已经被数量占了 */
 .gem-badge {
   position: absolute;
-  top: -0.35em;
+  bottom: -0.35em;
   right: -0.35em;
   min-width: 1.2em;
   height: 1.2em;
@@ -269,7 +284,7 @@
   height: 3em;
 }
 .pool-gem .gem-num {
-  font-size: 1.5em;
+  font-size: 0.95em; /* 48px 的筹码，徽标跟着放大到 ~20px */
 }
 .pool-gem:hover {
   transform: translateY(-3px);
@@ -284,7 +299,7 @@
   filter: grayscale(0.6);
 }
 .pool-gem .gem-badge {
-  top: -0.4em;
+  bottom: -0.4em;
   right: -0.4em;
   background-color: rgb(218, 165, 32);
   color: #1a1a28;
