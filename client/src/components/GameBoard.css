@@ -315,7 +315,12 @@
   height: 6.2em;
   aspect-ratio: 6 / 9;
   border-radius: 0.5rem;
-  box-shadow: rgba(0, 0, 0, 0.9) -3px 2px 6px -1px;
+  /* 白边照原版：印刷卡四周留一圈白纸芯，原图约 2.4% 卡宽。牌桌只有 66px 宽，
+     按比例算只剩 1.6px 看不出来，所以给到 0.16rem（≈3.9%）。
+     用 inset 描边而不是加 border，免得把 2:3 的画面压成 0.645。 */
+  box-shadow:
+    rgba(0, 0, 0, 0.9) -3px 2px 6px -1px,
+    inset 0 0 0 0.16rem #f6f0e2;
   border: 1px solid rgba(212, 175, 55, 0.4);
 }
 .deck-count {
