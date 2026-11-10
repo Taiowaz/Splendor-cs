@@ -1,52 +1,64 @@
 import './PaperCard.css'
 
-const RESOURCE_INFO = {
-  data: { icon: '📊', name: '数据' },
-  compute: { icon: '💻', name: '算力' },
-  citation: { icon: '📄', name: '引用' },
-  collaborator: { icon: '🤝', name: '合作者' },
-  funding: { icon: '💰', name: '经费' }
+// 筹码图按官方宝石色命名，和资源一一对应（同 NobleTile / card-preview.html）
+const DISC = {
+  data: 'White',
+  compute: 'Blue',
+  citation: 'Green',
+  collaborator: 'Brown',
+  funding: 'Red',
+  coffee: 'Gold'
 }
 
-const TIER_COLORS = {
-  1: '#4caf50',
-  2: '#2196f3',
-  3: '#9c27b0'
+// 卡面上的资源短名（"合作者" 三个字在窄卡面上会挤掉数字，一律缩成两字）
+const RES_CN = {
+  data: '数据',
+  compute: '算力',
+  citation: '引用',
+  collaborator: '合作',
+  funding: '经费'
 }
 
-export default function PaperCard({ card, tier, canAfford, onBuy, onReserve, isMyTurn }) {
-  const tierColor = TIER_COLORS[tier]
+const disc = (r) => ({ backgroundImage: `url(/images/tokens/${DISC[r]}Token.png)` })
+
+export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn }) {
+  const tierClass = card.ccf === 'B' ? ' tierB' : card.ccf === 'C' ? ' tierC' : ''
 
   return (
-    <div className={`paper-card tier-${tier} ${canAfford ? 'affordable' : ''}`}>
-      <div className="card-header" style={{ backgroundColor: tierColor }}>
-        <span className="card-prestige">⭐ {card.prestige}</span>
-        <span className="card-tier">T{tier}</span>
+    <div
+      className={`paper-card${tierClass}${canAfford ? ' affordable' : ''}`}
+      title={`${card.fullName} · ${card.cn}`}
+    >
+      <div className="prestige"><span>{card.prestige}</span></div>
+      <div className="ribbon"><span className="dot" />CCF-{card.ccf}<span className="dot" /></div>
+
+      <div className="title">{card.name}</div>
+      <div className="card-sub">{card.cn}</div>
+
+      <div className={`card-art${card.art?.tone === 'light' ? ' tone-light' : ''}`}>
+        {card.art && <img src={card.art.src} alt="" />}
       </div>
 
-      <div className="card-body">
-        <div className="card-name">{card.name}</div>
-        <div className="card-bonus">
-          <span className="bonus-icon">{RESOURCE_INFO[card.bonus]?.icon}</span>
-          <span className="bonus-text">+1 {RESOURCE_INFO[card.bonus]?.name}</span>
+      <div className="body">
+        <div className="bonus">
+          <div className="gem" style={disc(card.bonus)}><span className="plus">+1</span></div>
+          <span className="cap">产出 {RES_CN[card.bonus]}</span>
+        </div>
+        <div className="cost">
+          {Object.entries(card.cost).map(([resource, count]) => (
+            <div className="row" key={resource}>
+              <div className="mini" style={disc(resource)} />
+              <span className="n">{count}</span>
+              <span className="lbl">{RES_CN[resource]}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="card-cost">
-        {Object.entries(card.cost).map(([resource, amount]) => (
-          <div key={resource} className="cost-item">
-            <span>{RESOURCE_INFO[resource]?.icon}</span>
-            <span>{amount}</span>
-          </div>
-        ))}
-      </div>
-
       {isMyTurn && (
-        <div className="card-actions">
-          {canAfford && (
-            <button className="btn-buy" onClick={onBuy}>购买</button>
-          )}
-          <button className="btn-reserve" onClick={onReserve}>预留</button>
+        <div className="foot">
+          {canAfford && <button className="btn buy" onClick={onBuy}>购买</button>}
+          <button className="btn" onClick={onReserve}>预留</button>
         </div>
       )}
     </div>

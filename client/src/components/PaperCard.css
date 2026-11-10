@@ -1,144 +1,298 @@
+/* VC 论文卡（会议卡）· 羊皮纸卡面。
+   样式与 client/public/card-preview.html 的样例卡一一对应，改这边要同步那边；
+   那边这些类是裸的（整页只有它一套卡），这里一律挂在 .paper-card 下，
+   免得和 index.css 的 .btn、PlayerPanel.css 的 .prestige 撞名。
+   尺寸全用 em：卡的基准字号 = 卡宽 / 16.5，正是预览页 264px 卡宽配 16px 根字号的比例，
+   所以预览页的 1rem 在这里就是 1em，卡缩小后字和留白等比跟着缩，不会撑破卡面。 */
 .paper-card {
+  /* 卡宽：118px 时基准字号只有 7px 读不动（徽标+产出+最多 4 行成本，信息密度高），
+     给到 140~168px。zoom 只用于压住 box-shadow 等不随 em 缩放的绝对值，
+     不再当尺寸旋钮用——尺寸只看 --vc-w，否则视觉上又是 119px，等于白改。 */
+  --vc-scale: 0.98;
+  --vc-w: clamp(140px, 15vmin, 168px);
+  --tier-A: #b8860b;
+  --tier-B: #3b4a8c;
+  --tier-C: #4a7c43;
+  --ink: #3a2a12;
+  --frame: rgba(212, 175, 55, 0.55);
+
+  zoom: var(--vc-scale);
   position: relative;
-  width: clamp(118px, 13vmin, 150px);
+  width: var(--vc-w);
+  min-height: 23.25em;
+  font-size: calc(var(--vc-w) / 16.5);
   display: flex;
   flex-direction: column;
-  border-radius: 0.5rem;
+  padding: 0.7em 0.85em 0.9em;
+  border-radius: 0.625em;
   overflow: hidden;
-  color: #ece3c8;
-  background: linear-gradient(180deg, rgba(24, 28, 46, 0.92), rgba(12, 14, 26, 0.94));
-  border: 1.5px solid rgba(212, 175, 55, 0.45);
-  box-shadow: rgba(0, 0, 0, 0.9) -3px 2px 6px -1px;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
   flex-shrink: 0;
+  color: var(--ink);
+  font-family: 'Noto Serif SC', 'Judson', serif;
+  background:
+    radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
+    radial-gradient(140% 120% at 50% 120%, rgba(80, 55, 20, 0.32), transparent 60%),
+    linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
+  border: 1px solid var(--frame);
+  box-shadow:
+    rgba(0, 0, 0, 0.85) -0.25em 0.375em 0.875em -0.125em,
+    inset 0 0 2.125em rgba(90, 60, 20, 0.14);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+/* 纸纤维纹理：1px 的线不跟着卡面缩放，缩了会糊成一片 */
+.paper-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0.625em;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(120, 90, 40, 0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 90, 40, 0.04) 0 1px, transparent 1px 4px);
+  mix-blend-mode: multiply;
+  opacity: 0.5;
 }
 
 .paper-card:hover {
-  transform: translateY(-4px);
-  box-shadow: rgba(0, 0, 0, 0.7) 0 6px 16px;
+  transform: translateY(-0.35em);
+  box-shadow: rgba(0, 0, 0, 0.7) 0 0.5em 1em;
 }
 
 .paper-card.affordable {
   border-color: rgb(245, 204, 101);
-  box-shadow: 0 0 0 1px rgba(245, 204, 101, 0.5), rgba(0, 0, 0, 0.7) -3px 2px 8px -1px;
+  box-shadow:
+    0 0 0 0.1em rgba(245, 204, 101, 0.55),
+    rgba(0, 0, 0, 0.7) -0.25em 0.375em 0.875em -0.125em;
 }
 
-.card-header {
-  padding: 0.35rem 0.6rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #fff;
-  font-size: 0.8rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-.card-prestige {
-  font-family: 'Lobster', cursive;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.card-tier {
-  opacity: 0.85;
-  font-size: 0.72rem;
-}
-
-.card-body {
-  padding: 0.5rem 0.6rem;
-  flex: 1;
-}
-
-.card-name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  color: #f2d675;
-  line-height: 1.2;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.card-bonus {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.78rem;
-  color: #d8d2bd;
-  background: rgba(104, 105, 119, 0.25);
-  padding: 0.2rem 0.5rem;
-  border-radius: 0.4rem;
-  border: 1px solid rgba(212, 175, 55, 0.25);
-}
-
-.bonus-icon {
-  font-size: 0.95rem;
-}
-
-.card-cost {
-  padding: 0.4rem 0.5rem;
-  display: flex;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-  border-top: 1px solid rgba(212, 175, 55, 0.3);
-  background: rgba(0, 0, 0, 0.28);
-}
-
-.cost-item {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-  font-family: 'Lobster', cursive;
-  font-size: 0.85rem;
-  color: #ece3c8;
-  background: rgba(30, 81, 109, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* 声誉章：和 FC 卡右侧那枚筹码同一套金底 */
+.paper-card .prestige {
+  position: absolute;
+  top: 0.35em;
+  left: 0.5em;
+  z-index: 3;
+  width: 2.55em;
+  height: 2.55em;
   border-radius: 50%;
-  width: 1.7rem;
-  height: 1.7rem;
-  justify-content: center;
-}
-.cost-item span:first-child {
-  font-size: 0.7rem;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 38% 32%, #ffe9a8, #d9a520 62%, #9c7010);
+  border: 0.14em solid #8a6a15;
+  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(120, 80, 10, 0.5);
+  pointer-events: none;
 }
 
-.card-actions {
+.paper-card .prestige span {
+  font-family: 'Lobster', cursive;
+  font-size: 1.5em;
+  line-height: 1;
+  color: #6b4d0a;
+  text-shadow: 0 1px 0 #fff2c2;
+}
+
+.paper-card .ribbon {
   display: flex;
-  gap: 0.35rem;
-  padding: 0.4rem;
-  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  margin: -0.15em -0.85em 0.6em;
+  padding: 0.32em 0.6em;
+  background: linear-gradient(180deg, var(--tier-A), #7d5606);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95em;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 -0.19em 0.375em rgba(0, 0, 0, 0.25);
 }
 
-.btn-buy,
-.btn-reserve {
-  flex: 1;
-  padding: 0.35rem 0.4rem;
-  border-radius: 0.4rem;
-  font-family: 'Judson', serif;
-  font-size: 0.78rem;
+.paper-card .ribbon .dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: rgb(245, 204, 101);
+}
+
+.paper-card .title {
+  margin-top: 1.1em;
   font-weight: 700;
+  font-size: 1.9em;
+  line-height: 1.05;
+  text-align: center;
+  color: #2c1e0c;
+  letter-spacing: 0.02em;
+}
+
+.paper-card .card-sub {
+  margin-top: 0.15em;
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  font-size: 0.9em;
+  line-height: 1.2;
+  text-align: center;
+  color: #6a5326;
+  letter-spacing: 0.06em;
+}
+
+/* 会议徽标：浅色 logo 底下垫一块暗色，免得白羊皮纸吃掉白色笔画 */
+.paper-card .card-art {
+  display: grid;
+  place-items: center;
+  margin: 0.45em 0 0.1em;
+  min-height: 3.25em;
+  color: #6a5326;
+  flex: 0 0 auto;
+}
+
+.paper-card .card-art img {
+  max-width: 78%;
+  max-height: 2.875em;
+  object-fit: contain;
+  display: block;
+}
+
+.paper-card .card-art.tone-light {
+  padding: 0.25em 0.625em;
+  border-radius: 0.5em;
+  background: radial-gradient(ellipse at center, rgba(30, 20, 8, 0.85), rgba(30, 20, 8, 0.55) 65%, transparent 100%);
+}
+
+.paper-card .body {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.6em;
+  margin-top: 1.4em;
+}
+
+.paper-card .bonus {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.4em 0.5em;
+  border-radius: 0.5em;
+  background: rgba(120, 90, 40, 0.1);
+}
+
+/* 产出/费用圆圈直接贴牌桌那枚筹码图（images/tokens/*Token.png），资源符号已经烧在图里 */
+.paper-card .gem {
+  position: relative;
+  width: 3.625em;
+  height: 3.625em;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  box-shadow: rgba(0, 0, 0, 0.26) 0 0.125em 0.3125em, inset 0 0 0 1px rgba(74, 52, 16, 0.18);
+}
+
+.paper-card .gem .plus {
+  position: absolute;
+  top: -0.375em;
+  right: -0.375em;
+  background: var(--tier-A);
+  color: #fff;
+  font-family: 'Lobster', cursive;
+  font-size: 0.95em;
+  border: 0.1em solid #fff;
+  border-radius: 50%;
+  padding: 0 0.28em;
+  line-height: 1.3;
+}
+
+.paper-card .cap {
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  font-size: 1em;
+  color: #4a3410;
+  letter-spacing: 0.02em;
+}
+
+.paper-card .cost {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.28em;
+  padding-right: 0.2em;
+}
+
+.paper-card .cost .row {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.paper-card .cost .mini {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  flex: 0 0 auto;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625em 0.1875em, inset 0 0 0 1px rgba(74, 52, 16, 0.18);
+}
+
+.paper-card .cost .n {
+  font-family: 'Lobster', cursive;
+  font-size: 1.15em;
+  color: #4a3410;
+  min-width: 0.8em;
+}
+
+.paper-card .cost .lbl {
+  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+  font-size: 1.05em;
+  color: #4a3410;
+  letter-spacing: 0.03em;
+  margin-left: 0.1em;
+}
+
+.paper-card .foot {
+  margin-top: auto;
+  padding-top: 0.5em;
+  display: flex;
+  gap: 0.4em;
+}
+
+.paper-card .btn {
+  flex: 1;
+  text-align: center;
+  font-family: inherit;
+  font-size: 0.85em;
+  padding: 0.35em;
+  border-radius: 0.375em;
+  border: 1px solid var(--frame);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--ink);
   cursor: pointer;
   transition: filter 0.15s ease;
 }
 
-.btn-buy {
-  background: linear-gradient(to top, rgb(150, 110, 20), rgb(218, 165, 32), rgb(245, 204, 101));
-  color: #1a1408;
-  border: 1px solid rgb(245, 204, 101);
+.paper-card .btn:hover {
+  filter: brightness(1.08);
 }
 
-.btn-buy:hover {
-  filter: brightness(1.12);
+.paper-card .btn.buy {
+  background: linear-gradient(180deg, #3f8f52, #2c6b3c);
+  color: #fff;
+  border-color: #2c6b3c;
 }
 
-.btn-reserve {
-  background: rgba(104, 105, 119, 0.3);
-  color: #ece3c8;
-  border: 1px solid rgba(212, 175, 55, 0.5);
+/* CCF-B / CCF-C：缎带和产出角标跟着换档色 */
+.paper-card.tierB .ribbon {
+  background: linear-gradient(180deg, var(--tier-B), #2a3568);
 }
 
-.btn-reserve:hover {
-  filter: brightness(1.2);
+.paper-card.tierC .ribbon {
+  background: linear-gradient(180deg, var(--tier-C), #2c552a);
+}
+
+.paper-card.tierB .gem .plus {
+  background: var(--tier-B);
+}
+
+.paper-card.tierC .gem .plus {
+  background: var(--tier-C);
 }

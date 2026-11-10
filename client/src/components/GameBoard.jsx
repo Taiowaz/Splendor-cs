@@ -4,14 +4,15 @@ import NobleTile from './NobleTile.jsx'
 import './GameBoard.css'
 
 const TIER_NAMES = {
-  1: '入门论文',
-  2: '期刊论文',
-  3: '顶会论文'
+  1: 'CCF-C 论文',
+  2: 'CCF-B 论文',
+  3: 'CCF-A 论文'
 }
 
+// 卡背按 CCF 档配色：A 金 / B 蓝 / C 绿，和卡面缎带同一套
 const TIER_DECK = {
-  3: '/images/BlueCard.jpg',
-  2: '/images/YellowCard.jpg',
+  3: '/images/YellowCard.jpg',
+  2: '/images/BlueCard.jpg',
   1: '/images/GreenCard.jpg'
 }
 
@@ -174,16 +175,15 @@ export default function GameBoard({
           <div className="gb-cards">
             {[3, 2, 1].map(tier => (
               <div key={tier} className={`gb-tier-row tier-${tier}`}>
-                <div className="gb-deck" title={`${TIER_NAMES[tier]} 牌库`}>
+                <div className="gb-deck" title={`${TIER_NAMES[tier]} 抽牌堆`}>
                   <img src={TIER_DECK[tier]} alt={`tier${tier}`} />
-                  <span className="deck-count">{gameState.bank[`tier${tier}`]?.length || 0}</span>
+                  <span className="deck-count">{gameState.bank[`draw${tier}Count`] ?? 0}</span>
                 </div>
                 <div className="gb-tier-cards">
                   {gameState.bank[`tier${tier}`]?.map((card, index) => (
                     <PaperCard
                       key={card.id}
                       card={card}
-                      tier={tier}
                       canAfford={isMyTurn && canAfford(myPlayer, card)}
                       onBuy={() => handleBuyCard(card, tier)}
                       onReserve={() => {
