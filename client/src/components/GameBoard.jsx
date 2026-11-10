@@ -266,7 +266,7 @@ export default function GameBoard({
           }
           return (
             <div key={type} className="mc-type">
-              <div className="inv-gem" title={`${info.name}｜持有 ${tokens}${produce ? `｜论文产出 +${produce}` : ''}`}>
+              <div className="inv-gem" title={`${info.name}｜持有 ${tokens}${produce ? `｜${produce} 篇论文，折价 +${produce}` : ''}`}>
                 <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                   <span className="gem-num">{tokens}</span>
                 </div>

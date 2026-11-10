@@ -4,6 +4,7 @@ import {
   createPlayer,
   takeTokens,
   buyCard,
+  settleProduction,
   reserveCard,
   canAffordCard,
   checkNobleVisit,
@@ -428,6 +429,7 @@ export function setupWebSocket(server) {
           player.cards.push(card);
           player.bonus[card.bonus]++;
           player.prestige += card.prestige;
+          settleProduction(game, player, card);
           refillTier(game, tier);
         }
       }
