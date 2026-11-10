@@ -2,13 +2,15 @@
 
 > 手工维护。加素材请顺手更新本文件；数字对不上时以
 > `ls -1 client/public/images/<目录> | wc -l` 和 `du -sh` 为准。
-> 截至 2026-11-10：`client/public/images` 共 112 个文件 / 9.3 MB。
+> 截至 2026-11-10：`client/public/images` 共 116 个文件 / 9.6 MB。
 
 ## 放哪
 
 ```
 assets/nobles-raw/            会士徽标原始图（10 张，从官网/Wikimedia 抓的，未加工）
+assets/decks-raw/             卡背母图（3 张 1024x1536，ImageGen 出的学院纹章）
 tools/noble-logos.py          原始图 → public/images/nobles 的压章脚本
+tools/deck-backs.sh           母图 → public/images/decks 的缩放脚本
 tools/vc-matrix.js            VC 成本/产出矩阵生成器 → docs/VC-MATRIX.md
 tools/asset-check.js          素材自检（断链 / 孤儿 / 体积 / 缺字段）
 shared/venues.js              90 张会议卡的索引（art.src / tone / aspect 在这里）
@@ -17,9 +19,7 @@ client/public/images/
   venues/                     会议 logo，90 张，8.2 MB
   tokens/                     筹码，6 色 × 2 套 = 12 张，484 KB
   nobles/                     会士徽标，10 张，164 KB
-  BlueCard.jpg                卡背 · 高级（CCF-A）
-  GreenCard.jpg               卡背 · 初级（CCF-C）
-  YellowCard.jpg              卡背 · 中级（CCF-B）
+  decks/                      卡背（学院纹章），3 张（A/B/C 各 1），160 KB
   bluebackground.jpg          牌桌桌布，580 KB
 ```
 
@@ -33,7 +33,8 @@ client/public/images/
 | 会议 logo | 90（82 png + 8 svg） | 8.2 MB | 会议名小写 = `id` | ❌ 没留 | ❌ 手工下载 | `shared/venues.js` 的 `art.src` |
 | 筹码 | 12（6 色 × 两套） | 484 KB | `<颜色>Token.{jpg,png}` | `.jpg` 就是原图，`.png` 是在它上面 P 掉的成品 | ❌ 外部 P 图，没留脚本 | `GameBoard.jsx` 引 `.jpg`，`NobleTile.jsx` 引 `.png` |
 | 会士徽标 | 10 | 164 KB | `<学会 id>.png` | ✅ `assets/nobles-raw/` | ✅ `tools/noble-logos.py` | `shared/nobles.js` 的 `logo` |
-| 卡背 / 桌布 | 4 | 638 KB | 见上 | ❌ 官方素材 | ❌ | `GameBoard` 相关 CSS |
+| 卡背 | 3 | 160 KB | `crest-<档>.jpg` | ✅ `assets/decks-raw/` | ✅ `tools/deck-backs.sh` | `GameBoard.jsx` 的 `TIER_DECK` |
+| 桌布 | 1 | 568 KB | `bluebackground.jpg` | ❌ 官方素材 | ❌ | `GameBoard.css` |
 
 颜色 → 资源（筹码文件名里的 `<颜色>` 是官方宝石色名，不是我们的资源名）：
 

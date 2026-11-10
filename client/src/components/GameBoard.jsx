@@ -9,11 +9,12 @@ const TIER_NAMES = {
   3: 'CCF-A 论文'
 }
 
-// 卡背按 CCF 档配色：A 金 / B 蓝 / C 绿，和卡面缎带同一套
+// 卡背是自制学院纹章（盾徽+书+月桂+绶带），三档只换徽记墨色：A 金 / B 蓝 / C 绿
+// 源图 400x600 = 2:3，和 .gb-deck img 的 aspect-ratio 一致，不会再被拉扁
 const TIER_DECK = {
-  3: '/images/YellowCard.jpg',
-  2: '/images/BlueCard.jpg',
-  1: '/images/GreenCard.jpg'
+  3: '/images/decks/crest-A.jpg',
+  2: '/images/decks/crest-B.jpg',
+  1: '/images/decks/crest-C.jpg'
 }
 
 // CS 资源映射到宝石视觉
