@@ -1,5 +1,20 @@
 /* ===== 学术宝石 · 璀璨宝石风格主题 ===== */
 
+/* 牌桌的竖向尺寸链，VC 和 FC 共用一份：
+   --vc-w   VC 卡宽。留白已经压到紧凑档，尺寸交回给卡宽本身，字号 = 卡宽 / 15，
+            卡放大时字和徽标等比跟着大。竖向是更紧的那头：6:9 的卡三行叠起来吃掉
+            4.5 × 卡宽，加上顶栏 + 资源池 ~8.6rem、行距 1.4rem、底栏 padding 5rem，
+            1366×768 只放得下 115px 宽的卡，所以再取一个按视口高反算的上限，
+            矮屏宁可卡小一点也不要滚动。
+   --vc-col VC 列总高 = 三行 6:9 卡 + 两个 .gb-cards 行距（0.7rem × 2）。
+   --fc-gap FC 五面旗之间的间隔。牌高由 --vc-col 反算，所以 5 张时上下两张正好
+            压齐 VC 首行顶边和末行底边，剩下的空隙就是这个值。 */
+:root {
+  --vc-w: min(clamp(150px, 16.5vmin, 182px), calc((100vh - 15.5rem) / 4.5));
+  --vc-col: calc(4.5 * var(--vc-w) + 1.4rem);
+  --fc-gap: 0.6rem;
+}
+
 .gb-root {
   min-height: 100vh;
   display: flex;
@@ -339,10 +354,11 @@
   grid-area: nobles;
   display: flex;
   flex-direction: column;
-  /* 0.45rem 时 FC 列在 1366×768 下比 VC 列高出 ~14px，整页多出 6px 竖向滚动条；
-     收到 0.3rem 后小旗仍然分得开，矮屏不用再滚。 */
-  gap: 0.3rem;
-  align-self: center;
+  /* 间隔用 :root 的 --fc-gap，牌高按它反算，所以 5 张时整列正好铺满 VC 列
+     （上下两张对齐首末行 VC），不足 5 张时居中聚拢、间隔不变。 */
+  gap: var(--fc-gap);
+  align-self: stretch;
+  justify-content: center;
 }
 
 /* ---- 右侧：其他玩家 ---- */

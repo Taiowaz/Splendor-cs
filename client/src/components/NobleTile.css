@@ -8,10 +8,11 @@
   --card-w: clamp(118px, 15vmin, 168px);
   --flag-font-ref: min(var(--card-w), calc((100vh - 16.5rem) / 5));
   --rect-w: calc(var(--card-w) * 1.3);
-  /* 竖向预算实测只有 12.6rem 出头（顶栏+资源池+行距），老常数 16.5rem 白留了 ~65px；
-     按 12.6rem 算并把上限从 card-w 放宽到 1.12×card-w，5 张牌各拿到约 +9% 高度，
-     1366×768 / 1600×1000 / 1920×1080 下末张底部都还剩 ~15px 不被 .gb-main 切掉。 */
-  --flag-h: min(calc((100vh - 12.6rem) / 5), calc(var(--card-w) * 1.12));
+  /* 牌高不再自己算，改成从 VC 列反推：5 面旗（渲染高 = zoom × (flag-h + 4px padding)）
+     加上 4 个 --fc-gap 正好等于 --vc-col，所以最上面那张压齐 VC 首行顶边、
+     最下面那张压齐末行底边，中间的空隙就是 --fc-gap。
+     分母 4.5 = 5 面 × --fc-scale 0.9，改 zoom 要一起改。 */
+  --flag-h: calc((var(--vc-col) - 4 * var(--fc-gap)) / 4.5 - 4px);
   /* 三角深度从 h/2（45°-45°-90°）收到 0.4h：尖还是尖，但少占 ~15px 横向，
      不然加高会把宽度又吃回去。 */
   --flag-d: calc(var(--flag-h) * 0.4);

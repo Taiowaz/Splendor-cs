@@ -19,6 +19,11 @@
     --data: #efe9dc; --compute: #2f6fb0; --citation: #3f8f52;
     --collab: #8a6a3b; --funding: #b0433c; --coffee: #c99a2e;
     --serif: 'Noto Serif SC', 'Judson', serif;
+    /* 牌桌竖向尺寸链，和 GameBoard.css :root 一致（贵族卡按游戏内真实尺寸渲染，
+       不像样例卡那样放大到 264px 基准） */
+    --vc-w: min(clamp(150px, 16.5vmin, 182px), calc((100vh - 15.5rem) / 4.5));
+    --vc-col: calc(4.5 * var(--vc-w) + 1.4rem);
+    --fc-gap: 0.6rem;
     --num: 'Lobster', cursive;
     /* VC 论文卡整体缩放：游戏里的卡面已经不用 zoom 了（尺寸全靠 --vc-w 和留白收放），
        这里保留开关只为在预览页上摆得下，默认 1 与游戏一致。
@@ -203,7 +208,7 @@
     --card-w: clamp(118px, 15vmin, 168px);
     --flag-font-ref: min(var(--card-w), calc((100vh - 16.5rem) / 5));
     --rect-w: calc(var(--card-w) * 1.3);
-    --flag-h: min(calc((100vh - 12.6rem) / 5), calc(var(--card-w) * 1.12));
+    --flag-h: calc((var(--vc-col) - 4 * var(--fc-gap)) / 4.5 - 4px);
     --flag-d: calc(var(--flag-h) * 0.4);
     --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
     position: relative; flex-shrink: 0; zoom: var(--fc-scale); padding: 2px; clip-path: var(--flag-shape);
