@@ -215,24 +215,37 @@
   line-height: 1.2em;
   text-align: center;
 }
-/* 论文产出（VC 常驻加成）：右下角金色圆标，跟 VC 卡面上那枚 .plus 同一个约定——
-   卡面是"筹码圆片 + 金底 +号"，这里反过来讲"这枚筹码金 +N 是卡给我的"。
-   原来用 📄 表情单独占一格，跟手里那枚引用筹码是同一个数说两遍，还把符号圈挤没了。
-   和 .gem-num 对角分开（数字标上沿到 1.0em，这枚下沿从 1.3em 起），不重叠。 */
-.gem-produce {
+/* VC 图标：这个方向已发表的论文。一枚卡背 + 右上角金色计数，
+   和左边那枚筹码圆片并排——筹码是"手上的"，卡是"发过的（折价）"，两件事两个形状。
+   卡背按该方向最好的一篇选档（A 金 / B 蓝 / C 绿徽记墨色）。
+   对齐 splendor-chinese：那边买卡只加 bonuses，筹码不会因为买卡进手。 */
+.vc-mark {
+  position: relative;
+  width: 1.6em;
+  aspect-ratio: 6 / 9;
+}
+.vc-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(218, 165, 32, 0.6);
+  box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
+}
+.vc-count {
   position: absolute;
-  bottom: -0.3em;
-  right: -0.3em;
+  top: -0.35em;
+  right: -0.35em;
   z-index: 2;
   min-width: 1.3em;
   height: 1.3em;
-  padding: 0 0.1em;
+  padding: 0 0.12em;
   border-radius: 50%;
   background: rgb(218, 165, 32);
   border: 0.08em solid #1a1a28;
   box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
-  font-size: 0.66em;
+  font-size: 0.72em;
   color: #1a1a28;
   line-height: 1.3em;
   text-align: center;

@@ -9,6 +9,8 @@ const TIER_NAMES = {
   3: 'CCF-A 论文'
 }
 
+const TIER_CCF = { 3: 'A', 2: 'B', 1: 'C' }
+
 // 卡背是自制学院纹章（盾徽+书+月桂+绶带），三档只换徽记墨色：A 金 / B 蓝 / C 绿
 // 源图 400x600 = 2:3，和 .gb-deck img 的 aspect-ratio 一致，不会再被拉扁
 const TIER_DECK = {
@@ -254,24 +256,36 @@ export default function GameBoard({
         {INVENTORY_TYPES.map(type => {
           const info = RESOURCE_INFO[type]
           const tokens = myPlayer?.tokens?.[type] || 0
-          // 论文产出 = 该方向论文的张数（server 里就是 player.bonus[card.bonus]++），
-          // 所以不再另列一个 📄 计数，同一个数只说一遍
-          const produce = myPlayer?.bonus?.[type] || 0
+          // 该方向的已发表论文：张数 == player.bonus[type]（服务端买卡时 ++），
+          // 这里直接从 cards 派生，筹码和论文各占一个图标，不再叠在同一枚圆片上
+          const papers = (myPlayer?.cards || []).filter(c => c.bonus === type)
           const reserved = (myPlayer?.reservedCards || []).filter(c => c.bonus === type)
-          if (tokens === 0 && produce === 0 && reserved.length === 0) return null
+          if (tokens === 0 && papers.length === 0 && reserved.length === 0) return null
           const buyReserved = () => {
             if (!isMyTurn) return
             const target = reserved.find(c => canAfford(myPlayer, c)) || reserved[0]
             if (target) onBuyCard(target.id, target.tier, true)
           }
+          // 卡背按该方向最好的一篇选档（tier 数字越大越高级：3 = CCF-A）
+          const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 0
+          const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
+          const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
           return (
             <div key={type} className="mc-type">
-              <div className="inv-gem" title={`${info.name}｜持有 ${tokens}${produce ? `｜${produce} 篇论文，折价 +${produce}` : ''}`}>
+              <div className="inv-gem" title={`${info.name}｜筹码 ${tokens}`}>
                 <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                   <span className="gem-num">{tokens}</span>
                 </div>
-                {produce > 0 && <span className="gem-produce">+{produce}</span>}
               </div>
+              {papers.length > 0 && (
+                <div
+                  className="vc-mark"
+                  title={`${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`}
+                >
+                  <img src={TIER_DECK[bestTier]} alt="" />
+                  <span className="vc-count">{papers.length}</span>
+                </div>
+              )}
               {reserved.length > 0 && (
                 <div className="mc-counts">
                   <div
