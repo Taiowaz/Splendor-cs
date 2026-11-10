@@ -242,8 +242,8 @@
   display: grid;
   grid-template-columns: auto auto;
   grid-template-areas:
-    "tokens tokens"
-    "cards  nobles";
+    "cards  nobles"
+    "tokens tokens";
   align-content: center;
   justify-content: center;
   gap: 1.2rem 1.4rem;
@@ -252,6 +252,7 @@
 
 .gb-tokenpool {
   grid-area: tokens;
+  position: relative; /* 确认条挂在这，见 .gb-actionbar */
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -421,10 +422,14 @@
 
 /* ---- 资源选择确认条 ---- */
 .gb-actionbar {
-  position: fixed;
-  bottom: 6.4rem;
-  left: 50%;
-  transform: translateX(-50%);
+  /* 挂在筹码行右侧，不再浮在底部：筹码行下移之后，底部那条 fixed 会正好压住
+     最右边那两枚筹码（1366 压 30px，1920 压 45px），点不动了。
+     筹码是固定尺寸：5 × 3em + 4 × 1.1rem 间距 = 310px，半宽 9.7rem，再加 0.7rem
+     空隙 → 从行中心偏 10.4rem 起排。这样确认条不吃竖向空间，筹码也不会被挤走。
+     竖向跟行底对齐：条比 48px 的筹码行高，居中会压到下面「我的资源」那条上。 */
+  position: absolute;
+  bottom: 0;
+  left: calc(50% + 10.4rem);
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -434,6 +439,7 @@
   border: 1px solid rgba(212, 175, 55, 0.6);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   z-index: 40;
+  white-space: nowrap;
 }
 .action-summary { color: #f2d675; font-weight: 700; }
 

@@ -149,29 +149,6 @@ export default function GameBoard({
       <div className="gb-main">
         {/* 中间：牌桌 */}
         <div className="gb-board">
-          {/* 资源池 */}
-          <div className="gb-tokenpool">
-            {TOKEN_TYPES.map(type => {
-              const info = RESOURCE_INFO[type]
-              const bankCount = gameState.bank.tokens[type] || 0
-              const sel = selectedTokens[type] || 0
-              return (
-                <div
-                  key={type}
-                  className={`pool-gem ${sel > 0 ? 'selected' : ''} ${bankCount === 0 ? 'empty' : ''}`}
-                  onClick={() => handleTokenClick(type)}
-                  onDoubleClick={() => handleTokenDoubleClick(type)}
-                  title={`${info.name}｜银行 ${bankCount}｜单击选1，双击选2（银行≥4）`}
-                >
-                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
-                    <span className="gem-num">{bankCount}</span>
-                  </div>
-                  {sel > 0 && <span className="gem-badge">{sel}</span>}
-                </div>
-              )
-            })}
-          </div>
-
           {/* 发展卡（论文） */}
           <div className="gb-cards">
             {[3, 2, 1].map(tier => (
@@ -207,6 +184,38 @@ export default function GameBoard({
             {gameState.bank.nobles.map(noble => (
               <NobleTile key={noble.id} noble={noble} />
             ))}
+          </div>
+
+          {/* 公共筹码（AR）：排在 VC + FC 整块下面，我的资源条上面 */}
+          <div className="gb-tokenpool">
+            {TOKEN_TYPES.map(type => {
+              const info = RESOURCE_INFO[type]
+              const bankCount = gameState.bank.tokens[type] || 0
+              const sel = selectedTokens[type] || 0
+              return (
+                <div
+                  key={type}
+                  className={`pool-gem ${sel > 0 ? 'selected' : ''} ${bankCount === 0 ? 'empty' : ''}`}
+                  onClick={() => handleTokenClick(type)}
+                  onDoubleClick={() => handleTokenDoubleClick(type)}
+                  title={`${info.name}｜银行 ${bankCount}｜单击选1，双击选2（银行≥4）`}
+                >
+                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
+                    <span className="gem-num">{bankCount}</span>
+                  </div>
+                  {sel > 0 && <span className="gem-badge">{sel}</span>}
+                </div>
+              )
+            })}
+
+            {/* 资源选择确认条：贴在筹码行右侧，不另占一行 */}
+            {totalSelected > 0 && (
+              <div className="gb-actionbar">
+                <span className="action-summary">已选 {totalSelected} 个资源</span>
+                <button className="gb-btn gb-btn-gold" onClick={handleConfirmTokens}>确认拿取</button>
+                <button className="gb-btn gb-btn-ghost" onClick={() => setSelectedTokens({})}>取消</button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -283,15 +292,6 @@ export default function GameBoard({
           )
         })}
       </div>
-
-      {/* 资源选择确认条 */}
-      {totalSelected > 0 && (
-        <div className="gb-actionbar">
-          <span className="action-summary">已选 {totalSelected} 个资源</span>
-          <button className="gb-btn gb-btn-gold" onClick={handleConfirmTokens}>确认拿取</button>
-          <button className="gb-btn gb-btn-ghost" onClick={() => setSelectedTokens({})}>取消</button>
-        </div>
-      )}
 
       {/* 预留确认弹窗 */}
       {showReserve && reserveTarget && (
