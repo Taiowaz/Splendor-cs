@@ -4,9 +4,6 @@ import { VENUES } from '../shared/venues.js';
 
 export const RESOURCE_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding'];
 
-// 手牌筹码上限（含咖啡），只约束「拿取」动作；论文产出不受它限制
-export const TOKEN_LIMIT = 10;
-
 export const RESOURCE_NAMES = {
   data: '数据',
   compute: '算力',
@@ -126,17 +123,9 @@ export function canAffordCard(player, card) {
   return coffeeNeeded <= player.tokens.coffee;
 }
 
-// 论文产出当场结算一次：买下这张卡，从银行拿 1 枚该色筹码进「我的资源」。
-// 只有银行那色空了才不给；不受 TOKEN_LIMIT 约束——上限管的是"拿取"这个动作，
-// 产出是卡的附带收益，卡面写了 +1 就必须给，静默不给最容易被当成 bug。
-// 常驻折价另算，走 player.bonus，见 buyCard。
-export function settleProduction(gameState, player, card) {
-  const bank = gameState.bank.tokens;
-  if (bank[card.bonus] > 0) {
-    player.tokens[card.bonus]++;
-    bank[card.bonus]--;
-  }
-}
+// 论文产出不发筹码：买卡只累加 player.bonus（该色折价 +1，同时也是会士卡的判分口径），
+// 和 splendor-chinese 的 BuyCardAction 一致。筹码只能通过「拿取」动作进手。
+// 已买论文的张数在界面上单独用一枚卡牌图标表示，见 client GameBoard.jsx 的 .vc-mark。
 
 // 购买卡牌（fromReserved = true 时从玩家预留区买，不动牌桌）
 export function buyCard(gameState, playerIndex, cardId, tier, fromReserved = false) {
@@ -175,7 +164,6 @@ export function buyCard(gameState, playerIndex, cardId, tier, fromReserved = fal
   player.cards.push(card);
   player.bonus[card.bonus]++;
   player.prestige += card.prestige;
-  settleProduction(gameState, player, card);
 
   // 从预留区/牌桌移除，牌桌那侧补一张
   row.splice(cardIndex, 1);
@@ -189,9 +177,9 @@ export function takeTokens(player, tokens, bankTokens) {
   const totalTokens = Object.values(tokens).reduce((a, b) => a + b, 0);
   const playerTotal = Object.values(player.tokens).reduce((a, b) => a + b, 0);
 
-  // 检查是否超过token上限
-  if (playerTotal + totalTokens > TOKEN_LIMIT) {
-    return { success: false, error: `超过资源上限（${TOKEN_LIMIT}个）` };
+  // 检查是否超过token上限（10个）
+  if (playerTotal + totalTokens > 10) {
+    return { success: false, error: '超过资源上限（10个）' };
   }
 
   // 检查银行是否有足够的token
