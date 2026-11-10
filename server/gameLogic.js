@@ -81,7 +81,7 @@ function shuffle(array) {
 }
 
 // 桌上的卡被买走/预留后从抽牌堆补满 4 张；抽牌堆空了留空位（官方规则）
-function refillTier(gameState, tier) {
+export function refillTier(gameState, tier) {
   const row = gameState.bank[`tier${tier}`];
   const draw = gameState.bank[`draw${tier}`];
   while (row.length < FACE_UP && draw.length > 0) {

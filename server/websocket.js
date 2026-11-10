@@ -8,6 +8,8 @@ import {
   canAffordCard,
   checkNobleVisit,
   endTurn,
+  refillTier,
+  checkVictory,
   RESOURCE_TYPES
 } from './gameLogic.js';
 import { executeAiTurn } from './ai.js';
@@ -426,7 +428,14 @@ export function setupWebSocket(server) {
           player.cards.push(card);
           player.bonus[card.bonus]++;
           player.prestige += card.prestige;
+          refillTier(game, tier);
         }
+      }
+
+      const winner = checkVictory(game);
+      if (winner) {
+        game.gameOver = true;
+        game.winner = winner.id;
       }
 
       // 广播更新后的状态
