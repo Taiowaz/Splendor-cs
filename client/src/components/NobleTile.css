@@ -1,14 +1,17 @@
-/* 旗帜形（pennant）：左侧矩形放正文，右侧收成一个 45°-45°-90° 的三角尖。
-   三角深度 = 牌高的一半才能拿到 90° 顶角，所以牌宽 = 正文宽 + 三角深度，
-   正文可用宽度与非旗帜版一致，不会因为剪形而挤字。 */
+/* 旗帜形（pennant）：左侧矩形放正文，右侧收成一个三角尖。
+   字号基准和牌高分开算：--flag-font-ref 仍是老的"高 / 7.375"那条比例，
+   牌高改由 --flag-h 单独放大，所以卡变高、变窄，字和徽标还是原来的大小。 */
 .noble-flag {
   --card-w: clamp(118px, 15vmin, 168px);
-  --rect-w: calc(var(--card-w) * 1.4);
-  /* 竖向预算实测值：顶栏 3.4rem + 上边距 1rem + 下边距 5rem + 资源池 3rem
-     + 池与牌列的行间距 1.2rem + 5 张牌之间 4×0.7rem = 16.4rem，留 0.1rem 余量。
-     屏矮时整列一起缩，避免最后一张被 .gb-main 的 overflow:hidden 切掉。 */
-  --flag-h: min(var(--card-w), calc((100vh - 16.5rem) / 5));
-  --flag-d: calc(var(--flag-h) / 2);
+  --flag-font-ref: min(var(--card-w), calc((100vh - 16.5rem) / 5));
+  --rect-w: calc(var(--card-w) * 1.3);
+  /* 竖向预算实测只有 12.6rem 出头（顶栏+资源池+行距），老常数 16.5rem 白留了 ~65px；
+     按 12.6rem 算并把上限从 card-w 放宽到 1.12×card-w，5 张牌各拿到约 +9% 高度，
+     1366×768 / 1600×1000 / 1920×1080 下末张底部都还剩 ~15px 不被 .gb-main 切掉。 */
+  --flag-h: min(calc((100vh - 12.6rem) / 5), calc(var(--card-w) * 1.12));
+  /* 三角深度从 h/2（45°-45°-90°）收到 0.4h：尖还是尖，但少占 ~15px 横向，
+     不然加高会把宽度又吃回去。 */
+  --flag-d: calc(var(--flag-h) * 0.4);
   --flag-shape: polygon(
     0 0,
     calc(100% - var(--flag-d)) 0,
@@ -32,8 +35,9 @@
 
 .noble-tile {
   position: relative;
-  /* 牌内所有字号/间距走 em，基准 = 牌高 / 7.375（即 118px 牌高对应 1rem），牌缩字跟着缩，不会撑破剪形 */
-  font-size: calc(var(--flag-h) / 7.375);
+  /* 牌内所有字号/间距走 em，基准 = --flag-font-ref / 7.375（即 118px 牌高对应 1rem），
+     与牌高解耦：牌加高不跟着放大字。 */
+  font-size: calc(var(--flag-font-ref) / 7.375);
   /* 字体不写死，继承 .gb-root 的 Judson + 中文回退，和论文卡同一套；
      这里塞 sans 栈会让卡面中文变黑体、卡面英文和牌桌其它文字分家。 */
   width: calc(var(--rect-w) + var(--flag-d));
@@ -62,7 +66,7 @@
    这样牌桌上两种牌的声誉值看起来是同一类东西。
    圆心从三角深度 0.5d 推到 0.62d（往牌身方向挪），斜边余量反而从 0.054d 涨到 0.138d。 */
 .noble-prestige {
-  --badge: calc(var(--flag-d) * 0.6);
+  --badge: calc(var(--flag-h) * 0.28);
   position: absolute;
   left: calc(100% - var(--flag-d) * 0.62);
   top: 50%;

@@ -20,11 +20,10 @@
     --collab: #8a6a3b; --funding: #b0433c; --coffee: #c99a2e;
     --serif: 'Noto Serif SC', 'Judson', serif;
     --num: 'Lobster', cursive;
-    /* VC 论文卡整体缩放：卡面配色/排版/筹码一律不动，只按比例缩尺寸。
-       用 zoom 而不是 transform:scale —— scale 不改变占位，缩完行里会留一堆空白，
-       zoom 连布局盒子一起缩，卡与卡之间的间距自动跟着收紧。
-       和 client/src/components/PaperCard.css 里的 --vc-scale 保持一致。 */
-    --vc-scale: 0.85;
+    /* VC 论文卡整体缩放：游戏里的卡面已经不用 zoom 了（尺寸全靠 --vc-w 和留白收放），
+       这里保留开关只为在预览页上摆得下，默认 1 与游戏一致。
+       和 client/src/components/PaperCard.css 里的取值保持一致。 */
+    --vc-scale: 1;
   }
   * { box-sizing: border-box; }
   body {
@@ -38,9 +37,9 @@
 
   /* ---------- 主样例卡 ---------- */
   .card {
-    position: relative; width: 264px; min-height: 372px; display: flex; flex-direction: column;
+    position: relative; width: 264px; min-height: 296px; display: flex; flex-direction: column;
     zoom: var(--vc-scale);
-    padding: 0.7rem 0.85rem 0.9rem;
+    padding: 0.45rem 0.6rem 0.5rem;
     border-radius: 10px;
     color: var(--ink);
     background:
@@ -60,7 +59,7 @@
   }
   .ribbon {
     display: flex; align-items: center; justify-content: center; gap: .45em;
-    margin: -0.15rem -0.85rem 0.6rem; padding: .32rem .6rem;
+    margin: -0.1rem -0.6rem 0.35rem; padding: .28rem .6rem;
     background: linear-gradient(180deg, var(--tierA), #7d5606);
     color: #fff; font-weight: 700; font-size: .95rem; letter-spacing: .06em;
     border-bottom: 1px solid rgba(0,0,0,.3);
@@ -77,10 +76,10 @@
   }
   .prestige span { font-family: var(--num); font-size: 1.5rem; color: #6b4d0a; text-shadow: 0 1px 0 #fff2c2; }
 
-  .title { margin-top: 1.1rem; font-family: var(--serif); font-weight: 700; font-size: 1.9rem; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: .02em; }
-  .sub { margin-top: .15rem; font-family: 'Ma Shan Zheng', var(--serif); font-size: .9rem; line-height: 1.2; text-align: center; color: #6a5326; letter-spacing: .06em; }
+  .title { margin-top: 0.95rem; font-family: var(--serif); font-weight: 700; font-size: 1.9rem; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: .02em; }
+  .sub { margin-top: .1rem; font-family: 'Ma Shan Zheng', var(--serif); font-size: .9rem; line-height: 1.2; text-align: center; color: #6a5326; letter-spacing: .06em; }
 
-  .card-art { display: grid; place-items: center; margin: .45rem 0 .1rem; color: #6a5326; flex: 0 0 auto; min-height: 52px; }
+  .card-art { display: grid; place-items: center; margin: .25rem 0 0; color: #6a5326; flex: 0 0 auto; min-height: 52px; }
   .card-art svg { width: 78%; height: 42px; overflow: visible; }
   .card-art img { max-width: 78%; max-height: 46px; object-fit: contain; display: block; }
   .card-art.tone-light { padding: 4px 10px; border-radius: 8px;
@@ -97,24 +96,24 @@
   .card-art .art-wm.wm-serif-teal .m { color: #1e516d; }
   .card-art .art-wm.wm-serif-orange .m { color: #a05a1a; }
 
-  .body { display: flex; align-items: stretch; justify-content: space-between; margin-top: 2.2rem; gap: .6rem; }
+  .body { display: flex; align-items: stretch; justify-content: space-between; margin-top: .6rem; gap: .5rem; }
 
   /* 产出 / 费用：圆里的宝石照片拿掉，只留一圈细边和线条符号，
      符号按资源着色（羊皮纸底上要选够深的色），背景就是卡面本身 */
-  .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .3rem; padding: .4rem .5rem; border-radius: 8px; background: rgba(120,90,40,.10); }
+  .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .2rem; padding: .25rem .35rem; border-radius: 8px; background: rgba(120,90,40,.10); }
   .bonus .gem { position: relative; width: 58px; height: 58px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.26) 0 2px 5px, inset 0 0 0 1px rgba(74,52,16,.18); }
   .bonus .plus { position: absolute; top: -6px; right: -6px; background: var(--tierA); color: #fff; font-family: var(--num); font-size: .95rem; border: .1em solid #fff; border-radius: 50%; padding: 0 .28em; line-height: 1.3; }
   .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1rem; color: #4a3410; letter-spacing: .02em; }
 
   /* 费用 */
-  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: .28rem; justify-content: center; padding-right: .2rem; }
+  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: .22rem; justify-content: center; padding-right: .1rem; }
   .cost .row { display: flex; align-items: center; gap: .45rem; }
   .cost .mini { width: 24px; height: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.2) 0 1px 3px, inset 0 0 0 1px rgba(74,52,16,.18); flex: 0 0 auto; }
   .cost .n { font-family: var(--num); font-size: 1.15rem; color: #4a3410; min-width: .8em; }
   .cost .lbl { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.05rem; color: #4a3410; letter-spacing: .03em; margin-left: .1rem; }
 
-  .foot { margin-top: auto; padding-top: .5rem; display: flex; gap: .4rem; }
-  .btn { flex: 1; text-align: center; font-family: var(--serif); font-size: .85rem; padding: .35rem; border-radius: 6px; border: 1px solid var(--frame); background: rgba(255,255,255,.12); color: var(--ink); }
+  .foot { margin-top: auto; padding-top: .3rem; display: flex; gap: .3rem; }
+  .btn { flex: 1; text-align: center; font-family: var(--serif); font-size: .85rem; padding: .25rem; border-radius: 6px; border: 1px solid var(--frame); background: rgba(255,255,255,.12); color: var(--ink); }
   .btn.buy { background: linear-gradient(180deg,#3f8f52,#2c6b3c); color:#fff; border-color:#2c6b3c; }
 
   /* ---------- 图标系统行 ---------- */
@@ -196,11 +195,13 @@
   .noble-cap { font-size: .7rem; letter-spacing: .05em; opacity: .8; }
   .noble-cap.dim { opacity: .45; font-size: .62rem; }
   .nobles-preview .noble-flag {
-    /* 竖向预算实测：顶栏 3.4 + 上 1 + 下 5 + 资源池 3 + 行间距 1.2 + 4×0.7 = 16.4rem，留 0.1rem 余量 */
+    /* 与 client/src/components/NobleTile.css 同步：字号基准和牌高分开算，
+       牌加高、变窄，字和徽标不变。竖向预算实测只有 12.6rem 出头。 */
     --card-w: clamp(118px, 15vmin, 168px);
-    --rect-w: calc(var(--card-w) * 1.4);
-    --flag-h: min(var(--card-w), calc((100vh - 16.5rem) / 5));
-    --flag-d: calc(var(--flag-h) / 2);
+    --flag-font-ref: min(var(--card-w), calc((100vh - 16.5rem) / 5));
+    --rect-w: calc(var(--card-w) * 1.3);
+    --flag-h: min(calc((100vh - 12.6rem) / 5), calc(var(--card-w) * 1.12));
+    --flag-d: calc(var(--flag-h) * 0.4);
     --flag-shape: polygon(0 0, calc(100% - var(--flag-d)) 0, 100% 50%, calc(100% - var(--flag-d)) 100%, 0 100%);
     position: relative; flex-shrink: 0; padding: 2px; clip-path: var(--flag-shape);
     background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
@@ -209,7 +210,7 @@
   .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #b8860b); }
   .nobles-preview .noble-flag.bench { opacity: .5; filter: grayscale(.35) drop-shadow(-3px 2px 6px rgba(0,0,0,.85)); }
   .nobles-preview .noble-tile {
-    font-size: calc(var(--flag-h) / 7.375);
+    font-size: calc(var(--flag-font-ref) / 7.375);
     position: relative; width: calc(var(--rect-w) + var(--flag-d)); height: var(--flag-h);
     display: flex; flex-direction: column; justify-content: center; gap: 0.8em;
     padding: 0.35em calc(var(--flag-d) + 0.7em) 0.95em 0.7em; clip-path: var(--flag-shape);
@@ -222,7 +223,7 @@
     background: linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
   }
   .nobles-preview .noble-prestige {
-    --badge: calc(var(--flag-d) * 0.6);
+    --badge: calc(var(--flag-h) * 0.28);
     position: absolute; left: calc(100% - var(--flag-d) * 0.62); top: 50%;
     transform: translate(-50%, -50%); width: var(--badge); height: var(--badge);
     border-radius: 50%; display: grid; place-items: center;

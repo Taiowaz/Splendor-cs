@@ -279,6 +279,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  /* 与 FC 列同处一个 grid row，行高取两者的最大值。不居中的话三行会顶到行首，
+     FC 列变高时多出来的空白全堆在牌桌下面。 */
+  justify-content: center;
   min-width: 0;
 }
 .gb-tier-row {
@@ -319,6 +322,9 @@
   flex-direction: row;
   gap: 0.5rem;
   flex-wrap: wrap;
+  /* 交叉轴 stretch：同一档 4 张牌等高，行高取该行最矮的那张撑不满时也不留缝。
+     整列的多余空间由 .gb-cards 的 justify-content 吃掉，不会把行撑高。 */
+  align-items: stretch;
 }
 .gb-empty-tier {
   color: #8f8a76;
@@ -331,7 +337,7 @@
   grid-area: nobles;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.45rem;
   align-self: center;
 }
 

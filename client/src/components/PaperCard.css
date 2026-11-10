@@ -2,28 +2,27 @@
    样式与 client/public/card-preview.html 的样例卡一一对应，改这边要同步那边；
    那边这些类是裸的（整页只有它一套卡），这里一律挂在 .paper-card 下，
    免得和 index.css 的 .btn、PlayerPanel.css 的 .prestige 撞名。
-   尺寸全用 em：卡的基准字号 = 卡宽 / 16.5，正是预览页 264px 卡宽配 16px 根字号的比例，
-   所以预览页的 1rem 在这里就是 1em，卡缩小后字和留白等比跟着缩，不会撑破卡面。 */
+   尺寸全用 em：em 的基准是 --vc-font-ref 那条"老卡宽 / 16.5"比例，
+   所以预览页的 1rem 在这里就是 1em。 */
 .paper-card {
-  /* 卡宽：118px 时基准字号只有 7px 读不动（徽标+产出+最多 4 行成本，信息密度高），
-     给到 140~168px。zoom 只用于压住 box-shadow 等不随 em 缩放的绝对值，
-     不再当尺寸旋钮用——尺寸只看 --vc-w，否则视觉上又是 119px，等于白改。 */
-  --vc-scale: 0.98;
-  --vc-w: clamp(140px, 15vmin, 168px);
+  /* 字号基准仍按 140~168px 卡宽算（118px 时基准字号只有 7px 读不动），
+     而实际卡宽 --vc-w 收到 126~148px：字和徽标保持原大小，卡变小靠的是压掉留白，
+     不是整体缩——整体缩会把已经只有 9px 的正文再缩一遍。 */
+  --vc-font-ref: clamp(140px, 15vmin, 168px);
+  --vc-w: clamp(126px, 13.2vmin, 148px);
   --tier-A: #b8860b;
   --tier-B: #3b4a8c;
   --tier-C: #4a7c43;
   --ink: #3a2a12;
   --frame: rgba(212, 175, 55, 0.55);
 
-  zoom: var(--vc-scale);
   position: relative;
   width: var(--vc-w);
-  min-height: 23.25em;
-  font-size: calc(var(--vc-w) / 16.5);
+  min-height: 18.5em;
+  font-size: calc(var(--vc-font-ref) / 16.5);
   display: flex;
   flex-direction: column;
-  padding: 0.7em 0.85em 0.9em;
+  padding: 0.45em 0.6em 0.5em;
   border-radius: 0.625em;
   overflow: hidden;
   flex-shrink: 0;
@@ -96,8 +95,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.45em;
-  margin: -0.15em -0.85em 0.6em;
-  padding: 0.32em 0.6em;
+  margin: -0.1em -0.6em 0.35em;
+  padding: 0.28em 0.6em;
   background: linear-gradient(180deg, var(--tier-A), #7d5606);
   color: #fff;
   font-weight: 700;
@@ -115,7 +114,7 @@
 }
 
 .paper-card .title {
-  margin-top: 1.1em;
+  margin-top: 0.95em;
   font-weight: 700;
   font-size: 1.9em;
   line-height: 1.05;
@@ -125,7 +124,7 @@
 }
 
 .paper-card .card-sub {
-  margin-top: 0.15em;
+  margin-top: 0.1em;
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
   font-size: 0.9em;
   line-height: 1.2;
@@ -138,7 +137,7 @@
 .paper-card .card-art {
   display: grid;
   place-items: center;
-  margin: 0.45em 0 0.1em;
+  margin: 0.25em 0 0;
   min-height: 3.25em;
   color: #6a5326;
   flex: 0 0 auto;
@@ -161,8 +160,8 @@
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  gap: 0.6em;
-  margin-top: 1.4em;
+  gap: 0.5em;
+  margin-top: 0.6em;
 }
 
 .paper-card .bonus {
@@ -170,8 +169,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3em;
-  padding: 0.4em 0.5em;
+  gap: 0.2em;
+  padding: 0.25em 0.35em;
   border-radius: 0.5em;
   background: rgba(120, 90, 40, 0.1);
 }
@@ -214,8 +213,8 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  gap: 0.28em;
-  padding-right: 0.2em;
+  gap: 0.22em;
+  padding-right: 0.1em;
 }
 
 .paper-card .cost .row {
@@ -251,9 +250,9 @@
 
 .paper-card .foot {
   margin-top: auto;
-  padding-top: 0.5em;
+  padding-top: 0.3em;
   display: flex;
-  gap: 0.4em;
+  gap: 0.3em;
 }
 
 .paper-card .btn {
@@ -261,7 +260,7 @@
   text-align: center;
   font-family: inherit;
   font-size: 0.85em;
-  padding: 0.35em;
+  padding: 0.25em;
   border-radius: 0.375em;
   border: 1px solid var(--frame);
   background: rgba(255, 255, 255, 0.12);
