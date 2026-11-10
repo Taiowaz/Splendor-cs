@@ -215,6 +215,28 @@
   line-height: 1.2em;
   text-align: center;
 }
+/* 论文产出（VC 常驻加成）：右下角金色圆标，跟 VC 卡面上那枚 .plus 同一个约定——
+   卡面是"筹码圆片 + 金底 +号"，这里反过来讲"这枚筹码金 +N 是卡给我的"。
+   原来用 📄 表情单独占一格，跟手里那枚引用筹码是同一个数说两遍，还把符号圈挤没了。
+   和 .gem-num 对角分开（数字标上沿到 1.0em，这枚下沿从 1.3em 起），不重叠。 */
+.gem-produce {
+  position: absolute;
+  bottom: -0.3em;
+  right: -0.3em;
+  z-index: 2;
+  min-width: 1.3em;
+  height: 1.3em;
+  padding: 0 0.1em;
+  border-radius: 50%;
+  background: rgb(218, 165, 32);
+  border: 0.08em solid #1a1a28;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
+  font-family: 'Lobster', cursive;
+  font-size: 0.66em;
+  color: #1a1a28;
+  line-height: 1.3em;
+  text-align: center;
+}
 
 /* 持有卡牌抽屉 */
 .inv-cards,

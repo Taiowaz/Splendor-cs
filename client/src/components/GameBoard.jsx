@@ -254,10 +254,11 @@ export default function GameBoard({
         {INVENTORY_TYPES.map(type => {
           const info = RESOURCE_INFO[type]
           const tokens = myPlayer?.tokens?.[type] || 0
-          const bonus = type === 'coffee' ? 0 : (myPlayer?.bonus?.[type] || 0)
-          const ownedCount = (myPlayer?.cards || []).filter(c => c.bonus === type).length
+          // 论文产出 = 该方向论文的张数（server 里就是 player.bonus[card.bonus]++），
+          // 所以不再另列一个 📄 计数，同一个数只说一遍
+          const produce = myPlayer?.bonus?.[type] || 0
           const reserved = (myPlayer?.reservedCards || []).filter(c => c.bonus === type)
-          if (tokens === 0 && bonus === 0 && ownedCount === 0 && reserved.length === 0) return null
+          if (tokens === 0 && produce === 0 && reserved.length === 0) return null
           const buyReserved = () => {
             if (!isMyTurn) return
             const target = reserved.find(c => canAfford(myPlayer, c)) || reserved[0]
@@ -265,20 +266,14 @@ export default function GameBoard({
           }
           return (
             <div key={type} className="mc-type">
-              <div className="inv-gem" title={`${info.name}｜资源 ${tokens}${bonus ? `｜论文 +${bonus}` : ''}`}>
+              <div className="inv-gem" title={`${info.name}｜持有 ${tokens}${produce ? `｜论文产出 +${produce}` : ''}`}>
                 <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                   <span className="gem-num">{tokens}</span>
                 </div>
-                {bonus > 0 && <span className="gem-badge">{bonus}</span>}
+                {produce > 0 && <span className="gem-produce">+{produce}</span>}
               </div>
-              <div className="mc-counts">
-                {ownedCount > 0 && (
-                  <div className="cnt-chip" title={`${info.name}论文 ×${ownedCount}`}>
-                    <span className="cnt-icon">📄</span>
-                    <span className="cnt-num">{ownedCount}</span>
-                  </div>
-                )}
-                {reserved.length > 0 && (
+              {reserved.length > 0 && (
+                <div className="mc-counts">
                   <div
                     className="cnt-chip reserved"
                     title={`预留 ${reserved.length}（点击购买最便宜可负担的一张）`}
@@ -287,8 +282,8 @@ export default function GameBoard({
                     <span className="cnt-icon">🔖</span>
                     <span className="cnt-num">{reserved.length}</span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )
         })}
