@@ -72,7 +72,7 @@ export function setupWebSocket(server) {
           broadcastToRoom(currentRoom, {
             type: 'player_left',
             playerId: currentPlayerId,
-            playerName: room.game.players.find(p => p.id === currentPlayerId)?.name
+            playerName: room.game?.players.find(p => p.id === currentPlayerId)?.name
           });
           // 可选：删除房间或让AI接管
         }
@@ -309,15 +309,11 @@ export function setupWebSocket(server) {
           ws.send(JSON.stringify({ type: 'error', message: '卡牌不在预留区' }));
           return;
         }
-        const card = player.reservedCards[reservedIndex];
-        if (!canAffordCard(player, card)) {
+        if (!canAffordCard(player, player.reservedCards[reservedIndex])) {
           ws.send(JSON.stringify({ type: 'error', message: '资源不足' }));
           return;
         }
-        result = buyCard(game, playerIndex, cardId, tier);
-        if (result.success) {
-          player.reservedCards.splice(reservedIndex, 1);
-        }
+        result = buyCard(game, playerIndex, cardId, tier, true);
       } else {
         result = buyCard(game, playerIndex, cardId, tier);
       }
@@ -536,9 +532,9 @@ function getSanitizedGameState(game, requestingPlayerId) {
     })),
     bank: {
       tokens: game.bank.tokens,
-      tier1Count: game.bank.tier1.length,
-      tier2Count: game.bank.tier2.length,
-      tier3Count: game.bank.tier3.length,
+      draw1Count: game.bank.draw1.length,
+      draw2Count: game.bank.draw2.length,
+      draw3Count: game.bank.draw3.length,
       tier1: game.bank.tier1,
       tier2: game.bank.tier2,
       tier3: game.bank.tier3,

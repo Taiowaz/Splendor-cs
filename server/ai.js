@@ -176,9 +176,9 @@ function getSanitizedGameStateForAi(game, requestingPlayerId) {
     })),
     bank: {
       tokens: game.bank.tokens,
-      tier1Count: game.bank.tier1.length,
-      tier2Count: game.bank.tier2.length,
-      tier3Count: game.bank.tier3.length,
+      draw1Count: game.bank.draw1.length,
+      draw2Count: game.bank.draw2.length,
+      draw3Count: game.bank.draw3.length,
       tier1: game.bank.tier1,
       tier2: game.bank.tier2,
       tier3: game.bank.tier3,

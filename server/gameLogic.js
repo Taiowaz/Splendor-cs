@@ -1,5 +1,6 @@
 // 学术资源类型
 import { ACTIVE_NOBLES } from '../shared/nobles.js';
+import { VENUES } from '../shared/venues.js';
 
 export const RESOURCE_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding'];
 
@@ -12,111 +13,31 @@ export const RESOURCE_NAMES = {
   coffee: '咖啡'
 };
 
-// 卡牌等级
-export const TIERS = {
-  1: { count: 40, prestigeRange: [0, 1], costRange: [3, 4] },
-  2: { count: 30, prestigeRange: [2, 3], costRange: [5, 7] },
-  3: { count: 20, prestigeRange: [4, 5], costRange: [7, 9] }
-};
+// 牌库 = shared/venues.js 的 90 条注册表（CCF-A 20 / B 30 / C 40）。
+// 成本、产出、声誉都以那张表为准；要改数值改 tools/vc-matrix.js 的 BONUS / INPUTS / HI，
+// 跑 node tools/vc-matrix.js --write 回写注册表，别在服务端再硬编码一套。
+const TIERS = [1, 2, 3];
+const FACE_UP = 4;
 
-// 生成卡牌数据
-function generateCards() {
-  const cards = [];
-  let id = 0;
-
-  // Tier 1 - 入门论文 (Workshop)
-  const tier1Templates = [
-    { prestige: 0, cost: { data: 1, compute: 1, citation: 1, collaborator: 1, funding: 1 } },
-    { prestige: 0, cost: { data: 2, compute: 1, citation: 1 } },
-    { prestige: 0, cost: { compute: 2, citation: 1, collaborator: 1 } },
-    { prestige: 0, cost: { citation: 2, collaborator: 1, funding: 1 } },
-    { prestige: 0, cost: { collaborator: 2, funding: 1, data: 1 } },
-    { prestige: 0, cost: { funding: 2, data: 1, compute: 1 } },
-    { prestige: 1, cost: { data: 2, compute: 2 } },
-    { prestige: 1, cost: { compute: 2, citation: 2 } },
-    { prestige: 1, cost: { citation: 2, collaborator: 2 } },
-    { prestige: 1, cost: { collaborator: 2, funding: 2 } },
-    { prestige: 1, cost: { funding: 2, data: 2 } }
-  ];
-
-  for (let i = 0; i < 40; i++) {
-    const template = tier1Templates[i % tier1Templates.length];
-    const bonusResource = RESOURCE_TYPES[i % 5];
-    cards.push({
-      id: id++,
-      tier: 1,
-      name: `Workshop Paper ${i + 1}`,
-      prestige: template.prestige,
-      bonus: bonusResource,
-      cost: { ...template.cost }
-    });
-  }
-
-  // Tier 2 - 期刊论文 (Journal)
-  const tier2Templates = [
-    { prestige: 2, cost: { data: 3, compute: 2, citation: 2 } },
-    { prestige: 2, cost: { compute: 3, citation: 2, collaborator: 2 } },
-    { prestige: 2, cost: { citation: 3, collaborator: 2, funding: 2 } },
-    { prestige: 2, cost: { collaborator: 3, funding: 2, data: 2 } },
-    { prestige: 2, cost: { funding: 3, data: 2, compute: 2 } },
-    { prestige: 3, cost: { data: 3, compute: 3, citation: 2 } },
-    { prestige: 3, cost: { compute: 3, citation: 3, collaborator: 2 } },
-    { prestige: 3, cost: { citation: 3, collaborator: 3, funding: 2 } },
-    { prestige: 3, cost: { collaborator: 3, funding: 3, data: 2 } },
-    { prestige: 3, cost: { funding: 3, data: 3, compute: 2 } }
-  ];
-
-  for (let i = 0; i < 30; i++) {
-    const template = tier2Templates[i % tier2Templates.length];
-    const bonusResource = RESOURCE_TYPES[i % 5];
-    cards.push({
-      id: id++,
-      tier: 2,
-      name: `Journal Paper ${i + 1}`,
-      prestige: template.prestige,
-      bonus: bonusResource,
-      cost: { ...template.cost }
-    });
-  }
-
-  // Tier 3 - 顶会论文 (Top Conference)
-  const tier3Templates = [
-    { prestige: 4, cost: { data: 3, compute: 3, citation: 3, collaborator: 2 } },
-    { prestige: 4, cost: { compute: 3, citation: 3, collaborator: 3, funding: 2 } },
-    { prestige: 4, cost: { citation: 3, collaborator: 3, funding: 3, data: 2 } },
-    { prestige: 4, cost: { collaborator: 3, funding: 3, data: 3, compute: 2 } },
-    { prestige: 4, cost: { funding: 3, data: 3, compute: 3, citation: 2 } },
-    { prestige: 5, cost: { data: 4, compute: 4, citation: 2 } },
-    { prestige: 5, cost: { compute: 4, citation: 4, collaborator: 2 } },
-    { prestige: 5, cost: { citation: 4, collaborator: 4, funding: 2 } },
-    { prestige: 5, cost: { collaborator: 4, funding: 4, data: 2 } },
-    { prestige: 5, cost: { funding: 4, data: 4, compute: 2 } }
-  ];
-
-  for (let i = 0; i < 20; i++) {
-    const template = tier3Templates[i % tier3Templates.length];
-    const bonusResource = RESOURCE_TYPES[i % 5];
-    cards.push({
-      id: id++,
-      tier: 3,
-      name: `Top Conference ${i + 1}`,
-      prestige: template.prestige,
-      bonus: bonusResource,
-      cost: { ...template.cost }
-    });
-  }
-
-  return cards;
+// 会议卡：卡面信息（英文名、中文、CCF 档、徽标）跟着卡进游戏状态，客户端不用再查一份表
+function buildDeck() {
+  return VENUES.map(v => ({
+    id: v.id,
+    tier: v.tier,
+    name: v.name,
+    cn: v.cn,
+    fullName: v.fullName,
+    ccf: v.ccf,
+    prestige: v.prestige,
+    bonus: v.bonus,
+    cost: { ...v.cost },
+    art: { ...v.art }
+  }));
 }
 
 // 初始化游戏
 export function initializeGame(playerCount) {
-  const allCards = generateCards();
-
-  // 按等级分组并洗牌
-  const tier1Cards = shuffle(allCards.filter(c => c.tier === 1)).slice(0, 4);
-  const tier2Cards = shuffle(allCards.filter(c => c.tier === 2)).slice(0, 4);
-  const tier3Cards = shuffle(allCards.filter(c => c.tier === 3)).slice(0, 4);
+  const allCards = buildDeck();
 
   // 根据玩家数量决定贵族数量（官方规则：翻 playerCount+1 张，其余移出本局）
   const nobleCount = playerCount + 1;
@@ -129,15 +50,20 @@ export function initializeGame(playerCount) {
     4: { data: 7, compute: 7, citation: 7, collaborator: 7, funding: 7, coffee: 5 }
   };
 
+  // 每档洗一叠：前 4 张摊在桌上，其余进抽牌堆
+  const bank = {
+    tokens: tokenCounts[playerCount],
+    nobles: nobles
+  };
+  for (const tier of TIERS) {
+    const pile = shuffle(allCards.filter(c => c.tier === tier));
+    bank[`tier${tier}`] = pile.slice(0, FACE_UP);
+    bank[`draw${tier}`] = pile.slice(FACE_UP);
+  }
+
   return {
     players: [],
-    bank: {
-      tokens: tokenCounts[playerCount],
-      tier1: tier1Cards,
-      tier2: tier2Cards,
-      tier3: tier3Cards,
-      nobles: nobles
-    },
+    bank: bank,
     currentPlayerIndex: 0,
     gameOver: false,
     winner: null,
@@ -152,6 +78,15 @@ function shuffle(array) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+// 桌上的卡被买走/预留后从抽牌堆补满 4 张；抽牌堆空了留空位（官方规则）
+function refillTier(gameState, tier) {
+  const row = gameState.bank[`tier${tier}`];
+  const draw = gameState.bank[`draw${tier}`];
+  while (row.length < FACE_UP && draw.length > 0) {
+    row.push(draw.shift());
+  }
 }
 
 // 玩家状态
@@ -188,15 +123,15 @@ export function canAffordCard(player, card) {
   return coffeeNeeded <= player.tokens.coffee;
 }
 
-// 购买卡牌
-export function buyCard(gameState, playerIndex, cardId, tier) {
+// 购买卡牌（fromReserved = true 时从玩家预留区买，不动牌桌）
+export function buyCard(gameState, playerIndex, cardId, tier, fromReserved = false) {
   const player = gameState.players[playerIndex];
-  const tierCards = gameState.bank[`tier${tier}`];
-  const cardIndex = tierCards.findIndex(c => c.id === cardId);
+  const row = fromReserved ? player.reservedCards : gameState.bank[`tier${tier}`];
+  const cardIndex = row.findIndex(c => c.id === cardId);
 
   if (cardIndex === -1) return { success: false, error: '卡牌不存在' };
 
-  const card = tierCards[cardIndex];
+  const card = row[cardIndex];
   if (!canAffordCard(player, card)) {
     return { success: false, error: '资源不足' };
   }
@@ -226,8 +161,9 @@ export function buyCard(gameState, playerIndex, cardId, tier) {
   player.bonus[card.bonus]++;
   player.prestige += card.prestige;
 
-  // 从银行移除卡牌
-  tierCards.splice(cardIndex, 1);
+  // 从预留区/牌桌移除，牌桌那侧补一张
+  row.splice(cardIndex, 1);
+  if (!fromReserved) refillTier(gameState, tier);
 
   return { success: true, card };
 }
@@ -263,7 +199,7 @@ export function reserveCard(gameState, playerIndex, tier, cardIndex) {
   const player = gameState.players[playerIndex];
   const tierCards = gameState.bank[`tier${tier}`];
 
-  if (cardIndex >= tierCards.length) {
+  if (cardIndex < 0 || cardIndex >= tierCards.length) {
     return { success: false, error: '卡牌不存在' };
   }
 
@@ -273,6 +209,7 @@ export function reserveCard(gameState, playerIndex, tier, cardIndex) {
 
   const card = tierCards.splice(cardIndex, 1)[0];
   player.reservedCards.push(card);
+  refillTier(gameState, tier);
 
   // 拿1个咖啡
   if (gameState.bank.tokens.coffee > 0) {
