@@ -7,8 +7,11 @@
 .paper-card {
   /* 留白已经压到紧凑档（见下面各处 margin/padding），尺寸就交回给卡宽本身：
      字号 = 卡宽 / 16.5，卡放大时字和徽标等比跟着大，不会再出现"卡大字小"的空档。
-     牌桌左靠后横向很宽裕，1600×1000 下 4 张 165px 的卡 + 牌背 + FC 列只用掉约 900px。 */
-  --vc-w: clamp(150px, 16.5vmin, 182px);
+     牌桌左靠后横向很宽裕，1600×1000 下 4 张 165px 的卡 + 牌背 + FC 列只用掉约 900px。
+     竖向是更紧的那头：6:9 的卡三行叠起来要吃掉 4.5 × 卡宽，加上顶栏 + 资源池 ~8.6rem、
+     行距 1.4rem、底栏 padding 5rem，1366×768 只放得下 115px 宽的卡，
+     所以卡宽再取一个按视口高反算的上限，矮屏宁可卡小一点也不要滚动。 */
+  --vc-w: min(clamp(150px, 16.5vmin, 182px), calc((100vh - 15.5rem) / 4.5));
   --tier-A: #b8860b;
   --tier-B: #3b4a8c;
   --tier-C: #4a7c43;
@@ -17,7 +20,9 @@
 
   position: relative;
   width: var(--vc-w);
-  min-height: 18.5em;
+  /* 长宽比跟左侧牌背对齐（.gb-deck img 是 aspect-ratio: 6/9），
+     不然 VC 看着比抽牌堆矮一截、扁扁的。多出来的高度由 .card-art 吸收。 */
+  aspect-ratio: 6 / 9;
   font-size: calc(var(--vc-w) / 16.5);
   display: flex;
   flex-direction: column;
@@ -139,7 +144,7 @@
   margin: 0.25em 0 0;
   min-height: 3.25em;
   color: #6a5326;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
 }
 
 .paper-card .card-art img {

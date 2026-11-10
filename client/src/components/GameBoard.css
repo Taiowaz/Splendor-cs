@@ -339,7 +339,9 @@
   grid-area: nobles;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  /* 0.45rem 时 FC 列在 1366×768 下比 VC 列高出 ~14px，整页多出 6px 竖向滚动条；
+     收到 0.3rem 后小旗仍然分得开，矮屏不用再滚。 */
+  gap: 0.3rem;
   align-self: center;
 }
 

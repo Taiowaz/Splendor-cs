@@ -37,7 +37,7 @@
 
   /* ---------- 主样例卡 ---------- */
   .card {
-    position: relative; width: 264px; min-height: 296px; display: flex; flex-direction: column;
+    position: relative; width: 264px; aspect-ratio: 6 / 9; display: flex; flex-direction: column;
     zoom: var(--vc-scale);
     padding: 0.45rem 0.6rem 0.5rem;
     border-radius: 10px;
@@ -79,7 +79,7 @@
   .title { margin-top: 0.95rem; font-family: var(--serif); font-weight: 700; font-size: 1.9rem; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: .02em; }
   .sub { margin-top: .1rem; font-family: 'Ma Shan Zheng', var(--serif); font-size: .9rem; line-height: 1.2; text-align: center; color: #6a5326; letter-spacing: .06em; }
 
-  .card-art { display: grid; place-items: center; margin: .25rem 0 0; color: #6a5326; flex: 0 0 auto; min-height: 52px; }
+  .card-art { display: grid; place-items: center; margin: .25rem 0 0; color: #6a5326; flex: 1 1 auto; min-height: 52px; }
   .card-art svg { width: 78%; height: 42px; overflow: visible; }
   .card-art img { max-width: 78%; max-height: 46px; object-fit: contain; display: block; }
   .card-art.tone-light { padding: 4px 10px; border-radius: 8px;
