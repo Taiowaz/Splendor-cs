@@ -165,12 +165,11 @@ function getSanitizedGameStateForAi(game, requestingPlayerId) {
     players: game.players.map(p => ({
       id: p.id,
       name: p.name,
-      tokens: requestingPlayerId === p.id ? p.tokens : null,
-      publicTokens: requestingPlayerId && requestingPlayerId !== p.id ? {
-        coffee: p.tokens.coffee
-      } : null,
+      tokens: p.tokens, // 筹码公开，和 websocket.js 的 getSanitizedGameState 同一口径
       cards: p.cards,
-      reservedCards: requestingPlayerId === p.id ? p.reservedCards : [],
+      reservedCards: requestingPlayerId === p.id
+        ? p.reservedCards
+        : p.reservedCards.map(c => ({ tier: c.tier })),
       prestige: p.prestige,
       bonus: p.bonus
     })),

@@ -530,12 +530,13 @@ function getSanitizedGameState(game, requestingPlayerId) {
     players: game.players.map(p => ({
       id: p.id,
       name: p.name,
-      tokens: requestingPlayerId === p.id ? p.tokens : null, // 只给自己看完整资源
-      publicTokens: requestingPlayerId && requestingPlayerId !== p.id ? {
-        coffee: p.tokens.coffee // 其他玩家只能看到咖啡数量
-      } : null,
+      // 筹码是公开信息（官方规则如此，splendor-chinese 也全量下发），对手面板要显示
+      tokens: p.tokens,
       cards: p.cards,
-      reservedCards: requestingPlayerId === p.id ? p.reservedCards : [],
+      // 预留卡是私有的：别人只看得到"有几张、各是什么档"（卡背按档选），看不到卡面
+      reservedCards: requestingPlayerId === p.id
+        ? p.reservedCards
+        : p.reservedCards.map(c => ({ tier: c.tier })),
       prestige: p.prestige,
       bonus: p.bonus
     })),
