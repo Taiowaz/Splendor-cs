@@ -41,8 +41,11 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.42em;
-  padding: 0.5em calc(var(--flag-d) + 0.7em) 0.5em 0.7em;
+  /* 文字组（徽标+标题+小字）和下方所需筹码之间空开一档 */
+  gap: 0.8em;
+  /* 下内边距比上大 0.6em：整组内容往上抬 ~0.3em，同时筹码几乎原地不动
+     ——只把文字提上去、把它和筹码之间的距离拉开，不改动筹码的落位。 */
+  padding: 0.35em calc(var(--flag-d) + 0.7em) 0.95em 0.7em;
   clip-path: var(--flag-shape);
   color: #ece3c8;
   background:
@@ -96,21 +99,30 @@
   font-size: 0.72em;
   line-height: 1.25;
   color: rgba(236, 227, 200, 0.62);
+  white-space: nowrap;
 }
 
-/* 机构徽标：原始 mark 由 tools/noble-logos.py 统一压成米色墨章，
-   深浅和底色都在图上处理过了，这里直接贴卡面；没有 logo 时该行自动退回纯文字。 */
+/* 机构徽标：原始 mark 由 tools/noble-logos.py 统一压成米色墨章，深浅和底色都在图上处理过了。
+   mark 贴卡面左边，英文主标题和中文小字并排放在它右侧的同一列，两行文字同一个左边缘起笔。
+   徽标不能太大：正文净宽只有 8.93em，mark 2em + 间距 0.45em 会把 10 个字的协会名
+   （国际先进人工智能协会 / 欧洲人文和自然科学院 ≈ 7.2em）挤到折行，所以收到 1.75em + 0.3em，
+   再给小字上 nowrap 兜底 —— 宁可往右侧留白里多占几个 px，也不在卡面上折成两行。
+   没有 logo 时该列自动退回贴左边缘起笔。 */
 .noble-head {
   display: flex;
   align-items: center;
-  gap: 0.45em;
+  gap: 0.3em;
+  min-width: 0;
+}
+
+.noble-text {
   min-width: 0;
 }
 
 .noble-mark {
   flex-shrink: 0;
-  width: 2em;
-  height: 2em;
+  width: 1.75em;
+  height: 1.75em;
   object-fit: contain;
   filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.45));
 }
@@ -122,38 +134,37 @@
   margin-top: 0.1em;
 }
 
-/* 需求筹码：圈里不留任何填充——原来那块半透明蓝底本身就是颗"蓝宝石"，
-   现在只留一圈细边定住圆形，圈内透出卡面底色，符号和数字浮在上面。
-   符号按资源着色（颜色是分辨资源的主要线索），用提亮一档的色值，
-   因为底下是暗 navy，原色的棕、红几乎看不见。 */
+/* 需求筹码：直接用牌桌上那枚筹码图（images/tokens/*Token.png，宝石已换成我们的资源符号），
+   圆圈本身就是筹码，不再叠矢量符号；数量改成右下角角标，因为符号已经烧在图里、
+   圈内没有位置再放数字。角标底色用米白，压在羊皮纸面和 navy 卡面上都读得清。 */
 .requirement-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.06em;
+  position: relative;
   width: min(2.4em, 29%);
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: none;
-  border: 1px solid rgba(236, 227, 200, 0.3);
 }
 
-.requirement-item[data-res='data'] { color: #efe9dc; }
-.requirement-item[data-res='compute'] { color: #7fb3e0; }
-.requirement-item[data-res='citation'] { color: #79c78f; }
-.requirement-item[data-res='collaborator'] { color: #cfa26b; }
-.requirement-item[data-res='funding'] { color: #e58a82; }
-.requirement-item[data-res='coffee'] { color: #e6b95c; }
-
-.requirement-icon {
-  width: 52%;
-  height: 52%;
+.requirement-disc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0.08em 0.2em rgba(0, 0, 0, 0.5);
 }
 
 .requirement-count {
+  position: absolute;
+  right: -0.12em;
+  bottom: -0.1em;
   font-family: 'Lobster', cursive;
-  font-size: 0.88em;
-  line-height: 1;
-  color: #ece3c8;
+  font-size: 0.72em;
+  line-height: 1.35;
+  min-width: 1.35em;
+  text-align: center;
+  color: #4a3410;
+  background: #f4ead0;
+  border: 0.09em solid #a8811f;
+  border-radius: 50%;
+  box-shadow: 0 0.06em 0.14em rgba(0, 0, 0, 0.45);
 }

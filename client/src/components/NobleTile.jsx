@@ -1,5 +1,13 @@
 import './NobleTile.css'
-import ResourceIcon from './ResourceIcon.jsx'
+
+const DISC = {
+  data: 'White',
+  compute: 'Blue',
+  citation: 'Green',
+  collaborator: 'Brown',
+  funding: 'Red',
+  coffee: 'Gold'
+}
 
 export default function NobleTile({ noble }) {
   return (
@@ -7,13 +15,15 @@ export default function NobleTile({ noble }) {
       <div className="noble-tile">
         <div className="noble-head">
           {noble.logo && <img className="noble-mark" src={noble.logo} alt="" />}
-          <div className="noble-name">{noble.name}</div>
+          <div className="noble-text">
+            <div className="noble-name">{noble.name}</div>
+            <div className="noble-sub">{noble.sub}</div>
+          </div>
         </div>
-        <div className="noble-sub">{noble.sub}</div>
         <div className="noble-requirements">
           {Object.entries(noble.requirement).map(([resource, count]) => (
-            <div key={resource} className="requirement-item" data-res={resource}>
-              <ResourceIcon resource={resource} className="requirement-icon" />
+            <div key={resource} className="requirement-item">
+              <img className="requirement-disc" src={`/images/tokens/${DISC[resource]}Token.png`} alt="" />
               <span className="requirement-count">{count}</span>
             </div>
           ))}
