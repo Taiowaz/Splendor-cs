@@ -222,11 +222,13 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* 右侧：其他玩家 */}
+        {/* 右侧：其他玩家。筹码和论文都是公开信息，按固定色序两行对齐，
+            空槽隐藏但占位，这样第 3 列永远是「引用」，不用逐个找颜色。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1
             const isTurn = player.id === gameState.players[currentIndex]?.id
+            const reserved = player.reservedCards || []
             return (
               <div key={player.id} className={`opp-panel ${isTurn ? 'active' : ''}`}>
                 <div className="opp-prestige"><span>{player.prestige}</span></div>
@@ -234,10 +236,33 @@ export default function GameBoard({
                   <p className="opp-name">{player.name}</p>
                   <span className="opp-order">第 {order} 位</span>
                 </div>
-                <div className="opp-stats">
-                  <span title="论文数">📄 {player.cards?.length || 0}</span>
-                  <span title="预留数">🔖 {player.reservedCards?.length || 0}</span>
+                <div className="opp-grid">
+                  {INVENTORY_TYPES.map(type => {
+                    const n = player.tokens?.[type] || 0
+                    const papers = (player.cards || []).filter(c => c.bonus === type)
+                    const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 0
+                    return (
+                      <div key={type} className="opp-cell">
+                        <div
+                          className="gem-circle opp-chip"
+                          style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})`, visibility: n ? 'visible' : 'hidden' }}
+                        >
+                          <span className="opp-num">{n}</span>
+                        </div>
+                        <div className="vc-mark opp-vc" style={{ visibility: papers.length ? 'visible' : 'hidden' }}
+                          title={`${RESOURCE_INFO[type].name}方向论文 ${papers.length} 篇`}>
+                          <img src={TIER_DECK[bestTier] || TIER_DECK[1]} alt="" />
+                          <span className="opp-num">{papers.length}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
+                {reserved.length > 0 && (
+                  <div className="opp-reserved" title={`预留 ${reserved.length} 张（别人看不到卡面）`}>
+                    {reserved.map((c, i) => <img key={i} src={TIER_DECK[c.tier] || TIER_DECK[1]} alt="" />)}
+                  </div>
+                )}
               </div>
             )
           })}

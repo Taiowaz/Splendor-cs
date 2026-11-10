@@ -463,11 +463,57 @@
 .opp-identity { text-align: center; line-height: 1.2; }
 .opp-name { font-weight: 700; color: #f2d675; }
 .opp-order { font-size: 0.78em; color: #b9b29a; }
-.opp-stats {
+/* 对手资源：6 列固定色序（数据/算力/引用/合作/经费/咖啡），
+   上排筹码圆片、下排该方向的论文卡背，列对齐就是颜色对齐，所以数字直接印在中间
+   （面板只有 200px 宽，圆片 23px，再套角标就糊了）。空槽 visibility:hidden 占位不显示。 */
+.opp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: 0.2rem;
+  justify-content: center;
+}
+.opp-cell {
   display: flex;
-  gap: 0.9rem;
-  font-size: 0.95em;
-  color: #d8d2bd;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.18rem;
+}
+.opp-chip {
+  width: 1.6em;
+  height: 1.6em;
+}
+.opp-num {
+  font-family: 'Lobster', cursive;
+  font-size: 0.82em;
+  color: #fff;
+  -webkit-text-stroke: 0.035rem black;
+  text-shadow: 0 1px 2px black;
+  line-height: 1;
+}
+/* 卡背上的数字压在下缘那条绶带上，别盖住徽记 */
+.opp-vc {
+  width: 1.25em;
+}
+.opp-vc .opp-num {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.06em;
+  text-align: center;
+  font-size: 0.72em;
+}
+.opp-reserved {
+  display: flex;
+  gap: 0.15rem;
+  justify-content: center;
+}
+.opp-reserved img {
+  width: 1.05em;
+  aspect-ratio: 6 / 9;
+  object-fit: cover;
+  border-radius: 0.2rem;
+  border: 1px dashed rgba(212, 175, 55, 0.65);
+  box-shadow: rgba(0, 0, 0, 0.45) -1px 1px 3px -1px;
 }
 
 /* ---- 资源选择确认条 ---- */
