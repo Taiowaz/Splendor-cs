@@ -19,7 +19,7 @@ client/public/images/
   venues/                     会议 logo，90 张，8.2 MB
   tokens/                     筹码，6 色 × 2 套 = 12 张，484 KB
   nobles/                     会士徽标，10 张，164 KB
-  decks/                      卡背（学院纹章），3 张（A/B/C 各 1），160 KB
+  decks/                      卡背（学院纹章 + 白边），3 张（A/B/C 各 1），196 KB
   bluebackground.jpg          牌桌桌布，580 KB
 ```
 
@@ -33,7 +33,7 @@ client/public/images/
 | 会议 logo | 90（82 png + 8 svg） | 8.2 MB | 会议名小写 = `id` | ❌ 没留 | ❌ 手工下载 | `shared/venues.js` 的 `art.src` |
 | 筹码 | 12（6 色 × 两套） | 484 KB | `<颜色>Token.{jpg,png}` | `.jpg` 就是原图，`.png` 是在它上面 P 掉的成品 | ❌ 外部 P 图，没留脚本 | `GameBoard.jsx` 引 `.jpg`，`NobleTile.jsx` 引 `.png` |
 | 会士徽标 | 10 | 164 KB | `<学会 id>.png` | ✅ `assets/nobles-raw/` | ✅ `tools/noble-logos.py` | `shared/nobles.js` 的 `logo` |
-| 卡背 | 3 | 160 KB | `crest-<档>.jpg` | ✅ `assets/decks-raw/` | ✅ `tools/deck-backs.sh` | `GameBoard.jsx` 的 `TIER_DECK` |
+| 卡背 | 3 | 196 KB | `crest-<档>.jpg` | ✅ `assets/decks-raw/` | ✅ `tools/deck-backs.sh` | `GameBoard.jsx` 的 `TIER_DECK` |
 | 桌布 | 1 | 568 KB | `bluebackground.jpg` | ❌ 官方素材 | ❌ | `GameBoard.css` |
 
 颜色 → 资源（筹码文件名里的 `<颜色>` 是官方宝石色名，不是我们的资源名）：
