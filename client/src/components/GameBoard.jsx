@@ -238,12 +238,11 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* 右侧：其他玩家。声誉章在框左上角，下面依次是 6 色筹码（上下两排、每排
-            3 枚，圆片和右上角数量角标都直接复用本人资源框那套 .gem-circle/.gem-num，
-            所以两个框一样大）、论文真实卡面横向叠成露边（左缘那条是档位色，某方向的
-            论文数 = 买卡时该色的折价，所以不重复标）、预留分级卡背（服务端只下发
-            tier）、会士缩小旗面 + 机构徽标。
-            不用 hover 抽屉，直接摊在框里，卡多了 .opp-inventory 会换行、框自己变高。 */}
+        {/* 右侧：其他玩家。声誉章在框左上角，下面按本人资源条那套形式组织：
+            每个方向一格「筹码圆片 + 该方向论文卡背」，6 格常驻、0 也带角标、空位
+            压暗，和底部完全同一个口径（论文数 = 买卡时该色的折价，明细在 tooltip 里）。
+            再下面是预留分级卡背（服务端只下发 tier）和会士缩小旗面。
+            框的外形不动：6 格排 3×2，行高和原来那两排筹码一样（圆片仍 2.3em）。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1
@@ -259,15 +258,26 @@ export default function GameBoard({
                   <span className="opp-order">第 {order} 位</span>
                 </div>
 
-                <div className="opp-tokens">
+                {/* 6 格 = 6 个方向，每格「筹码 + 该方向论文卡背」，和底部 .mc-type 同一套 */}
+                <div className="opp-res">
                   {INVENTORY_TYPES.map(type => {
+                    const info = RESOURCE_INFO[type]
                     const n = player.tokens?.[type] || 0
-                    const bonus = player.bonus?.[type] || 0
+                    const papers = cards.filter(c => c.bonus === type)
+                    const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 1
+                    const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
+                    const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
                     return (
-                      <div key={type} className="opp-token"
-                        title={`${RESOURCE_INFO[type].name}｜筹码 ${n}｜该方向论文 ${bonus} 篇（买卡时 ${RESOURCE_INFO[type].name} 便宜 ${bonus}）`}>
-                        <div className="gem-circle" style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})` }}>
-                          {n > 0 && <span className="gem-num">{n}</span>}
+                      <div key={type} className="opp-cell"
+                        title={`${info.name}｜筹码 ${n}｜论文 ${papers.length} 篇${breakdown ? `（${breakdown}）` : ''}`}>
+                        <div className={`inv-gem ${n === 0 ? 'empty' : ''}`}>
+                          <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
+                            <span className="gem-num">{n}</span>
+                          </div>
+                        </div>
+                        <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
+                          <img src={TIER_DECK[bestTier]} alt="" />
+                          <span className="vc-count">{papers.length}</span>
                         </div>
                       </div>
                     )
@@ -275,17 +285,6 @@ export default function GameBoard({
                 </div>
 
                 <div className="opp-inventory">
-                  <div className="opp-cards">
-                    {cards.map(c => (
-                      <div key={c.id} className="opp-face" data-ccf={c.ccf}
-                        title={`${c.name} · ${c.cn}｜产出 ${RESOURCE_INFO[c.bonus]?.name}｜声誉 ${c.prestige}`}>
-                        <span className="opp-face-p">{c.prestige}</span>
-                        <span className="opp-face-name">{c.name}</span>
-                        <span className="opp-face-gem" style={{ backgroundImage: `url(${RESOURCE_INFO[c.bonus]?.gem})` }} />
-                      </div>
-                    ))}
-                  </div>
-
                   {reserved.length > 0 && (
                     <div className="opp-reserved" title={`预留 ${reserved.length} 张（别人看不到卡面）`}>
                       {reserved.map((c, i) => <img key={i} src={TIER_DECK[c.tier] || TIER_DECK[1]} alt="" />)}

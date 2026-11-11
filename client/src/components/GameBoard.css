@@ -492,7 +492,8 @@
 .opp-name { font-size: 1.15em; font-weight: 700; color: #f2d675; }
 .opp-order { font-size: 0.8em; color: #b9b29a; }
 
-/* 论文 / 预留 / 会士挤在同一带里，装不下就换行，行与行居中 */
+/* 预留 / 会士挤在同一带里，装不下就换行，行与行居中（论文数不在这里了，
+   上面 6 格里那枚卡背角标就是，和本人资源条同一个口径） */
 .opp-inventory {
   display: flex;
   flex-wrap: wrap;
@@ -502,66 +503,24 @@
   width: 100%;
 }
 
-/* 筹码：6 色上下两排、每排 3 枚。圆片直接复用本人资源框那套 .gem-circle +
-   .gem-num，所以尺寸字号完全一致；数字是右上角角标，圆片中间不印数。
-   该方向的论文数 = 买卡时该色的折价，不重复标 —— 下面那排卡面数得出来，还有 tooltip。 */
-.opp-tokens {
+/* 对手资源：照底部本人资源条那套形式组织 —— 每个方向一格「筹码圆片 + 该方向论文
+   卡背」，6 格常驻、0 也带角标、空位压暗（.inv-gem.empty / .vc-mark.empty 是公共规则，
+   卡背按该方向最好的一篇选档）。本人那条是一排 6 格；框只有 216 宽、内容 196.8，
+   所以这里 3 格一行、两行。圆片保持 2.3em 和本人一样大；卡背从 1.6em 收到 1.4em：
+   一格 36.8 + 1.6 + 22.4 = 60.8，三格 + 两个 6.4 间距 = 195.2 ≤ 196.8，行高仍是
+   36.8，所以框的外形和原来那两排筹码同尺寸，不会把 .gb-players 那一列顶高。 */
+.opp-res {
   display: grid;
   grid-template-columns: repeat(3, auto);
   gap: 0.4em;
 }
-.opp-token { position: relative; }
-
-/* 论文卡：每张都是真实卡面，横向叠起来只露左缘一条。左缘那条是档位色
-   （A 金 / B 蓝 / C 绿），所以扫一眼颜色就能看出这个人的 A/B/C 配比，
-   最右边那张完整露出，看名单和产出。 */
-.opp-cards {
+.opp-cell {
   display: flex;
   align-items: center;
+  gap: 0.1em;
 }
-.opp-face {
-  --tier: #b8860b;
-  position: relative;
-  flex-shrink: 0;
-  width: 2.3em;
-  aspect-ratio: 6 / 9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.15em 0.1em;
-  border: 1px solid rgba(212, 175, 55, 0.55);
-  border-left: 0.4em solid var(--tier);
-  border-radius: 0.3rem;
-  color: #3a2a12;
-  font-size: 0.78em;
-  background:
-    radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
-    linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
-  box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
-}
-.opp-face + .opp-face { margin-left: -1.5em; }
-.opp-face[data-ccf='B'] { --tier: #3b4a8c; }
-.opp-face[data-ccf='C'] { --tier: #4a7c43; }
-.opp-face-p {
-  font-family: 'Lobster', cursive;
-  font-size: 1.1em;
-  color: #7a1f1f;
-  -webkit-text-stroke: 0.03rem rgba(58, 42, 18, 0.5);
-}
-.opp-face-name {
-  writing-mode: vertical-rl;
-  font-size: 0.72em;
-  line-height: 1.05;
-  max-height: 2.1em;
-  overflow: hidden;
-}
-.opp-face-gem {
-  width: 1em;
-  height: 1em;
-  border-radius: 50%;
-  background-size: cover;
-  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5);
+.opp-cell .vc-mark {
+  width: 1.4em;
 }
 
 /* 预留：服务端只下发 tier，所以画分级卡背，虚线边跟已发表论文区分开 */
