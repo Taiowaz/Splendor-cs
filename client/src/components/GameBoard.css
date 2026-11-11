@@ -709,23 +709,23 @@
 }
 /* 预留区：挂在自己库存末尾 —— 真卡面竖着站（6:9 原比例，不旋转），等比缩到底条
    的内容高度，负 margin 叠成一摞只露出左边一条彩边（档位色），hover 整摞摊开、
-   单张再放大抬起。横向纵向都收在资源条里：摊开 91.1 ≤ 格位 91.8，放大 56.1 ≤
+   单张再放大抬起。横向纵向都收在资源条里：摊开 91.1 ≤ 内宽 115.8，放大 56.1 ≤
    条 61.98，所以不再像原来横躺那样溢到条外。宽度按预留上限 3 张固定，所以
    预留/买卡时条宽不变（条是居中定位的，一变宽整条会横移）。这么小的卡面读不了
    字，只当"有几张、什么档"的颜色提醒；要看清和挑哪张都在弹窗里，见
-   .gb-reserved-modal。 */
+   .gb-reserved-modal。整摞在预留区里水平居中：1 张时也居中，不会贴着分隔线。 */
 .mc-reserved {
   position: relative;
   display: flex;
   flex-direction: row;
+  justify-content: center;
   align-items: center;
-  /* 1(线) + 24(留白) + 摊开要的 91.1（3 × 27.7 + 2 × 4 间距）+ 余量 = 116.8 */
+  /* 1(线) + 摊开要的 91.1（3 × 27.7 + 2 × 4 间距）+ 左右各 ~12 余量 = 116.8 */
   width: 7.3rem;
   /* 分隔线拉到底条的内容高度（= 那一排里最高的一项，带论文卡背的列 42.4），
      和左边 .mc-me 那条线一样长，读起来是「区块分界」而不是某一列的分界。
      卡本身只有 41.55，不拉伸的话线会比其他分隔线短一截。 */
   align-self: stretch;
-  padding-left: 1.5rem;
   border-left: 1px solid rgba(212, 175, 55, 0.35);
   cursor: pointer;
 }
@@ -735,18 +735,23 @@
   --vc-w: 27.7px;
   position: relative;
   flex: 0 0 auto;
-  /* 叠死会数不出张数，留 40% 露边 = 11.1px：那是一条竖窄边，顶端正好带到档位色带 */
-  margin-right: calc(var(--vc-w) * -0.6);
-  transition: margin-right 0.12s ease;
+  transition: margin-left 0.12s ease;
 }
-.mc-reserved:hover .mc-reserved-slot {
-  margin-right: 0.25rem;
+/* 叠摞的负 margin 挂在后一张的「左边距」而不是前一张的右边距：这样这一摞的
+   flex 外框宽度 == 可见并集宽度，justify-content: center 才真居中。走右边距的
+   话末尾还留着 -16.6，外框比并集窄，居中后整摞会往右偏 8px。
+   留 40% 露边 = 11.1px：那是一条竖窄边，顶端正好带到档位色带。 */
+.mc-reserved-slot + .mc-reserved-slot {
+  margin-left: calc(var(--vc-w) * -0.6);
+}
+.mc-reserved:hover .mc-reserved-slot + .mc-reserved-slot {
+  margin-left: 0.25rem;
 }
 .mc-reserved-slot:hover {
   z-index: 50;
 }
 /* 1.35 倍：41.55 → 56.1，上下各出 6.9px 仍在资源条那 61.98 里；再大就顶穿条了。
-   左缘往回吃 4.8px，留白 24px 兜得住，不会压到分隔线。 */
+   放大后左右各回吃 4.8px，摊开时居中留的那 ~12px 余量兜得住，压不到分隔线。 */
 .mc-reserved-slot:hover .paper-card {
   transform: scale(1.35);
 }
