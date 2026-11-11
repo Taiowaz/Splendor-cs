@@ -423,12 +423,14 @@
   font-size: var(--opp-em);
   display: flex;
   flex-direction: column;
-  /* 框少的开局就把空隙摊到框间，让最上一个框的顶边和最下一个框的底边各自
-     贴住这一列的上下沿；框变高挤满了空隙自然就收拢，溢出时从顶上开始滚。 */
-  justify-content: space-between;
+  /* 框少时不摊满一整列：紧凑地聚成一组，整组的中心压在 VC/FC 那一段的中线上。
+     框长高到顶满就改成从上往下滚，别用 center 把最上面半截裁掉
+     （safe center 不支持时退回上一行）。 */
+  justify-content: center;
+  justify-content: safe center;
   overflow-y: auto;
   scrollbar-width: none;
-  gap: 0.9em;
+  gap: 0.7em;
 }
 /* 框高不固定：卡多了 .opp-inventory 换行，框自己往上长。
    顶上的留白只留 0.3em（声誉章是绝对定位、跟名字同一带），名字往上挪就把
