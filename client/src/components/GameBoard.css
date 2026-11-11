@@ -607,12 +607,14 @@
 .gb-actionbar {
   /* 挂在筹码行右侧，不再浮在底部：筹码行下移之后，底部那条 fixed 会正好压住
      最右边那两枚筹码（1366 压 30px，1920 压 45px），点不动了。
-     筹码是固定尺寸：5 × 3em + 4 × 1.1rem 间距 = 310px，半宽 9.7rem，再加 0.7rem
-     空隙 → 从行中心偏 10.4rem 起排。这样确认条不吃竖向空间，筹码也不会被挤走。
+     左边界按筹码行自己算：行居中，占宽 = 6 枚 × 3em（见 .pool-gem .gem-circle）
+     + 5 个 1.1rem 间距（见 .gb-tokenpool 的 gap），半宽再让开一个同样的 1.1rem
+     间距就是条的起点。原来这里写死 10.4rem，那是 5 枚时代的数，补上第 6 枚咖啡
+     后正好压住它 21.6px。条 inherit 到和筹码同一个 16px，两边的 em 解析一致。
      竖向跟行底对齐：条比 48px 的筹码行高，居中会压到下面「我的资源」那条上。 */
   position: absolute;
   bottom: 0;
-  left: calc(50% + 10.4rem);
+  left: calc(50% + (6 * 3em + 5 * 1.1rem) / 2 + 1.1rem);
   display: flex;
   align-items: center;
   gap: 0.8rem;
