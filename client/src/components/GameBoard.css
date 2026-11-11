@@ -233,6 +233,12 @@
   border: 1px solid rgba(218, 165, 32, 0.6);
   box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
 }
+/* 0 也占位：6 色筹码 + 6 色论文圈一律常驻，空位照公共筹码那套压暗去色 */
+.inv-gem.empty,
+.vc-mark.empty {
+  opacity: 0.35;
+  filter: grayscale(0.6);
+}
 .vc-count {
   position: absolute;
   top: -0.35em;
@@ -637,6 +643,11 @@
   display: flex;
   align-items: center;
   gap: 0;
+  /* 必须显式 max-content：left: 50% + translateX(-50%) 的定位元素算 shrink-to-fit
+     可用宽度时只从视口中点往右算，6 列常驻后条子要 ~826px，1024 屏下会被压缩到 512
+     以内 → .mc-id 换行、条子变高、顶到上面的筹码行。max-content 让它按内容撑开，
+     再由 translateX(-50%) 居中。 */
+  width: max-content;
   padding: 0.55rem 0.9rem;
   border-radius: 1rem;
   background: rgba(14, 16, 28, 0.72);

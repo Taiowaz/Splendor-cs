@@ -324,27 +324,28 @@ export default function GameBoard({
           // 该方向的已发表论文：张数 == player.bonus[type]（服务端买卡时 ++），
           // 这里直接从 cards 派生，筹码和论文各占一个图标，不再叠在同一枚圆片上
           const papers = (myPlayer?.cards || []).filter(c => c.bonus === type)
-          if (tokens === 0 && papers.length === 0) return null
-          // 卡背按该方向最好的一篇选档（tier 数字越大越高级：3 = CCF-A）
-          const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 0
+          // 6 色 12 格一律常驻，0 也显示角标 —— 原来 0 就整列不渲染，买第一张卡时
+          // 资源条会突然变宽、所有列横移。空位按公共筹码那套压暗（.empty）。
+          // 卡背按该方向最好的一篇选档（tier 数字越大越高级：3 = CCF-A），0 篇借 tier-1
+          const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 1
           const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
           const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
           return (
             <div key={type} className="mc-type">
-              <div className="inv-gem" title={`${info.name}｜筹码 ${tokens}`}>
+              <div className={`inv-gem ${tokens === 0 ? 'empty' : ''}`} title={`${info.name}｜筹码 ${tokens}`}>
                 <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                   <span className="gem-num">{tokens}</span>
                 </div>
               </div>
-              {papers.length > 0 && (
-                <div
-                  className="vc-mark"
-                  title={`${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`}
-                >
-                  <img src={TIER_DECK[bestTier]} alt="" />
-                  <span className="vc-count">{papers.length}</span>
-                </div>
-              )}
+              <div
+                className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}
+                title={papers.length
+                  ? `${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`
+                  : `${info.name}方向论文 0 篇`}
+              >
+                <img src={TIER_DECK[bestTier]} alt="" />
+                <span className="vc-count">{papers.length}</span>
+              </div>
             </div>
           )
         })}
