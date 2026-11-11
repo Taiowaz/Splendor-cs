@@ -246,7 +246,8 @@ export default function GameBoard({
             和底部完全同一个口径（论文数 = 买卡时该色的折价，明细在 tooltip 里）。
             咖啡没有论文方向，那一格只有筹码。
             6 格排两列三行（框只有 216 宽，三格一行会把角标挤到一起），所以框比原来
-            高一些；再下面是预留分级卡背（服务端只下发 tier）和会士缩小旗面。 */}
+            高一些，表头那一行也按章的直径留出一整条带，免得第一格圆片压在章上；
+            再下面是预留分级卡背（服务端只下发 tier）和会士缩小旗面。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1

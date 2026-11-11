@@ -73,8 +73,9 @@
 }
 
 /* ---- 主体：牌桌 + 对手列共用一个 grid ----
-   三列两行，对手列占第三列并跨两行，靠 align-self:start + height:--vc-col
-   把它的上下边界压齐 VC/FC 那一行（第三列的 1fr 顺手吃掉右边那块 felt）。 */
+   三列两行，对手列占第三列并跨两行，靠 align-self:start 把列顶压齐 VC/FC 那一行，
+   列底再往下多借 tokens 那一档（见 .gb-players，框加高后要那点 felt 才不滚动）。
+   第三列的 1fr 顺手吃掉右边那块 felt。 */
 .gb-main {
   flex: 1;
   position: relative;
@@ -420,11 +421,15 @@
      列宽用 em 表达，比例就不随分辨率漂了。 */
   --opp-em: 1rem;
   grid-area: players;
-  /* 跨两行的格子只用来占位：真正的盒子按 --vc-col 定高、顶到第一行，
-     于是上下边界和 VC 首末行、FC 首末旗完全压齐。 */
+  /* 跨两行的格子只用来占位：列顶仍压齐 VC 首行，底往下多借一行「公共筹码」那档
+     的高度（1.2rem 行距 + 3rem 行高）—— 对手框加高到 194 后，3 个框 597.7 比
+     --vc-col 542.4 高出 55，不借这段 felt 就得让玩家列自己滚动。
+     写死 calc 而不是 align-self:stretch：stretch 会把框的 min-content 反馈给
+     grid 行，720 高的屏上整块牌桌会被顶高 28px 变成页面滚动。
+     底部资源条是绝对定位在主容器下边距里（t=691.6），列底 684，差 7.6 不撞。 */
   align-self: start;
   justify-self: end;
-  height: var(--vc-col);
+  height: calc(var(--vc-col) + 4.2rem);
   width: calc(13.5 * var(--opp-em));
   font-size: var(--opp-em);
   display: flex;
@@ -436,13 +441,14 @@
   justify-content: safe center;
   overflow-y: auto;
   scrollbar-width: none;
-  /* 0.7em → 0.5rem：框改成两列三行后每个高 174.4，3 × 174.4 + 2 × 11.2 = 545.6 比
-     768 高屏上的 --vc-col 542.6 多出 4px，会凭空多出一点滚动；让开这 6.4px 就正好装下 */
+  /* 3 × 193.9 + 2 × 8 = 597.7，列借完 tokens 行是 609.6，还剩 11.9 余量。
+     间隔换回 0.7em 也塞得下（604.1），但对手一有预留/会士框就要往上长，
+     余量多留一点少滚动。 */
   gap: 0.5rem;
 }
 /* 框高不固定：卡多了 .opp-inventory 换行，框自己往上长。
-   顶上的留白只留 0.3em（声誉章是绝对定位、跟名字同一带），名字往上挪就把
-   这一条省下来换给了框高。 */
+   声誉章是绝对定位挂在框内左上角，本身不占流，所以表头那一行按章的高度
+   （2.6em）留带 —— 否则第一格筹码圆片会正好压在章上（原来重叠 5.6px）。 */
 .opp-panel {
   position: relative;
   display: flex;
@@ -483,11 +489,15 @@
   -webkit-text-stroke: 0.06rem black;
   text-shadow: 1px 2px 4px black;
 }
-/* 名字 / 顺位跟本人资源框的 .inv-name / .inv-order 同一套字号 */
+/* 名字 / 顺位跟本人资源框的 .inv-name / .inv-order 同一套字号。
+   min-height 按声誉章的 2.6em 留一整条带：章绝对定位不占流，不留的话
+   下面第一格圆片会顶进章里；名字仍靠 align-content 居中在带的中间。 */
 .opp-identity {
   display: flex;
   align-items: baseline;
+  align-content: center;
   justify-content: center;
+  min-height: 2.6em;
   gap: 0.4em;
   line-height: 1.2;
 }
@@ -511,8 +521,8 @@
    框只有 216 宽（内容 196.8）：三格一行会把角标挤到一起（一格 67.2，三格 201.6 已经
    超宽），所以两格一行、共三行。圆片保持 2.3em 和本人一样大，卡背收到 1.4em，
    列间距 20、行间距 8 —— 计数角标那 5.6px 的出边全落在空隙里，不再贴着邻格。
-   代价是框从 127 高到 172：768 高的屏上玩家那一列是 --vc-col = 542.6，
-   3 × 172.1 + 2 × 11.2 = 538.7，刚好还放得下（再多就要滚动了）。 */
+   代价是框从 127 高到 194（表头那条章带 19.5 + 两列三行）：玩家列借了 tokens 行
+   那档高度后是 609.6，3 × 193.9 + 2 × 8 = 597.7，装得下且不滚动。 */
 .opp-res {
   display: grid;
   grid-template-columns: repeat(2, auto);
