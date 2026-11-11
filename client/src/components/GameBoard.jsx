@@ -222,11 +222,11 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* 右侧：其他玩家。信息口径照 splendor-chinese 的对手面板：6 色筹码全画
-            （含 0），数字居中、右上角深蓝小章是该方向的论文数（同时就是买卡时该色
-            的折价）；论文是真实卡面横向叠成露边，左缘那条颜色是档位；预留只下发
-            tier 所以画分级卡背；会士卡是缩小旗面 + 机构徽标。
-            不用那个 hover 抽屉，直接摊在框里，卡多了 .opp-inventory 会换行、框自己变高。 */}
+        {/* 右侧：其他玩家。声誉章在框左上角，下面依次是 6 色筹码（圆片只是色标，
+            右上角深蓝小章才是该色筹码数，0 枚不画章）、论文真实卡面横向叠成露边
+            （左缘那条是档位色，某方向的论文数 = 买卡时该色的折价，所以不重复标）、
+            预留分级卡背（服务端只下发 tier）、会士缩小旗面 + 机构徽标。
+            不用 hover 抽屉，直接摊在框里，卡多了 .opp-inventory 会换行、框自己变高。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1
@@ -238,7 +238,7 @@ export default function GameBoard({
               <div key={player.id} className={`opp-panel ${isTurn ? 'active' : ''}`}>
                 <div className="opp-prestige"><span>{player.prestige}</span></div>
                 <div className="opp-identity">
-                  <p className="opp-name">{player.name}</p>
+                  <span className="opp-name">{player.name}</span>
                   <span className="opp-order">第 {order} 位</span>
                 </div>
 
@@ -249,10 +249,8 @@ export default function GameBoard({
                     return (
                       <div key={type} className="opp-token"
                         title={`${RESOURCE_INFO[type].name}｜筹码 ${n}｜该方向论文 ${bonus} 篇（买卡时 ${RESOURCE_INFO[type].name} 便宜 ${bonus}）`}>
-                        <div className="gem-circle opp-chip" style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})` }}>
-                          <span className="opp-num">{n}</span>
-                        </div>
-                        <span className="opp-bonus">{bonus}</span>
+                        <div className="gem-circle opp-chip" style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})` }} />
+                        {n > 0 && <span className="opp-count">{n}</span>}
                       </div>
                     )
                   })}
