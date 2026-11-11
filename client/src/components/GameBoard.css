@@ -707,8 +707,16 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
-  width: 6.4rem;
-  padding-left: 0.9rem;
+  /* 宽 = 7rem：左边 1.5rem 是分隔线到摞的留白，右边剩下的刚好让摞落在条内。
+     留白不能更小 —— hover 放大是按卡中心等比放大（78 → 121），最左那张放大后
+     左缘会往回吃 21.5px；留白 0.9rem 时它会压住分隔线（实测 709.2 < 线 715.3）。 */
+  width: 7rem;
+  /* 摞自己不吃高度，容器内容高度是 0，border-left 会画成一条零高的线（看不见）。
+     所以显式拉到底条的内容高度 —— 和左边 .mc-me 那条分隔线一样长，读起来是
+     「区块分界」而不是某一列的分界。拉伸不改卡面位置：卡面靠 align-items 居中，
+     容器变高只是上下对称地变，中心还是底条中心。 */
+  align-self: stretch;
+  padding-left: 1.5rem;
   border-left: 1px solid rgba(212, 175, 55, 0.35);
   cursor: pointer;
 }
