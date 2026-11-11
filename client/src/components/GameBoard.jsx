@@ -222,47 +222,73 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* 右侧：其他玩家。筹码和论文都是公开信息，按固定色序两行对齐，
-            空槽隐藏但占位，这样第 3 列永远是「引用」，不用逐个找颜色。 */}
+        {/* 右侧：其他玩家。照 splendor-chinese 的 .other-player 来做：折叠时只露
+            一条名字窄条，hover / 键盘聚焦时整个抽屉从右边滑进来，盖在牌桌右侧。
+            抽屉里按那个项目的顺序排：6 色筹码（含 0，右上角标 = 该方向的论文数，
+            也就是买卡时该色的折价）→ 论文卡面横向叠成露边 → 预留卡背（服务端只
+            下发 tier，看不到卡面）→ 会士卡面。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1
             const isTurn = player.id === gameState.players[currentIndex]?.id
+            const cards = player.cards || []
             const reserved = player.reservedCards || []
+            const fcs = player.nobles || []
             return (
-              <div key={player.id} className={`opp-panel ${isTurn ? 'active' : ''}`}>
-                <div className="opp-prestige"><span>{player.prestige}</span></div>
-                <div className="opp-identity">
-                  <p className="opp-name">{player.name}</p>
-                  <span className="opp-order">第 {order} 位</span>
-                </div>
-                <div className="opp-grid">
-                  {INVENTORY_TYPES.map(type => {
-                    const n = player.tokens?.[type] || 0
-                    const papers = (player.cards || []).filter(c => c.bonus === type)
-                    const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 0
-                    return (
-                      <div key={type} className="opp-cell">
-                        <div
-                          className="gem-circle opp-chip"
-                          style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})`, visibility: n ? 'visible' : 'hidden' }}
-                        >
-                          <span className="opp-num">{n}</span>
-                        </div>
-                        <div className="vc-mark opp-vc" style={{ visibility: papers.length ? 'visible' : 'hidden' }}
-                          title={`${RESOURCE_INFO[type].name}方向论文 ${papers.length} 篇`}>
-                          <img src={TIER_DECK[bestTier] || TIER_DECK[1]} alt="" />
-                          <span className="opp-num">{papers.length}</span>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                {reserved.length > 0 && (
-                  <div className="opp-reserved" title={`预留 ${reserved.length} 张（别人看不到卡面）`}>
-                    {reserved.map((c, i) => <img key={i} src={TIER_DECK[c.tier] || TIER_DECK[1]} alt="" />)}
+              <div key={player.id} className={`opp-panel ${isTurn ? 'active' : ''}`} tabIndex={0}>
+                <div className="opp-drawer">
+                  <div className="opp-strip">
+                    <div className="opp-prestige"><span>{player.prestige}</span></div>
+                    <p className="opp-name">{player.name}</p>
+                    <span className="opp-order">第 {order} 位</span>
                   </div>
-                )}
+
+                  <div className="opp-inventory">
+                    <div className="opp-tokens">
+                      {INVENTORY_TYPES.map(type => {
+                        const n = player.tokens?.[type] || 0
+                        const bonus = player.bonus?.[type] || 0
+                        return (
+                          <div key={type} className="opp-token"
+                            title={`${RESOURCE_INFO[type].name}｜筹码 ${n}｜该方向论文 ${bonus} 篇（买卡时 ${RESOURCE_INFO[type].name} 便宜 ${bonus}）`}>
+                            <div className="gem-circle opp-chip" style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})` }}>
+                              <span className="opp-num">{n}</span>
+                            </div>
+                            <span className="opp-bonus">{bonus}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    <div className="opp-cards">
+                      {cards.map(c => (
+                        <div key={c.id} className="opp-face" data-ccf={c.ccf}
+                          title={`${c.name} · ${c.cn}｜产出 ${RESOURCE_INFO[c.bonus]?.name}｜声誉 ${c.prestige}`}>
+                          <span className="opp-face-p">{c.prestige}</span>
+                          <span className="opp-face-name">{c.name}</span>
+                          <span className="opp-face-gem" style={{ backgroundImage: `url(${RESOURCE_INFO[c.bonus]?.gem})` }} />
+                        </div>
+                      ))}
+                    </div>
+
+                    {reserved.length > 0 && (
+                      <div className="opp-reserved" title={`预留 ${reserved.length} 张（别人看不到卡面）`}>
+                        {reserved.map((c, i) => <img key={i} src={TIER_DECK[c.tier] || TIER_DECK[1]} alt="" />)}
+                      </div>
+                    )}
+
+                    {fcs.length > 0 && (
+                      <div className="opp-fcs" title={`会士卡 ${fcs.length} 张`}>
+                        {fcs.map(n => (
+                          <div key={n.id} className="opp-fc" data-tier={n.tier}
+                            title={`${n.cn}｜声誉 ${n.prestige}`}>
+                            {n.logo ? <img src={n.logo} alt="" /> : <span>{n.name}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )
           })}
