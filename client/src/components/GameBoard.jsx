@@ -51,14 +51,15 @@ export default function GameBoard({
   const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
 
-  // 咖啡（万能筹码）在拿取上就是一种颜色：可以算进「3 个不同色」里的一格，也可以
-  // 在银行还剩 ≥4 时拿 2 枚 —— 官方规则如此，服务端 handleTakeTokens 也是按类型
-  // 通判的，所以这里不对 coffee 开小灶。
+  // 拿筹码的合法组合只有三种：3 个不同色、2 枚同色（银行该色 ≥4）、单独 1 枚咖啡。
+  // 咖啡（万能）不占「3 个不同色」的名额，也不能凑 2 枚 —— 「拿 1 枚咖啡」本身就是
+  // 一个完整行动，所以点咖啡会把已选的清掉只留咖啡，反过来选了咖啡再点别的色就换回
+  // 普通选法。服务端 handleTakeTokens 按同一口径判。
   //
   // 「拿 2 枚同色」靠连点两次，不能用 dblclick：浏览器真双击必定先派发两次 click，
   // 旧的「单击 toggle + 双击升到 2」会被第二次 click 又清回 0，双击分支永远进不去。
   // 循环 0 → 1 → 2 → 0，2 只在「场上只有这一色且银行 ≥4」时给，并且握着 2 枚就不
-  // 再加别色 —— 这样选出来的组合必然落在服务端认的那两种里。
+  // 再加别色 —— 这样选出来的组合必然落在服务端认的那三种里。
   const handleTokenClick = (type) => {
     if (!isMyTurn) return
 
@@ -66,18 +67,28 @@ export default function GameBoard({
       const current = prev[type] || 0
       const bankCount = gameState.bank.tokens[type]
       const values = Object.values(prev)
-
-      if (current === 2) {
+      const clear = key => {
         const next = { ...prev }
-        delete next[type]
+        delete next[key]
         return next
       }
 
+      if (type === 'coffee') {
+        if (current) return clear('coffee')
+        if (bankCount <= 0) return prev
+        return { coffee: 1 }
+      }
+
+      if (prev.coffee) {
+        const next = clear('coffee')
+        return bankCount > 0 ? { ...next, [type]: 1 } : next
+      }
+
+      if (current === 2) return clear(type)
+
       if (current === 1) {
         if (values.length === 1 && bankCount >= 4) return { [type]: 2 }
-        const next = { ...prev }
-        delete next[type]
-        return next
+        return clear(type)
       }
 
       if (values.some(n => n >= 2)) return prev
@@ -91,8 +102,10 @@ export default function GameBoard({
     const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
     if (totalSelected === 0) return
     const types = Object.keys(selectedTokens)
-    if (totalSelected === 3 && types.length !== 3) return
-    if (totalSelected === 2 && (types.length !== 1 || gameState.bank.tokens[types[0]] < 4)) return
+    const soloCoffee = totalSelected === 1 && types[0] === 'coffee'
+    const threeDiff = totalSelected === 3 && types.length === 3 && !selectedTokens.coffee
+    const pairSame = totalSelected === 2 && types.length === 1 && gameState.bank.tokens[types[0]] >= 4
+    if (!soloCoffee && !threeDiff && !pairSame) return
     onTakeTokens(selectedTokens)
     setSelectedTokens({})
   }
@@ -188,8 +201,8 @@ export default function GameBoard({
           </div>
 
           {/* 公共筹码（AR）：排在 VC + FC 整块下面，我的资源条上面。
-              6 色全在这里，咖啡也在桌上能拿 —— 之前只渲染 5 色，银行那 5 枚咖啡
-              根本摸不到，只能靠预留卡换 1 枚。 */}
+              6 色全在这里 —— 之前只渲染 5 色，银行那 5 枚咖啡根本摸不到，只能靠
+              预留卡换 1 枚。咖啡走「单独拿 1 枚」那条行动，见 handleTokenClick。 */}
           <div className="gb-tokenpool">
             {INVENTORY_TYPES.map(type => {
               const info = RESOURCE_INFO[type]
@@ -200,7 +213,9 @@ export default function GameBoard({
                   key={type}
                   className={`pool-gem ${sel > 0 ? 'selected' : ''} ${bankCount === 0 ? 'empty' : ''}`}
                   onClick={() => handleTokenClick(type)}
-                  title={`${info.name}｜银行 ${bankCount}｜单击选 1，再点一下选 2（只有这一色且银行 ≥4），第三次取消`}
+                  title={type === 'coffee'
+                    ? `${info.name}｜银行 ${bankCount}｜只能单独拿 1 枚，不与其他色混拿；预留 1 张卡也会送 1 枚`
+                    : `${info.name}｜银行 ${bankCount}｜单击选 1，再点一下选 2（只有这一色且银行 ≥4），第三次取消`}
                 >
                   <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                     <span className="gem-num">{bankCount}</span>

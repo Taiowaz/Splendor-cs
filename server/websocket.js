@@ -241,51 +241,43 @@ export function setupWebSocket(server) {
       const player = game.players[playerIndex];
       const { tokens } = message;
 
-      // 验证：要么拿3个不同颜色，要么拿2个相同颜色
+      // 合法的拿取只有三种：3 个不同色 / 2 枚同色（银行该色至少 4）/ 单独 1 枚咖啡。
+      // 咖啡（万能）不参与前两种 —— 「拿 1 枚万能」本身就是完整的一个行动，
+      // 不能和别的颜色混拿，一轮也拿不到 2 枚（参考实现 TakeTokenAction 里
+      // double 和 unique 互斥，gold 更是直接拒收，这里是官方变体的放宽版）。
       const tokenTypes = Object.keys(tokens);
       const totalTokens = Object.values(tokens).reduce((a, b) => a + b, 0);
+      const coffeeTaken = tokens.coffee || 0;
+      const saneCounts = tokenTypes.length > 0 &&
+        tokenTypes.every(t => Number.isInteger(tokens[t]) && tokens[t] > 0 && tokens[t] <= 2);
+      const threeDiff = totalTokens === 3 && tokenTypes.length === 3 && !coffeeTaken;
+      const pairSame = totalTokens === 2 && tokenTypes.length === 1 && !coffeeTaken &&
+        game.bank.tokens[tokenTypes[0]] >= 4;
+      const soloCoffee = totalTokens === 1 && coffeeTaken === 1;
 
-      if (totalTokens === 3 && tokenTypes.length === 3) {
-        // 拿3个不同颜色
-        const result = takeTokens(player, tokens, game.bank.tokens);
-        if (result.success) {
-          broadcastToRoom(currentRoom, {
-            type: 'tokens_taken',
-            playerId: currentPlayerId,
-            tokens,
-            gameState: getSanitizedGameState(game, currentPlayerId)
-          });
-          endTurn(game);
-          broadcastToRoomWithPlayerState(currentRoom, {
-            type: 'turn_changed',
-            currentPlayerIndex: game.currentPlayerIndex
-          }, game);
-          checkAndExecuteAiTurn(room);
-        } else {
-          ws.send(JSON.stringify({ type: 'error', message: result.error }));
-        }
-      } else if (totalTokens === 2 && tokenTypes.length === 1 && game.bank.tokens[tokenTypes[0]] >= 4) {
-        // 拿2个相同颜色（银行该颜色至少4个）
-        const result = takeTokens(player, tokens, game.bank.tokens);
-        if (result.success) {
-          broadcastToRoom(currentRoom, {
-            type: 'tokens_taken',
-            playerId: currentPlayerId,
-            tokens,
-            gameState: getSanitizedGameState(game, currentPlayerId)
-          });
-          endTurn(game);
-          broadcastToRoomWithPlayerState(currentRoom, {
-            type: 'turn_changed',
-            currentPlayerIndex: game.currentPlayerIndex
-          }, game);
-          checkAndExecuteAiTurn(room);
-        } else {
-          ws.send(JSON.stringify({ type: 'error', message: result.error }));
-        }
-      } else {
+      if (!saneCounts || (!threeDiff && !pairSame && !soloCoffee)) {
         ws.send(JSON.stringify({ type: 'error', message: '无效的token选择' }));
+        return;
       }
+
+      const result = takeTokens(player, tokens, game.bank.tokens);
+      if (!result.success) {
+        ws.send(JSON.stringify({ type: 'error', message: result.error }));
+        return;
+      }
+
+      broadcastToRoom(currentRoom, {
+        type: 'tokens_taken',
+        playerId: currentPlayerId,
+        tokens,
+        gameState: getSanitizedGameState(game, currentPlayerId)
+      });
+      endTurn(game);
+      broadcastToRoomWithPlayerState(currentRoom, {
+        type: 'turn_changed',
+        currentPlayerIndex: game.currentPlayerIndex
+      }, game);
+      checkAndExecuteAiTurn(room);
     }
 
     function handleBuyCard(ws, message) {
