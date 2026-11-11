@@ -222,10 +222,11 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* 右侧：其他玩家。声誉章在框左上角，下面依次是 6 色筹码（圆片只是色标，
-            右上角深蓝小章才是该色筹码数，0 枚不画章）、论文真实卡面横向叠成露边
-            （左缘那条是档位色，某方向的论文数 = 买卡时该色的折价，所以不重复标）、
-            预留分级卡背（服务端只下发 tier）、会士缩小旗面 + 机构徽标。
+        {/* 右侧：其他玩家。声誉章在框左上角，下面依次是 6 色筹码（上下两排、每排
+            3 枚，圆片和右上角数量角标都直接复用本人资源框那套 .gem-circle/.gem-num，
+            所以两个框一样大）、论文真实卡面横向叠成露边（左缘那条是档位色，某方向的
+            论文数 = 买卡时该色的折价，所以不重复标）、预留分级卡背（服务端只下发
+            tier）、会士缩小旗面 + 机构徽标。
             不用 hover 抽屉，直接摊在框里，卡多了 .opp-inventory 会换行、框自己变高。 */}
         <div className="gb-players">
           {opponents.map(player => {
@@ -249,8 +250,9 @@ export default function GameBoard({
                     return (
                       <div key={type} className="opp-token"
                         title={`${RESOURCE_INFO[type].name}｜筹码 ${n}｜该方向论文 ${bonus} 篇（买卡时 ${RESOURCE_INFO[type].name} 便宜 ${bonus}）`}>
-                        <div className="gem-circle opp-chip" style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})` }} />
-                        {n > 0 && <span className="opp-count">{n}</span>}
+                        <div className="gem-circle" style={{ backgroundImage: `url(${RESOURCE_INFO[type].gem})` }}>
+                          {n > 0 && <span className="gem-num">{n}</span>}
+                        </div>
                       </div>
                     )
                   })}

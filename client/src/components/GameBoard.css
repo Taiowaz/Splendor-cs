@@ -415,16 +415,15 @@
 
 /* ---- 右侧：其他玩家 ---- */
 .gb-players {
-  /* 列宽和字号绑在同一个 --opp-em 上，换分辨率时框里的比例才不会散开：
-     一列要横排放下 6 枚筹码 + 最右边那颗角标。
-     牌桌是贴左起排的，右边这块空档（1366 下 ~220px、1920 下 ~350px）本来就是
-     浪费的 felt，与其留白不如让对手框吃进去。 */
-  --opp-em: clamp(1.05rem, 2.4vmin, 1.5rem);
+  /* 字号跟本人资源框用同一套（根 16px），这样两个框的名字、圆片、角标一样大；
+     列宽用 em 表达，比例就不随分辨率漂了。牌桌是贴左起排的，右边这块空档本来
+     就是浪费的 felt，让对手框吃进去一点。 */
+  --opp-em: 1rem;
   position: absolute;
   top: 1rem;
   bottom: 5rem;
   right: 0.4rem;
-  width: calc(17.5 * var(--opp-em));
+  width: calc(15.5 * var(--opp-em));
   font-size: var(--opp-em);
   display: flex;
   flex-direction: column;
@@ -434,7 +433,7 @@
   justify-content: safe center;
   overflow-y: auto;
   scrollbar-width: none;
-  gap: 1em;
+  gap: 0.9em;
   z-index: 12;
 }
 /* 框高不固定：卡多了 .opp-inventory 换行，框自己往上长 */
@@ -443,8 +442,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45em;
-  padding: 1.3em 0.6em 0.7em;
+  gap: 0.35em;
+  padding: 1.05em 0.6em 0.55em;
   background: rgba(104, 105, 119, 0.22);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 1rem;
@@ -454,31 +453,31 @@
   border-color: rgb(245, 204, 101);
   box-shadow: 0 0 0 2px rgba(245, 204, 101, 0.4), rgba(0, 0, 0, 0.35) 0 4px 12px;
 }
-/* 声誉章放在框内左上角，而不是骑在边框上：.gb-players 是滚动容器，
-   overflow 会把探出列外的半截圆章直接裁掉，骑框那版在 1366 下已经被切过 */
+/* 声誉章放在框内左上角而不是骑边框：.gb-players 是滚动容器，overflow 会把探出
+   列外的半截圆章裁平 */
 .opp-prestige {
   position: absolute;
   top: 0.3em;
   left: 0.3em;
-  width: 2em;
-  height: 2em;
+  width: 2.6em;
+  height: 2.6em;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background-image: url('/images/bluebackground.jpg');
   background-size: cover;
-  border: 0.18rem solid goldenrod;
+  border: 0.22rem solid goldenrod;
   box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
 }
 .opp-prestige span {
   font-family: 'Lobster', cursive;
-  font-size: 1.15em;
+  font-size: 1.4em;
   color: rgb(245, 204, 101);
-  -webkit-text-stroke: 0.05rem black;
+  -webkit-text-stroke: 0.06rem black;
   text-shadow: 1px 2px 4px black;
 }
-/* 名字和顺位同一行，省一行高度 —— 1366 下三个框要挤进 618px 的列里 */
+/* 名字 / 顺位跟本人资源框的 .inv-name / .inv-order 同一套字号 */
 .opp-identity {
   display: flex;
   align-items: baseline;
@@ -486,8 +485,8 @@
   gap: 0.4em;
   line-height: 1.2;
 }
-.opp-name { font-size: 1.25em; font-weight: 700; color: #f2d675; }
-.opp-order { font-size: 0.85em; color: #b9b29a; }
+.opp-name { font-size: 1.15em; font-weight: 700; color: #f2d675; }
+.opp-order { font-size: 0.8em; color: #b9b29a; }
 
 /* 论文 / 预留 / 会士挤在同一带里，装不下就换行，行与行居中 */
 .opp-inventory {
@@ -499,38 +498,15 @@
   width: 100%;
 }
 
-/* 筹码：6 色横排一行。圆片本身只是色标，中间不放数字；右上角深蓝小章才是该色
-   筹码数（AR），0 枚就不画章，扫一眼就知道哪些色还有货。该方向的论文数 = 买卡时
-   该色的折价，这个不重复标 —— 下面那排论文卡面数得出来，还有 tooltip。 */
+/* 筹码：6 色上下两排、每排 3 枚。圆片直接复用本人资源框那套 .gem-circle +
+   .gem-num，所以尺寸字号完全一致；数字是右上角角标，圆片中间不印数。
+   该方向的论文数 = 买卡时该色的折价，不重复标 —— 下面那排卡面数得出来，还有 tooltip。 */
 .opp-tokens {
   display: grid;
-  grid-template-columns: repeat(6, auto);
-  gap: 0.35em;
+  grid-template-columns: repeat(3, auto);
+  gap: 0.4em;
 }
 .opp-token { position: relative; }
-.opp-chip {
-  width: 2.3em;
-  height: 2.3em;
-}
-.opp-count {
-  position: absolute;
-  top: -0.45em;
-  right: -0.5em;
-  min-width: 1.35em;
-  height: 1.35em;
-  padding: 0 0.15em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.7em;
-  background: #1e516d;
-  border: 0.08em solid #fff;
-  box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
-  font-family: 'Lobster', cursive;
-  font-size: 0.72em;
-  color: #fff;
-  -webkit-text-stroke: 0.04rem black;
-}
 
 /* 论文卡：每张都是真实卡面，横向叠起来只露左缘一条。左缘那条是档位色
    （A 金 / B 蓝 / C 绿），所以扫一眼颜色就能看出这个人的 A/B/C 配比，
@@ -554,7 +530,7 @@
   border-left: 0.4em solid var(--tier);
   border-radius: 0.3rem;
   color: #3a2a12;
-  font-size: 0.72em;
+  font-size: 0.78em;
   background:
     radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
     linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
@@ -573,7 +549,7 @@
   writing-mode: vertical-rl;
   font-size: 0.72em;
   line-height: 1.05;
-  max-height: 2.4em;
+  max-height: 2.1em;
   overflow: hidden;
 }
 .opp-face-gem {
