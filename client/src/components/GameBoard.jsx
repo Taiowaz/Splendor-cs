@@ -30,8 +30,7 @@ const RESOURCE_INFO = {
   coffee: { icon: '☕', name: '咖啡', gem: '/images/tokens/GoldToken.png' }
 }
 
-const TOKEN_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding']
-const INVENTORY_TYPES = [...TOKEN_TYPES, 'coffee']
+const INVENTORY_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding', 'coffee']
 
 export default function GameBoard({
   gameState,
@@ -52,9 +51,11 @@ export default function GameBoard({
   const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
 
+  // 咖啡（万能筹码）在拿取上就是一种颜色：可以算进「3 个不同色」里的一个，也可以在
+  // 银行还剩 ≥4 时被双击拿 2 枚 —— 官方规则如此，服务端 handleTakeTokens 也是按类型
+  // 通判的，所以这里不再对 coffee 开小灶。
   const handleTokenClick = (type) => {
     if (!isMyTurn) return
-    if (type === 'coffee') return
 
     setSelectedTokens(prev => {
       const current = prev[type] || 0
@@ -76,7 +77,6 @@ export default function GameBoard({
 
   const handleTokenDoubleClick = (type) => {
     if (!isMyTurn) return
-    if (type === 'coffee') return
 
     setSelectedTokens(prev => {
       const current = prev[type] || 0
@@ -189,9 +189,11 @@ export default function GameBoard({
             ))}
           </div>
 
-          {/* 公共筹码（AR）：排在 VC + FC 整块下面，我的资源条上面 */}
+          {/* 公共筹码（AR）：排在 VC + FC 整块下面，我的资源条上面。
+              6 色全在这里，咖啡也在桌上能拿 —— 之前只渲染 5 色，银行那 5 枚咖啡
+              根本摸不到，只能靠预留卡换 1 枚。 */}
           <div className="gb-tokenpool">
-            {TOKEN_TYPES.map(type => {
+            {INVENTORY_TYPES.map(type => {
               const info = RESOURCE_INFO[type]
               const bankCount = gameState.bank.tokens[type] || 0
               const sel = selectedTokens[type] || 0
