@@ -51,41 +51,39 @@ export default function GameBoard({
   const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
 
-  // 咖啡（万能筹码）在拿取上就是一种颜色：可以算进「3 个不同色」里的一个，也可以在
-  // 银行还剩 ≥4 时被双击拿 2 枚 —— 官方规则如此，服务端 handleTakeTokens 也是按类型
-  // 通判的，所以这里不再对 coffee 开小灶。
+  // 咖啡（万能筹码）在拿取上就是一种颜色：可以算进「3 个不同色」里的一格，也可以
+  // 在银行还剩 ≥4 时拿 2 枚 —— 官方规则如此，服务端 handleTakeTokens 也是按类型
+  // 通判的，所以这里不对 coffee 开小灶。
+  //
+  // 「拿 2 枚同色」靠连点两次，不能用 dblclick：浏览器真双击必定先派发两次 click，
+  // 旧的「单击 toggle + 双击升到 2」会被第二次 click 又清回 0，双击分支永远进不去。
+  // 循环 0 → 1 → 2 → 0，2 只在「场上只有这一色且银行 ≥4」时给，并且握着 2 枚就不
+  // 再加别色 —— 这样选出来的组合必然落在服务端认的那两种里。
   const handleTokenClick = (type) => {
     if (!isMyTurn) return
 
     setSelectedTokens(prev => {
       const current = prev[type] || 0
-      const totalSelected = Object.values(prev).reduce((a, b) => a + b, 0)
       const bankCount = gameState.bank.tokens[type]
+      const values = Object.values(prev)
 
-      if (current > 0) {
-        if (current === 2) return { ...prev, [type]: 1 }
-        const newTokens = { ...prev }
-        delete newTokens[type]
-        return newTokens
+      if (current === 2) {
+        const next = { ...prev }
+        delete next[type]
+        return next
       }
 
+      if (current === 1) {
+        if (values.length === 1 && bankCount >= 4) return { [type]: 2 }
+        const next = { ...prev }
+        delete next[type]
+        return next
+      }
+
+      if (values.some(n => n >= 2)) return prev
       if (bankCount <= 0) return prev
-      if (totalSelected >= 3) return prev
+      if (values.reduce((a, b) => a + b, 0) >= 3) return prev
       return { ...prev, [type]: 1 }
-    })
-  }
-
-  const handleTokenDoubleClick = (type) => {
-    if (!isMyTurn) return
-
-    setSelectedTokens(prev => {
-      const current = prev[type] || 0
-      const distinctTypes = Object.keys(prev).length
-      const bankCount = gameState.bank.tokens[type]
-      if (current === 1 && distinctTypes === 1 && bankCount >= 4) {
-        return { ...prev, [type]: 2 }
-      }
-      return prev
     })
   }
 
@@ -202,8 +200,7 @@ export default function GameBoard({
                   key={type}
                   className={`pool-gem ${sel > 0 ? 'selected' : ''} ${bankCount === 0 ? 'empty' : ''}`}
                   onClick={() => handleTokenClick(type)}
-                  onDoubleClick={() => handleTokenDoubleClick(type)}
-                  title={`${info.name}｜银行 ${bankCount}｜单击选1，双击选2（银行≥4）`}
+                  title={`${info.name}｜银行 ${bankCount}｜单击选 1，再点一下选 2（只有这一色且银行 ≥4），第三次取消`}
                 >
                   <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                     <span className="gem-num">{bankCount}</span>
