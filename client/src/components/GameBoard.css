@@ -72,17 +72,19 @@
   font-weight: 700;
 }
 
-/* ---- 主体三栏 ---- */
+/* ---- 主体：牌桌 + 对手列共用一个 grid ----
+   三列两行，对手列占第三列并跨两行，靠 align-self:start + height:--vc-col
+   把它的上下边界压齐 VC/FC 那一行（第三列的 1fr 顺手吃掉右边那块 felt）。 */
 .gb-main {
   flex: 1;
   position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: flex-start;
-  /* 原来居中，右侧那列对手面板是绝对定位，等于把 ~200px 的空档全留在左边。
-     改成贴左起排，牌桌直接吃到左边那块空白。 */
-  gap: 2.4rem;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "cards  nobles  players"
+    "tokens tokens  players";
+  align-content: center;
+  gap: 1.2rem 1.4rem;
   padding: 1rem 1.2rem 5rem 2.5rem;
   overflow: hidden;
 }
@@ -285,18 +287,11 @@
   text-shadow: 1px 1px 2px black;
 }
 
-/* ---- 中间牌桌 ---- */
+/* ---- 中间牌桌 ----
+   只是个 DOM 包装：display:contents 让 cards / nobles / tokens 直接落到
+   .gb-main 那套 grid 上，对手列才能和它们同处一行、按同一份高度对齐。 */
 .gb-board {
-  flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-areas:
-    "cards  nobles"
-    "tokens tokens";
-  align-content: center;
-  justify-content: center;
-  gap: 1.2rem 1.4rem;
-  min-width: 0;
+  display: contents;
 }
 
 .gb-tokenpool {
@@ -416,34 +411,35 @@
 /* ---- 右侧：其他玩家 ---- */
 .gb-players {
   /* 字号跟本人资源框用同一套（根 16px），这样两个框的名字、圆片、角标一样大；
-     列宽用 em 表达，比例就不随分辨率漂了。牌桌是贴左起排的，右边这块空档本来
-     就是浪费的 felt，让对手框吃进去一点。 */
+     列宽用 em 表达，比例就不随分辨率漂了。 */
   --opp-em: 1rem;
-  position: absolute;
-  top: 1rem;
-  bottom: 5rem;
-  right: 0.4rem;
-  width: calc(15.5 * var(--opp-em));
+  grid-area: players;
+  /* 跨两行的格子只用来占位：真正的盒子按 --vc-col 定高、顶到第一行，
+     于是上下边界和 VC 首末行、FC 首末旗完全压齐。 */
+  align-self: start;
+  justify-self: end;
+  height: var(--vc-col);
+  width: calc(13.5 * var(--opp-em));
   font-size: var(--opp-em);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  /* 框会随卡数变高，极端情况下三个框顶满还超出一列，那就从上往下滚，
-     别用 center 把最上面半截裁掉（safe center 不支持时退回上一行） */
-  justify-content: safe center;
+  /* 框少的开局就把空隙摊到框间，让最上一个框的顶边和最下一个框的底边各自
+     贴住这一列的上下沿；框变高挤满了空隙自然就收拢，溢出时从顶上开始滚。 */
+  justify-content: space-between;
   overflow-y: auto;
   scrollbar-width: none;
   gap: 0.9em;
-  z-index: 12;
 }
-/* 框高不固定：卡多了 .opp-inventory 换行，框自己往上长 */
+/* 框高不固定：卡多了 .opp-inventory 换行，框自己往上长。
+   顶上的留白只留 0.3em（声誉章是绝对定位、跟名字同一带），名字往上挪就把
+   这一条省下来换给了框高。 */
 .opp-panel {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35em;
-  padding: 1.05em 0.6em 0.55em;
+  gap: 0.3em;
+  padding: 0.3em 0.6em 0.45em;
   background: rgba(104, 105, 119, 0.22);
   border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 1rem;
