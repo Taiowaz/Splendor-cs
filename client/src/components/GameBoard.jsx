@@ -31,6 +31,9 @@ const RESOURCE_INFO = {
 }
 
 const INVENTORY_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding', 'coffee']
+// 咖啡是万能筹码，不是任何论文的产出方向（venues.js 里 bonus 只有那 5 色），
+// 所以咖啡那一格只有筹码、不配论文圈 —— 挂个永远 0 的空圈只会误导「这里能发论文」
+const VC_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding']
 
 export default function GameBoard({
   gameState,
@@ -239,10 +242,11 @@ export default function GameBoard({
         </div>
 
         {/* 右侧：其他玩家。声誉章在框左上角，下面按本人资源条那套形式组织：
-            每个方向一格「筹码圆片 + 该方向论文卡背」，6 格常驻、0 也带角标、空位
-            压暗，和底部完全同一个口径（论文数 = 买卡时该色的折价，明细在 tooltip 里）。
-            再下面是预留分级卡背（服务端只下发 tier）和会士缩小旗面。
-            框的外形不动：6 格排 3×2，行高和原来那两排筹码一样（圆片仍 2.3em）。 */}
+            每个方向一格「筹码圆片 + 该方向论文卡背」，常驻、0 也带角标、空位压暗，
+            和底部完全同一个口径（论文数 = 买卡时该色的折价，明细在 tooltip 里）。
+            咖啡没有论文方向，那一格只有筹码。
+            6 格排两列三行（框只有 216 宽，三格一行会把角标挤到一起），所以框比原来
+            高一些；再下面是预留分级卡背（服务端只下发 tier）和会士缩小旗面。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1
@@ -258,27 +262,33 @@ export default function GameBoard({
                   <span className="opp-order">第 {order} 位</span>
                 </div>
 
-                {/* 6 格 = 6 个方向，每格「筹码 + 该方向论文卡背」，和底部 .mc-type 同一套 */}
+                {/* 6 格 = 6 个方向，每格「筹码 + 该方向论文卡背」，和底部 .mc-type 同一套
+                    （咖啡只有筹码，没有论文方向） */}
                 <div className="opp-res">
                   {INVENTORY_TYPES.map(type => {
                     const info = RESOURCE_INFO[type]
                     const n = player.tokens?.[type] || 0
+                    const hasVC = VC_TYPES.includes(type)
                     const papers = cards.filter(c => c.bonus === type)
                     const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 1
                     const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
                     const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
                     return (
                       <div key={type} className="opp-cell"
-                        title={`${info.name}｜筹码 ${n}｜论文 ${papers.length} 篇${breakdown ? `（${breakdown}）` : ''}`}>
+                        title={hasVC
+                          ? `${info.name}｜筹码 ${n}｜论文 ${papers.length} 篇${breakdown ? `（${breakdown}）` : ''}`
+                          : `${info.name}｜筹码 ${n}｜万能筹码，没有对应方向的论文`}>
                         <div className={`inv-gem ${n === 0 ? 'empty' : ''}`}>
                           <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
                             <span className="gem-num">{n}</span>
                           </div>
                         </div>
-                        <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
-                          <img src={TIER_DECK[bestTier]} alt="" />
-                          <span className="vc-count">{papers.length}</span>
-                        </div>
+                        {hasVC && (
+                          <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
+                            <img src={TIER_DECK[bestTier]} alt="" />
+                            <span className="vc-count">{papers.length}</span>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -323,7 +333,8 @@ export default function GameBoard({
           // 该方向的已发表论文：张数 == player.bonus[type]（服务端买卡时 ++），
           // 这里直接从 cards 派生，筹码和论文各占一个图标，不再叠在同一枚圆片上
           const papers = (myPlayer?.cards || []).filter(c => c.bonus === type)
-          // 6 色 12 格一律常驻，0 也显示角标 —— 原来 0 就整列不渲染，买第一张卡时
+          const hasVC = VC_TYPES.includes(type)
+          // 6 色 11 格一律常驻，0 也显示角标 —— 原来 0 就整列不渲染，买第一张卡时
           // 资源条会突然变宽、所有列横移。空位按公共筹码那套压暗（.empty）。
           // 卡背按该方向最好的一篇选档（tier 数字越大越高级：3 = CCF-A），0 篇借 tier-1
           const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 1
@@ -336,15 +347,17 @@ export default function GameBoard({
                   <span className="gem-num">{tokens}</span>
                 </div>
               </div>
-              <div
-                className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}
-                title={papers.length
-                  ? `${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`
-                  : `${info.name}方向论文 0 篇`}
-              >
-                <img src={TIER_DECK[bestTier]} alt="" />
-                <span className="vc-count">{papers.length}</span>
-              </div>
+              {hasVC && (
+                <div
+                  className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}
+                  title={papers.length
+                    ? `${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`
+                    : `${info.name}方向论文 0 篇`}
+                >
+                  <img src={TIER_DECK[bestTier]} alt="" />
+                  <span className="vc-count">{papers.length}</span>
+                </div>
+              )}
             </div>
           )
         })}
