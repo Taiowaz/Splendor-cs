@@ -696,56 +696,42 @@
 .mc-type + .mc-type {
   border-left: 1px solid rgba(212, 175, 55, 0.35);
 }
-/* 预留摞：照参考实现（splendor-chinese gameboard.css:279-328）—— 真卡面横转 90°、
-   负 margin 叠成一摞挂在自己库存末尾，hover 摊开、单张再放大抬起。slot 的 --vc-w
-   由 JSX 内联压到 52px，横过来占 78×52，正好落在底条那 51px 里，不会把条撑高、
-   也就不会顶到上面的筹码行。摊开时靠固定宽度 + nowrap 让卡溢出到右边，条不跟着
-   变宽（条是居中定位的，一变宽整条会横移）。买哪张在弹窗里挑，见 .gb-reserved-modal。 */
+/* 预留区：挂在自己库存末尾，真卡面竖着站（6:9 原比例，不旋转），等比缩到底条的
+   内容高度里 —— 和左边 .mc-me / .mc-type 那几列同高，整排完全落在资源条内，
+   不再像原来横躺 + hover 摊开那样溢到条外去。宽度按预留上限 3 张固定，所以
+   预留/买卡时条宽不变（条是居中定位的，一变宽整条会横移）。这么小的卡面读不了
+   字，只当"有几张、什么档"的颜色提醒；要看清和挑哪张都在弹窗里，见
+   .gb-reserved-modal。 */
 .mc-reserved {
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex-wrap: nowrap;
-  /* 宽 = 7rem：左边 1.5rem 是分隔线到摞的留白，右边剩下的刚好让摞落在条内。
-     留白不能更小 —— hover 放大是按卡中心等比放大（78 → 121），最左那张放大后
-     左缘会往回吃 21.5px；留白 0.9rem 时它会压住分隔线（实测 709.2 < 线 715.3）。 */
-  width: 7rem;
-  /* 摞自己不吃高度，容器内容高度是 0，border-left 会画成一条零高的线（看不见）。
-     所以显式拉到底条的内容高度 —— 和左边 .mc-me 那条分隔线一样长，读起来是
-     「区块分界」而不是某一列的分界。拉伸不改卡面位置：卡面靠 align-items 居中，
-     容器变高只是上下对称地变，中心还是底条中心。 */
+  gap: 0.25rem;
+  /* 1(线) + 24(留白) + 3 × 27.7(卡宽) + 2 × 4(间距) = 116.1 */
+  width: 7.3rem;
+  /* 分隔线拉到底条的内容高度（= 那一排里最高的一项，带论文卡背的列 42.4），
+     和左边 .mc-me 那条线一样长，读起来是「区块分界」而不是某一列的分界。
+     卡本身只有 41.5，不拉伸的话线会比其他分隔线短一截。 */
   align-self: stretch;
   padding-left: 1.5rem;
   border-left: 1px solid rgba(212, 175, 55, 0.35);
   cursor: pointer;
 }
 .mc-reserved-slot {
+  /* 卡高 = 1.5 × 卡宽（.paper-card 的 aspect-ratio 6/9），27.7 → 41.55，
+     正好是底条内容高度（.mc-prestige 2.6em = 41.6）。 */
+  --vc-w: 27.7px;
   position: relative;
   flex: 0 0 auto;
-  width: calc(var(--vc-w) * 1.5);
-  /* 高度记 0：卡面绝对定位在这个零高盒子的中心，所以摞不会把底条撑高
-     （撑高了顶上去就压筹码行，1366 下实测压了 1.9px）。 */
-  height: 0;
-  margin-right: calc(var(--vc-w) * -1.26); /* 完全叠死会数不出张数，横过来留 16% 露边 */
-  transition: margin-right 0.12s ease;
-}
-.mc-reserved-slot .paper-card {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(90deg);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-.mc-reserved:hover .mc-reserved-slot {
-  margin-right: 0.2rem;
 }
 .mc-reserved-slot:hover {
   z-index: 50;
 }
+/* 只抬 1.2 倍：41.55 → 49.9，还在资源条那 61.2 里；再大就顶穿条了。
+   左缘往回吃 2.8px，留白 24px 兜得住，不会压到分隔线。 */
 .mc-reserved-slot:hover .paper-card {
-  transform: translate(-50%, -50%) rotate(90deg) scale(1.55);
-  z-index: 50;
+  transform: scale(1.2);
 }
 
 .gb-my-cards .mini-card {

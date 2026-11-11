@@ -349,10 +349,9 @@ export default function GameBoard({
           )
         })}
 
-        {/* 预留区：照参考实现做在我自己库存的末尾 —— 真卡面横转 90°、负 margin
-            叠成一摞（gameboard.css:279-318），slot 绝对定位所以不吃底条高度，
-            hover 才摊开 + 抬起，只当"瞄一眼有几张、什么档"；买哪张在弹窗里挑，
-            见下面的 .gb-reserved-modal。 */}
+        {/* 预留区：挂在自己库存末尾 —— 真卡面竖着站、等比缩到底条内容高度，
+            整排不超出资源条；只当"有几张、什么档"的提醒，买哪张在弹窗里挑，
+            见下面的 .gb-reserved-modal。尺寸在 .mc-reserved-slot 里给。 */}
         {myReserved.length > 0 && (
           <div
             className="mc-reserved"
@@ -360,7 +359,7 @@ export default function GameBoard({
             onClick={() => setShowReserved(true)}
           >
             {myReserved.map(card => (
-              <div key={card.id} className="mc-reserved-slot" style={{ '--vc-w': '52px' }}>
+              <div key={card.id} className="mc-reserved-slot">
                 <PaperCard card={card} isMyTurn={false} />
               </div>
             ))}
