@@ -647,8 +647,7 @@
   max-width: 92vw;
 }
 .mc-pool,
-.mc-owned,
-.mc-reserved {
+.mc-owned {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -658,10 +657,6 @@
 .mc-pool {
   padding-right: 0.9rem;
   border-right: 1px solid rgba(212, 175, 55, 0.35);
-}
-.mc-reserved {
-  padding-left: 0.9rem;
-  border-left: 1px solid rgba(212, 175, 55, 0.35);
 }
 .mc-me {
   display: flex;
@@ -701,40 +696,48 @@
 .mc-type + .mc-type {
   border-left: 1px solid rgba(212, 175, 55, 0.35);
 }
-.mc-counts {
+/* 预留摞：照参考实现（splendor-chinese gameboard.css:279-328）—— 真卡面横转 90°、
+   负 margin 叠成一摞挂在自己库存末尾，hover 摊开、单张再放大抬起。slot 的 --vc-w
+   由 JSX 内联压到 52px，横过来占 78×52，正好落在底条那 51px 里，不会把条撑高、
+   也就不会顶到上面的筹码行。摊开时靠固定宽度 + nowrap 让卡溢出到右边，条不跟着
+   变宽（条是居中定位的，一变宽整条会横移）。买哪张在弹窗里挑，见 .gb-reserved-modal。 */
+.mc-reserved {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.35rem;
-}
-.cnt-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 0.6rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(212, 175, 55, 0.5);
-  cursor: default;
-}
-.cnt-chip.reserved {
-  border-style: dashed;
-  background: rgba(212, 175, 55, 0.12);
+  flex-wrap: nowrap;
+  width: 6.4rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid rgba(212, 175, 55, 0.35);
   cursor: pointer;
 }
-.cnt-chip.reserved:hover {
-  background: rgba(212, 175, 55, 0.25);
+.mc-reserved-slot {
+  position: relative;
+  flex: 0 0 auto;
+  width: calc(var(--vc-w) * 1.5);
+  /* 高度记 0：卡面绝对定位在这个零高盒子的中心，所以摞不会把底条撑高
+     （撑高了顶上去就压筹码行，1366 下实测压了 1.9px）。 */
+  height: 0;
+  margin-right: calc(var(--vc-w) * -1.26); /* 完全叠死会数不出张数，横过来留 16% 露边 */
+  transition: margin-right 0.12s ease;
 }
-.cnt-icon {
-  font-size: 1.55rem;
-  line-height: 1;
+.mc-reserved-slot .paper-card {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.cnt-num {
-  font-family: 'Lobster', cursive;
-  font-size: 1.6em;
-  color: rgb(245, 204, 101);
-  -webkit-text-stroke: 0.05rem black;
-  text-shadow: 1px 1px 2px black;
+.mc-reserved:hover .mc-reserved-slot {
+  margin-right: 0.2rem;
+}
+.mc-reserved-slot:hover {
+  z-index: 50;
+}
+.mc-reserved-slot:hover .paper-card {
+  transform: translate(-50%, -50%) rotate(90deg) scale(1.55);
+  z-index: 50;
 }
 
 .gb-my-cards .mini-card {
@@ -793,6 +796,27 @@
 }
 .gb-modal p { color: #d8d2bd; margin-bottom: 1.2rem; }
 .gb-modal-buttons { display: flex; gap: 0.8rem; justify-content: center; }
+
+/* 预留区弹窗：把几张预留卡按真实卡面摊开，逐张挑着买（参考实现也是在这个
+   位置列出预留列，见 taketurn.js:220-238）。宽度按 3 张卡算，不足 3 张时
+   靠 .reserved-list 的居中留白。 */
+.gb-reserved-modal {
+  width: min(94vw, calc(3 * var(--vc-w) + 5.6rem));
+}
+.reserved-list {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.reserved-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.reserved-hint { font-size: 0.85rem; color: #b9ae8f; }
 
 /* ---- 游戏结束 ---- */
 .gb-gameover {

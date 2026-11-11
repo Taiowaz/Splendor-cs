@@ -45,8 +45,10 @@ export default function GameBoard({
   const [selectedTokens, setSelectedTokens] = useState({})
   const [showReserve, setShowReserve] = useState(false)
   const [reserveTarget, setReserveTarget] = useState(null)
+  const [showReserved, setShowReserved] = useState(false)
 
   const myPlayer = gameState.players.find(p => p.id === myPlayerId)
+  const myReserved = myPlayer?.reservedCards || []
   const currentIndex = gameState.currentPlayerIndex
   const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
@@ -322,13 +324,7 @@ export default function GameBoard({
           // 该方向的已发表论文：张数 == player.bonus[type]（服务端买卡时 ++），
           // 这里直接从 cards 派生，筹码和论文各占一个图标，不再叠在同一枚圆片上
           const papers = (myPlayer?.cards || []).filter(c => c.bonus === type)
-          const reserved = (myPlayer?.reservedCards || []).filter(c => c.bonus === type)
-          if (tokens === 0 && papers.length === 0 && reserved.length === 0) return null
-          const buyReserved = () => {
-            if (!isMyTurn) return
-            const target = reserved.find(c => canAfford(myPlayer, c)) || reserved[0]
-            if (target) onBuyCard(target.id, target.tier, true)
-          }
+          if (tokens === 0 && papers.length === 0) return null
           // 卡背按该方向最好的一篇选档（tier 数字越大越高级：3 = CCF-A）
           const bestTier = papers.length ? Math.max(...papers.map(c => c.tier)) : 0
           const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
@@ -349,21 +345,27 @@ export default function GameBoard({
                   <span className="vc-count">{papers.length}</span>
                 </div>
               )}
-              {reserved.length > 0 && (
-                <div className="mc-counts">
-                  <div
-                    className="cnt-chip reserved"
-                    title={`预留 ${reserved.length}（点击购买最便宜可负担的一张）`}
-                    onClick={buyReserved}
-                  >
-                    <span className="cnt-icon">🔖</span>
-                    <span className="cnt-num">{reserved.length}</span>
-                  </div>
-                </div>
-              )}
             </div>
           )
         })}
+
+        {/* 预留区：照参考实现做在我自己库存的末尾 —— 真卡面横转 90°、负 margin
+            叠成一摞（gameboard.css:279-318），slot 绝对定位所以不吃底条高度，
+            hover 才摊开 + 抬起，只当"瞄一眼有几张、什么档"；买哪张在弹窗里挑，
+            见下面的 .gb-reserved-modal。 */}
+        {myReserved.length > 0 && (
+          <div
+            className="mc-reserved"
+            title={`预留 ${myReserved.length} 张｜点开挑一张买`}
+            onClick={() => setShowReserved(true)}
+          >
+            {myReserved.map(card => (
+              <div key={card.id} className="mc-reserved-slot" style={{ '--vc-w': '52px' }}>
+                <PaperCard card={card} isMyTurn={false} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 预留确认弹窗 */}
@@ -375,6 +377,41 @@ export default function GameBoard({
             <div className="gb-modal-buttons">
               <button className="gb-btn gb-btn-gold" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>确认预留</button>
               <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserve(false)}>取消</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 从预留区买卡：参考实现也是把「买预留」收在弹窗里、由玩家挑那一张
+          （taketurn.js:220-238 把预留那一列搬进 #buy-card-modal），牌桌上那摞
+          只用来瞄一眼。这里没做支付选择弹窗 —— 服务端自动结算，所以弹窗里
+          每张只给「买这张」。 */}
+      {showReserved && myReserved.length > 0 && (
+        <div className="gb-modal-overlay" onClick={() => setShowReserved(false)}>
+          <div className="gb-modal gb-reserved-modal" onClick={e => e.stopPropagation()}>
+            <h3>从预留区购买</h3>
+            <p>买预留卡就是你这一回合的行动，买下的那张当场结算产出筹码。</p>
+            <div className="reserved-list">
+              {myReserved.map(card => {
+                const affordable = isMyTurn && canAfford(myPlayer, card)
+                return (
+                  <div key={card.id} className="reserved-item">
+                    <PaperCard
+                      card={card}
+                      isMyTurn={true}
+                      canAfford={affordable}
+                      onBuy={() => {
+                        onBuyCard(card.id, card.tier, true)
+                        setShowReserved(false)
+                      }}
+                    />
+                    {!affordable && <span className="reserved-hint">{isMyTurn ? '资源不够' : '还没轮到你'}</span>}
+                  </div>
+                )
+              })}
+            </div>
+            <div className="gb-modal-buttons">
+              <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserved(false)}>关闭</button>
             </div>
           </div>
         </div>

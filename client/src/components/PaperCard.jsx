@@ -58,7 +58,8 @@ export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn 
       {isMyTurn && (
         <div className="foot">
           {canAfford && <button className="btn buy" onClick={onBuy}>购买</button>}
-          <button className="btn" onClick={onReserve}>预留</button>
+          {/* 预留区里的卡不能再预留自己，所以调用方不传 onReserve 时这条就不出现 */}
+          {onReserve && <button className="btn" onClick={onReserve}>预留</button>}
         </div>
       )}
     </div>
