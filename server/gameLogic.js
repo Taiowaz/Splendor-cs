@@ -96,6 +96,9 @@ export function createPlayer(id, name) {
     name,
     tokens: { data: 0, compute: 0, citation: 0, collaborator: 0, funding: 0, coffee: 0 },
     cards: [],
+    // 来过的会士卡（FC）。官方规则里这张牌会立在玩家面前，所以归属是公开信息，
+    // 之前只加 prestige 不留牌，导致对手面板没法显示"谁拿了哪张 FC"
+    nobles: [],
     reservedCards: [],
     prestige: 0,
     bonus: { data: 0, compute: 0, citation: 0, collaborator: 0, funding: 0 }

@@ -325,6 +325,7 @@ export function setupWebSocket(server) {
         const noble = checkNobleVisit(player, game.bank.nobles);
         if (noble) {
           player.prestige += noble.prestige;
+          player.nobles.push(noble);
           game.bank.nobles = game.bank.nobles.filter(n => n.id !== noble.id);
           broadcastToRoom(currentRoom, {
             type: 'noble_visit',
@@ -533,6 +534,8 @@ function getSanitizedGameState(game, requestingPlayerId) {
       // 筹码是公开信息（官方规则如此，splendor-chinese 也全量下发），对手面板要显示
       tokens: p.tokens,
       cards: p.cards,
+      // 会士卡立在玩家面前，是公开信息
+      nobles: p.nobles,
       // 预留卡是私有的：别人只看得到"有几张、各是什么档"（卡背按档选），看不到卡面
       reservedCards: requestingPlayerId === p.id
         ? p.reservedCards

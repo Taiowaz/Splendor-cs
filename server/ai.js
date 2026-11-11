@@ -85,6 +85,7 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
         const noble = checkNobleVisit(player, game.bank.nobles);
         if (noble) {
           player.prestige += noble.prestige;
+          player.nobles.push(noble);
           game.bank.nobles = game.bank.nobles.filter(n => n.id !== noble.id);
           broadcastFn(room.id, {
             type: 'noble_visit',
@@ -167,6 +168,8 @@ function getSanitizedGameStateForAi(game, requestingPlayerId) {
       name: p.name,
       tokens: p.tokens, // 筹码公开，和 websocket.js 的 getSanitizedGameState 同一口径
       cards: p.cards,
+      // 会士卡立在玩家面前，是公开信息
+      nobles: p.nobles,
       reservedCards: requestingPlayerId === p.id
         ? p.reservedCards
         : p.reservedCards.map(c => ({ tier: c.tier })),
