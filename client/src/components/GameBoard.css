@@ -65,6 +65,7 @@
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: 0.15rem;
+  transition: opacity 0.2s ease;
   -webkit-text-stroke: 0.03rem rgb(82, 55, 24);
   background: linear-gradient(to top, rgb(110, 81, 7), rgb(218, 165, 32), rgb(245, 204, 101));
   -webkit-background-clip: text;
@@ -91,6 +92,16 @@
   background: linear-gradient(to top, rgb(218, 165, 32), rgb(245, 204, 101));
   border-color: rgb(245, 204, 101);
   font-weight: 700;
+}
+/* 当前回合的人掉线了：琥珀色 + 慢呼吸，说明牌桌不是在卡，是在等人回来 */
+.gb-turnpill.waiting {
+  color: #ffcf87;
+  border-color: rgba(240, 173, 60, 0.75);
+  animation: turnpill-wait 1.8s ease-in-out infinite;
+}
+@keyframes turnpill-wait {
+  0%, 100% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+  50% { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0.9rem rgba(240, 173, 60, 0.45); }
 }
 
 /* ---- 主体：牌桌 + 对手列共用一个 grid ----
@@ -526,12 +537,22 @@
   align-items: baseline;
   align-content: center;
   justify-content: center;
+  flex-wrap: wrap;
   min-height: 2.6em;
   gap: 0.4em;
   line-height: 1.2;
 }
 .opp-name { font-size: 1.15em; font-weight: 700; color: #f2d675; }
 .opp-order { font-size: 0.8em; color: #b9b29a; }
+/* 掉线保席中：名字后面挂一枚琥珀小签，重连上就消失 */
+.opp-offline {
+  font-size: 0.7em;
+  padding: 0.1em 0.4em;
+  border-radius: 0.3em;
+  color: #ffcf87;
+  background: rgba(240, 173, 60, 0.18);
+  border: 1px solid rgba(240, 173, 60, 0.55);
+}
 
 /* 会士旗：装不下就换行，行与行居中（论文数不在这里了，上面 6 格里那枚卡背角标
    就是，和本人资源条同一个口径；预留改成绝对定位的小卡摞，见 .opp-reserved） */

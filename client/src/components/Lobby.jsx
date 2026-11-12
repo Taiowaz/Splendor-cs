@@ -5,6 +5,7 @@ import './screens.css'
 // 所以这里不用再过滤「已开始」。
 export default function Lobby({
   playerName,
+  account,
   connected,
   rooms,
   maxPlayers,
@@ -37,16 +38,24 @@ export default function Lobby({
 
       <div className="sc-panel wide">
         <div className="sc-row">
-          <label className="sc-field inline">
-            <span>昵称</span>
-            <input
-              type="text"
-              value={playerName}
-              placeholder="没填会以「我」进场"
-              maxLength={12}
-              onChange={(e) => onNameChange(e.target.value)}
-            />
-          </label>
+          {account && !account.guest ? (
+            /* 账号名注册时就定死了，这里只回显，不给改（改了服务端也不认） */
+            <div className="sc-field inline">
+              <span>昵称</span>
+              <div className="sc-locked">🎓 {account.name}<span className="badge acct">账号</span></div>
+            </div>
+          ) : (
+            <label className="sc-field inline">
+              <span>昵称</span>
+              <input
+                type="text"
+                value={playerName}
+                placeholder="没填会以「我」进场"
+                maxLength={12}
+                onChange={(e) => onNameChange(e.target.value)}
+              />
+            </label>
+          )}
           <button className="sc-btn primary" onClick={onCreateRoom} disabled={!connected}>
             创建房间
           </button>
@@ -105,7 +114,7 @@ export default function Lobby({
                     <td className="room-code">{r.id}</td>
                     <td>{r.hostName || '—'}</td>
                     <td className="roster">
-                      {(r.players || []).map(p => p.name).join('、') || '空'}
+                      {(r.players || []).map(p => p.offline ? `${p.name}（离线）` : p.name).join('、') || '空'}
                       <span className="seats">{r.playerCount}/{maxPlayers}</span>
                     </td>
                     <td>

@@ -188,6 +188,10 @@ export default function GameBoard({
 
   const opponents = gameState.players.filter(p => p.id !== myPlayerId)
   const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
+  // 掉线保席中的人还在名单里（roster 带 offline），牌桌上要标出来，
+  // 不然大家只看到「等待 X」却不知道为什么一直不动
+  const seatOf = (id) => room?.players?.find(p => p.id === id)
+  const currentOffline = seatOf(gameState.players[currentIndex]?.id)?.offline
 
   return (
     <div className="gb gb-root gb-playing" ref={boardRef}>
@@ -216,8 +220,12 @@ export default function GameBoard({
       {/* 顶部标题栏 */}
       <div className="gb-topbar">
         <div className="gb-title">码上顶会</div>
-        <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''}`}>
-          {isMyTurn ? '轮到你行动' : `等待 ${gameState.players[currentIndex]?.name}`}
+        <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''} ${currentOffline ? 'waiting' : ''}`}>
+          {isMyTurn
+            ? '轮到你行动'
+            : currentOffline
+              ? `${gameState.players[currentIndex]?.name} 掉线了，等他重连…`
+              : `等待 ${gameState.players[currentIndex]?.name}`}
         </div>
       </div>
 
@@ -317,6 +325,7 @@ export default function GameBoard({
                 <div className="opp-prestige"><span>{player.prestige}</span></div>
                 <div className="opp-identity">
                   <span className="opp-name">{player.name}</span>
+                  {seatOf(player.id)?.offline && <span className="opp-offline">离线</span>}
                   <span className="opp-order">第 {order} 位</span>
                 </div>
 

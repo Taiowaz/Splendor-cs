@@ -45,6 +45,7 @@ export default function WaitingRoom({
               <span className="name">{p.name}{p.id === myPlayerId && '（你）'}</span>
               {p.id === room.hostId && <span className="badge host">房主</span>}
               {p.isAi && <span className="badge ai">AI</span>}
+              {p.offline && <span className="badge offline">离线</span>}
               {isHost && p.isAi && (
                 <button className="sc-mini-btn" onClick={() => onRemoveAi(p.id)} title="移除这个AI">✕</button>
               )}

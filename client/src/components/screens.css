@@ -8,6 +8,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* 内容比视口高时（注册表单展开）居中会把顶部推到滚动区外面，safe 让它退回顶对齐 */
+  justify-content: safe center;
   gap: 1.2rem;
   padding: 2rem 1.2rem;
   font-family: 'Judson', 'PingFang SC', 'Microsoft YaHei', serif;
@@ -120,16 +122,138 @@
   border-color: rgba(212, 175, 55, 0.85);
 }
 
+/* 账号名的只读回显：和输入框同一个盒子，但一眼看得出改不了 */
+.sc-locked {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px dashed rgba(212, 175, 55, 0.35);
+  background: rgba(8, 10, 20, 0.5);
+  color: #f2d675;
+  font-size: 1.05rem;
+}
+
 .sc-row {
   display: flex;
   align-items: flex-end;
   gap: 0.7rem;
 }
 
+/* ---- 身份：游客 / 登录 / 注册 ---- */
+.sc-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: 0.6rem;
+  background: rgba(8, 10, 20, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.sc-tabs button {
+  padding: 0.45rem 0.2rem;
+  border: none;
+  border-radius: 0.4rem;
+  background: none;
+  color: #a89f86;
+  font-family: inherit;
+  font-size: 0.98rem;
+  letter-spacing: 0.04em;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.sc-tabs button:hover {
+  color: #f2d675;
+}
+
+.sc-tabs button.on {
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.9), rgba(138, 106, 18, 0.9));
+  color: #2b1d07;
+  font-weight: 700;
+}
+
+.sc-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.sc-auth-err {
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.4rem;
+  background: rgba(233, 69, 96, 0.14);
+  border: 1px solid rgba(233, 69, 96, 0.5);
+  color: #ff9fae;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* 字段/表单下面那行小字，比 .sc-btn-note 少一点负 margin（它贴的是输入框不是按钮） */
+.sc-note {
+  margin: -0.3rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  text-align: center;
+  /* 折行时两行分匀，别让最后一行只剩一两个字 */
+  text-wrap: balance;
+  color: #b3a98c;
+}
+
+.sc-idcard {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.6rem;
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+}
+
+.sc-idavatar {
+  font-size: 1.3rem;
+}
+
+.sc-idname {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f2d675;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sc-idcard .sc-mini-btn {
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
 .sc-buttons {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+}
+
+/* 身份区和玩法区的分界：注册表单自己也有一个金色提交按钮，
+   不划开的话两个金按钮挨着，看不出哪个是「登录」哪个是「开局」 */
+.sc-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.1rem 0 -0.1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: #a89f86;
+}
+
+.sc-divider::before,
+.sc-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.55), transparent);
 }
 
 /* ---- 按钮 ---- */
@@ -383,6 +507,19 @@
   color: #cfe0ff;
 }
 
+.badge.acct {
+  background: rgba(111, 208, 138, 0.22);
+  color: #a9e8bb;
+  border: 1px solid rgba(111, 208, 138, 0.5);
+}
+
+/* 掉线保席中：席位还是他的，只是人暂时不在，用琥珀色而不是 AI 的蓝 */
+.badge.offline {
+  background: rgba(240, 173, 60, 0.2);
+  color: #ffcf87;
+  border: 1px solid rgba(240, 173, 60, 0.55);
+}
+
 .sc-actions {
   display: flex;
   flex-wrap: wrap;
@@ -425,4 +562,66 @@
 .sc-offline-box p {
   font-size: 0.95rem;
   color: #cfc5a6;
+  line-height: 1.6;
+  max-width: 24rem;
+}
+
+.sc-offline-box .sc-btn {
+  margin: 1rem auto 0;
+  min-width: 12rem;
+}
+
+.sc-offline-note {
+  margin-top: 0.6rem;
+  font-size: 0.82rem !important;
+  color: #a89f86 !important;
+}
+
+/* ---- 矮窗口下的入口页 ----
+   注册表单展开时入口页最高。牌桌自己要求至少 768 高，入口就得在这个高度里
+   一屏放完：把卡背扇面、标题和竖向间距一起收紧，而不是让人先滚一屏才看得到
+   「快速开局」。再矮（比如 620）就照常纵向滚动，滚动条已经是描金那套皮。 */
+@media (max-height: 860px) {
+  .sc-title {
+    gap: 0.45rem;
+    padding: 0.9rem 1.2rem;
+  }
+
+  .sc-title .sc-decks {
+    height: 4.6rem;
+    width: 11rem;
+    margin-bottom: -0.9rem;
+  }
+
+  .sc-title .sc-deck {
+    width: 4.2rem;
+    border-width: 1px;
+  }
+
+  .sc-title .sc-deck.c { transform: translateX(-50%) rotate(-13deg) translateX(-2.4rem); }
+  .sc-title .sc-deck.b { transform: translateX(-50%) rotate(13deg) translateX(2.4rem); }
+
+  .sc-title .sc-logo { font-size: 2.4rem; }
+  .sc-title .sc-tagline { font-size: 0.9rem; margin-bottom: 0.1rem; }
+
+  .sc-title .sc-panel {
+    padding: 1rem 1.3rem;
+    gap: 0.6rem;
+  }
+
+  .sc-title .sc-auth { gap: 0.5rem; }
+  .sc-title .sc-field { gap: 0.2rem; font-size: 0.9rem; }
+
+  .sc-title .sc-field input {
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem;
+  }
+
+  .sc-title .sc-tabs button { padding: 0.35rem 0.2rem; font-size: 0.92rem; }
+
+  .sc-title .sc-buttons { gap: 0.35rem; }
+  .sc-title .sc-btn { padding: 0.55rem 1.1rem; font-size: 1rem; }
+  .sc-title .sc-btn-note { margin: -0.25rem 0 0; font-size: 0.76rem; }
+  .sc-title .sc-note { font-size: 0.76rem; line-height: 1.4; }
+  .sc-title .sc-status { font-size: 0.8rem; }
 }

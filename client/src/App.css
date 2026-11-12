@@ -4,19 +4,36 @@
   flex-direction: column;
 }
 
+/* 提示条：掉线 / 回来 / 认领席位 / 回到房间都走这里，是这套会话机制的主要反馈，
+   所以跟牌桌同一套描金皮，别再用原来那个蓝盒子。 */
 .notification {
   position: fixed;
-  top: 20px;
+  top: 1.2rem;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bg-card);
-  color: var(--text-primary);
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: min(92vw, 34rem);
+  padding: 0.7rem 1.4rem;
+  border-radius: 0.7rem;
+  background: rgba(20, 24, 40, 0.96);
+  border: 1px solid rgba(212, 175, 55, 0.65);
+  color: #ece3c8;
+  font-family: 'Judson', 'PingFang SC', 'Microsoft YaHei', serif;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  text-align: center;
+  box-shadow: 0 0.8rem 2.4rem rgba(0, 0, 0, 0.6);
   z-index: 1000;
   animation: slideDown 0.3s ease;
-  border: 1px solid var(--border);
+}
+
+/* 牌桌顶栏正中就是「码上顶会」标题：提示条收进那条 bar 里，标题同时让位，
+   两者不打架，也不用挪到下面去压第一排牌。 */
+html:has(.gb-playing) .notification {
+  top: 0.55rem;
+}
+
+html:has(.notification) .gb-title {
+  opacity: 0;
 }
 
 @keyframes slideDown {
