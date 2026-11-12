@@ -215,7 +215,7 @@ export function setupWebSocket(server) {
         if (player.ws && player.ws.readyState === 1) {
           player.ws.send(JSON.stringify({
             type: 'game_started',
-            gameState: getSanitizedGameState(game, player.id)
+            gameState: getSanitizedGameState(game)
           }));
         }
       });
@@ -270,7 +270,7 @@ export function setupWebSocket(server) {
         type: 'tokens_taken',
         playerId: currentPlayerId,
         tokens,
-        gameState: getSanitizedGameState(game, currentPlayerId)
+        gameState: getSanitizedGameState(game)
       });
       endTurn(game);
       broadcastToRoomWithPlayerState(currentRoom, {
@@ -331,7 +331,7 @@ export function setupWebSocket(server) {
           type: 'card_bought',
           playerId: currentPlayerId,
           card: result.card,
-          gameState: getSanitizedGameState(game, currentPlayerId)
+          gameState: getSanitizedGameState(game)
         });
 
         endTurn(game);
@@ -340,7 +340,7 @@ export function setupWebSocket(server) {
           broadcastToRoom(currentRoom, {
             type: 'game_over',
             winner: game.winner,
-            gameState: getSanitizedGameState(game, null)
+            gameState: getSanitizedGameState(game)
           });
         } else {
           broadcastToRoomWithPlayerState(currentRoom, {
@@ -374,7 +374,7 @@ export function setupWebSocket(server) {
           type: 'card_reserved',
           playerId: currentPlayerId,
           card: result.card,
-          gameState: getSanitizedGameState(game, currentPlayerId)
+          gameState: getSanitizedGameState(game)
         });
 
         endTurn(game);
@@ -479,7 +479,7 @@ function broadcastToRoomWithPlayerState(roomId, messageTemplate, game) {
 
   room.players.forEach(player => {
     if (player.ws && player.ws.readyState === 1) {
-      const gameState = getSanitizedGameState(game, player.id);
+      const gameState = getSanitizedGameState(game);
       console.log('  ->', player.name, 'tokens:', gameState.players.find(p => p.id === player.id)?.tokens);
       const message = {
         ...messageTemplate,
@@ -518,7 +518,7 @@ function checkAndExecuteAiTurn(room) {
   }
 }
 
-function getSanitizedGameState(game, requestingPlayerId) {
+function getSanitizedGameState(game) {
   return {
     players: game.players.map(p => ({
       id: p.id,
@@ -528,10 +528,11 @@ function getSanitizedGameState(game, requestingPlayerId) {
       cards: p.cards,
       // 会士卡立在玩家面前，是公开信息
       nobles: p.nobles,
-      // 预留卡是私有的：别人只看得到"有几张、各是什么档"（卡背按档选），看不到卡面
-      reservedCards: requestingPlayerId === p.id
-        ? p.reservedCards
-        : p.reservedCards.map(c => ({ tier: c.tier })),
+      // 预留卡是公开信息：我们的 reserveCard 只能从牌桌明面拿（没有「从牌堆盲抽
+      // 预留」这个动作），这张卡本来就翻给所有人看过。splendor-chinese 的
+      // hideReservedCardFaces 也只把 face-down（牌堆盲抽）那部分降级成 tier，
+      // 从牌面预留的连 id/cost 原样下发 —— 对手框要拿真卡面来显示就靠这条。
+      reservedCards: p.reservedCards,
       prestige: p.prestige,
       bonus: p.bonus
     })),

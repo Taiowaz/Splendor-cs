@@ -99,7 +99,7 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
           type: 'card_bought',
           playerId: currentPlayerId,
           card: result.card,
-          gameState: getSanitizedGameStateForAi(game, currentPlayerId)
+          gameState: getSanitizedGameStateForAi(game)
         });
 
         endTurn(game);
@@ -108,13 +108,13 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
           broadcastFn(room.id, {
             type: 'game_over',
             winner: game.winner,
-            gameState: getSanitizedGameStateForAi(game, null)
+            gameState: getSanitizedGameStateForAi(game)
           });
         } else {
           broadcastFn(room.id, {
             type: 'turn_changed',
             currentPlayerIndex: game.currentPlayerIndex,
-            gameState: getSanitizedGameStateForAi(game, null)
+            gameState: getSanitizedGameStateForAi(game)
           });
         }
       }
@@ -128,13 +128,13 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
           type: 'tokens_taken',
           playerId: currentPlayerId,
           tokens: decision.tokens,
-          gameState: getSanitizedGameStateForAi(game, currentPlayerId)
+          gameState: getSanitizedGameStateForAi(game)
         });
         endTurn(game);
         broadcastFn(room.id, {
           type: 'turn_changed',
           currentPlayerIndex: game.currentPlayerIndex,
-          gameState: getSanitizedGameStateForAi(game, null)
+          gameState: getSanitizedGameStateForAi(game)
         });
       }
       break;
@@ -147,13 +147,13 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
           type: 'card_reserved',
           playerId: currentPlayerId,
           card: result.card,
-          gameState: getSanitizedGameStateForAi(game, currentPlayerId)
+          gameState: getSanitizedGameStateForAi(game)
         });
         endTurn(game);
         broadcastFn(room.id, {
           type: 'turn_changed',
           currentPlayerIndex: game.currentPlayerIndex,
-          gameState: getSanitizedGameStateForAi(game, null)
+          gameState: getSanitizedGameStateForAi(game)
         });
       }
       break;
@@ -161,7 +161,7 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
   }
 }
 
-function getSanitizedGameStateForAi(game, requestingPlayerId) {
+function getSanitizedGameStateForAi(game) {
   return {
     players: game.players.map(p => ({
       id: p.id,
@@ -170,9 +170,9 @@ function getSanitizedGameStateForAi(game, requestingPlayerId) {
       cards: p.cards,
       // 会士卡立在玩家面前，是公开信息
       nobles: p.nobles,
-      reservedCards: requestingPlayerId === p.id
-        ? p.reservedCards
-        : p.reservedCards.map(c => ({ tier: c.tier })),
+      // 预留卡公开（只能从牌桌明面预留），口径同 websocket.js：整张卡下发，
+      // 对手框要按真卡面显示
+      reservedCards: p.reservedCards,
       prestige: p.prestige,
       bonus: p.bonus
     })),
