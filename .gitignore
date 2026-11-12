@@ -3,3 +3,5 @@ dist/
 .env
 *.log
 .DS_Store
+# 账号库和签名密钥：密码哈希与 secret 不进版本库
+server/data/

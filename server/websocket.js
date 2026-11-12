@@ -14,58 +14,88 @@ import {
   FACE_UP
 } from './gameLogic.js';
 import { executeAiTurn } from './ai.js';
+import { verifyToken, guestToken, renameGuest } from './accounts.js';
 
 // 房间管理
 const rooms = new Map();
+
+// 掉线保席：刷新/断网不立刻把席位交给 AI，先留一段时间等本人回来。
+// 测试可以用 GRACE_MS 缩短（见 probe-account.mjs 的超时用例）。
+const GRACE_MS = Number(process.env.GRACE_MS || 120000);
+const graceTimers = new Map(); // `${roomId}|${playerId}` -> timeout
+
+const graceKey = (roomId, playerId) => `${roomId}|${playerId}`;
+
+function clearGrace(roomId, playerId) {
+  const key = graceKey(roomId, playerId);
+  const t = graceTimers.get(key);
+  if (t) clearTimeout(t);
+  graceTimers.delete(key);
+}
+
+function clearRoomGrace(roomId) {
+  for (const key of [...graceTimers.keys()]) {
+    if (key.startsWith(`${roomId}|`)) clearGrace(roomId, key.split('|')[1]);
+  }
+}
 
 export function setupWebSocket(server) {
   const wss = new WebSocketServer({ server });
 
   wss.on('connection', (ws) => {
-    let currentRoom = null;
-    let currentPlayerId = null;
+    // 一条连接一份上下文。身份来自 hello 里的 token（账号或游客），席位按身份 id
+    // 认，所以刷新换一条 socket 也还是同一个人 —— 这是「刷新不丢房间」的根。
+    const conn = { ws, identity: null, roomId: null, playerId: null, detached: false };
 
     ws.on('message', (data) => {
       try {
         const message = JSON.parse(data);
-        console.log('Received:', message);
+        if (message.type !== 'hello') console.log('Received:', message.type);
+
+        if (message.type !== 'hello' && !conn.identity) {
+          ws.send(JSON.stringify({ type: 'error', message: '请先握手（hello）' }));
+          return;
+        }
 
         switch (message.type) {
+          case 'hello':
+            handleHello(message);
+            break;
           case 'create_room':
-            handleCreateRoom(ws, message);
+            handleCreateRoom(message);
             break;
           case 'join_room':
-            handleJoinRoom(ws, message);
+            handleJoinRoom(message);
             break;
           case 'leave_room':
-            handleLeaveRoom(ws);
+            handleLeaveRoom();
             break;
           case 'add_ai':
-            handleAddAi(ws, message);
+            handleAddAi(message);
             break;
           case 'remove_ai':
-            handleRemoveAi(ws, message);
+            handleRemoveAi(message);
             break;
           case 'start_game':
-            handleStartGame(ws, message);
+            handleStartGame();
             break;
           case 'take_tokens':
-            handleTakeTokens(ws, message);
+            handleTakeTokens(message);
             break;
           case 'buy_card':
-            handleBuyCard(ws, message);
+            handleBuyCard(message);
             break;
           case 'reserve_card':
-            handleReserveCard(ws, message);
+            handleReserveCard(message);
             break;
           case 'list_rooms':
-            handleListRooms(ws);
+            handleListRooms();
             break;
           case 'debug_set_tokens':
-            handleDebugSetTokens(ws, message);
+            handleDebugSetTokens(message);
             break;
           case 'debug_reserved':
-            handleDebugReserved(ws, message);
+            handleDebugReserved(message);
             break;
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
@@ -77,26 +107,141 @@ export function setupWebSocket(server) {
     });
 
     ws.on('close', () => {
-      if (currentRoom && currentPlayerId) {
-        leaveSeat(currentRoom, currentPlayerId, '掉线');
-      }
+      if (conn.detached || !conn.roomId || !conn.playerId) return;
+      const room = rooms.get(conn.roomId);
+      const seat = room?.players.find(p => p.id === conn.playerId);
+      // 只有「这条连接确实是该席位当前的连接」才保席：被别的标签页顶掉的旧连接
+      // 关闭时，不能把新连接刚接上的席位又标记成离线。
+      if (!seat || seat.ws !== ws) return;
+
+      seat.ws = null;
+      seat.offline = true;
+      broadcastToRoom(room.id, {
+        type: 'player_offline',
+        playerId: seat.id,
+        playerName: seat.name,
+        graceMs: GRACE_MS
+      });
+      broadcastToRoom(room.id, roomUpdate(room));
+
+      clearGrace(room.id, seat.id);
+      graceTimers.set(graceKey(room.id, seat.id), setTimeout(() => {
+        graceTimers.delete(graceKey(room.id, seat.id));
+        const r = rooms.get(room.id);
+        const s = r?.players.find(p => p.id === seat.id);
+        if (r && s && s.offline && !s.ws) leaveSeat(room.id, seat.id, '掉线');
+      }, GRACE_MS));
+
+      console.log(`${seat.name} offline in room ${room.id}, seat held ${GRACE_MS}ms`);
     });
 
-    function handleCreateRoom(ws, message) {
+    // 握手：验 token（账号或游客），没带/验不过就发一张游客 token。然后看这个
+    // 身份有没有席位等着认领 —— 刷新回房、掉线重连都走这里。
+    function handleHello(message) {
+      let token = message.token;
+      let identity = verifyToken(token);
+      if (!identity) {
+        const g = guestToken(message.name);
+        token = g.token;
+        identity = verifyToken(token);
+      } else if (identity.guest && message.name && message.name.trim() && message.name.trim() !== identity.name) {
+        // 游客在入口页改了昵称：uid 不变重签一张，席位还是他的
+        const renamed = renameGuest(token, message.name);
+        if (renamed) {
+          token = renamed;
+          identity = verifyToken(token);
+        }
+      }
+      conn.identity = identity;
+      ws.send(JSON.stringify({ type: 'welcome', token, player: identity }));
+
+      const found = findSeat(identity.id);
+      if (!found) {
+        // 房间只活在内存里：服务端重启后 token 还认得出人，但席位没了。明说一声，
+        // 客户端好把上一局那张已经点不动的牌桌撤掉，而不是假装还在局里。
+        ws.send(JSON.stringify({ type: 'session_lost' }));
+        return;
+      }
+      const { room, seat } = found;
+
+      // 同账号在别的标签页/设备还连着：把旧连接请下去，避免两条连接操纵同一席位
+      if (seat.conn && seat.conn !== conn && seat.conn.ws.readyState === 1) {
+        seat.conn.detached = true;
+        seat.conn.roomId = null;
+        seat.conn.playerId = null;
+        seat.conn.ws.send(JSON.stringify({ type: 'session_elsewhere' }));
+      }
+
+      const reclaimed = !!seat.isAi;
+      clearGrace(room.id, seat.id);
+      seat.ws = ws;
+      seat.conn = conn;
+      seat.isAi = false;
+      seat.offline = false;
+      seat.wasHuman = true;
+      seat.name = identity.name;
+      const gamePlayer = room.game?.players.find(p => p.id === seat.id);
+      if (gamePlayer) gamePlayer.name = identity.name;
+      conn.roomId = room.id;
+      conn.playerId = seat.id;
+
+      ws.send(JSON.stringify({
+        type: 'session_restored',
+        roomId: room.id,
+        playerId: seat.id,
+        hostId: room.hostId,
+        started: room.started,
+        players: rosterOf(room),
+        gameState: room.started && room.game ? getSanitizedGameState(room.game) : null,
+        reclaimed
+      }));
+      broadcastToRoom(room.id, roomUpdate(room));
+      // 「回来了 / 认领回来了」是说给同桌其他人听的，本人那份提示在 session_restored 里，
+      // 发给自己会把「已回到房间 X」盖成「✅ 自己 回来了」
+      broadcastToRoom(room.id, {
+        type: reclaimed ? 'player_reclaimed' : 'player_online',
+        playerId: seat.id,
+        playerName: seat.name
+      }, ws);
+      console.log(`${seat.name} resumed seat in room ${room.id}${reclaimed ? ' (reclaimed from AI)' : ''}`);
+    }
+
+    // 找这个身份的席位：优先真人席（在线或保席中），其次是被 AI 代打但原本属于
+    // 他的席位（掉线超时之后回来，还能认领回自己的进度）。
+    function findSeat(uid) {
+      let fallback = null;
+      for (const room of rooms.values()) {
+        const seat = room.players.find(p => p.id === uid);
+        if (!seat) continue;
+        if (!seat.isAi) return { room, seat };
+        if (seat.wasHuman && !fallback) fallback = { room, seat };
+      }
+      return fallback;
+    }
+
+    function seatedElsewhere() {
+      return conn.roomId ? rooms.get(conn.roomId) || null : null;
+    }
+
+    function handleCreateRoom(message) {
+      if (seatedElsewhere()) {
+        ws.send(JSON.stringify({ type: 'error', message: `你已在房间 ${conn.roomId} 里，先退出再建新房` }));
+        return;
+      }
       const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-      const playerId = `player_${Date.now()}`;
+      const playerId = conn.identity.id;
 
       const room = {
         id: roomId,
         hostId: playerId,
-        players: [{ id: playerId, name: message.playerName, ws }],
+        players: [{ id: playerId, name: conn.identity.name, ws, conn, wasHuman: true }],
         game: null,
         started: false
       };
 
       rooms.set(roomId, room);
-      currentRoom = roomId;
-      currentPlayerId = playerId;
+      conn.roomId = roomId;
+      conn.playerId = playerId;
 
       ws.send(JSON.stringify({
         type: 'room_created',
@@ -107,10 +252,14 @@ export function setupWebSocket(server) {
       }));
       broadcastToRoom(roomId, roomUpdate(room));
 
-      console.log(`Room created: ${roomId} by ${message.playerName}`);
+      console.log(`Room created: ${roomId} by ${conn.identity.name}`);
     }
 
-    function handleJoinRoom(ws, message) {
+    function handleJoinRoom(message) {
+      if (seatedElsewhere()) {
+        ws.send(JSON.stringify({ type: 'error', message: `你已在房间 ${conn.roomId} 里，先退出再加入别的房` }));
+        return;
+      }
       const room = rooms.get(message.roomId);
 
       if (!room) {
@@ -128,10 +277,14 @@ export function setupWebSocket(server) {
         return;
       }
 
-      const playerId = `player_${Date.now()}`;
-      room.players.push({ id: playerId, name: message.playerName, ws });
-      currentRoom = message.roomId;
-      currentPlayerId = playerId;
+      const playerId = conn.identity.id;
+      if (room.players.some(p => p.id === playerId)) {
+        ws.send(JSON.stringify({ type: 'error', message: '你已经在这个房间里了' }));
+        return;
+      }
+      room.players.push({ id: playerId, name: conn.identity.name, ws, conn, wasHuman: true });
+      conn.roomId = message.roomId;
+      conn.playerId = playerId;
 
       // 通知新玩家
       ws.send(JSON.stringify({
@@ -145,31 +298,32 @@ export function setupWebSocket(server) {
       // 房间里的人重新拿一遍名单
       broadcastToRoom(message.roomId, roomUpdate(room));
 
-      console.log(`${message.playerName} joined room ${message.roomId}`);
+      console.log(`${conn.identity.name} joined room ${message.roomId}`);
     }
 
-    // 主动退出房间（回大厅）。开完局之后退出＝把这席位交给 AI 代打，
-    // 和掉线走同一条清理逻辑。
-    function handleLeaveRoom(ws) {
-      if (!currentRoom || !currentPlayerId) return;
-      const room = rooms.get(currentRoom);
+    // 主动退出房间（回大厅）。开完局之后退出＝把这席位交给 AI 代打，和掉线走同一条
+    // 清理逻辑；但主动走的不留认领标记（他是故意不要这席位的）。
+    function handleLeaveRoom() {
+      if (!conn.roomId || !conn.playerId) return;
+      const room = rooms.get(conn.roomId);
       if (!room) return;
 
-      leaveSeat(currentRoom, currentPlayerId, '离开');
+      clearGrace(room.id, conn.playerId);
+      leaveSeat(conn.roomId, conn.playerId, '离开');
       ws.send(JSON.stringify({ type: 'left_room' }));
-      currentRoom = null;
-      currentPlayerId = null;
+      conn.roomId = null;
+      conn.playerId = null;
     }
 
-    function handleAddAi(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleAddAi(message) {
+      const room = rooms.get(conn.roomId);
 
       if (!room) {
         ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
         return;
       }
 
-      if (room.hostId !== currentPlayerId) {
+      if (room.hostId !== conn.playerId) {
         ws.send(JSON.stringify({ type: 'error', message: '只有房主可以添加AI' }));
         return;
       }
@@ -188,19 +342,19 @@ export function setupWebSocket(server) {
       const aiName = message.aiName || `AI玩家${room.players.length}`;
       room.players.push({ id: aiId, name: aiName, ws: null, isAi: true });
 
-      broadcastToRoom(currentRoom, roomUpdate(room));
+      broadcastToRoom(conn.roomId, roomUpdate(room));
 
-      console.log(`AI ${aiName} added to room ${currentRoom}`);
+      console.log(`AI ${aiName} added to room ${conn.roomId}`);
     }
 
     // 等待室里反悔加多了的 AI。只允许摘 AI 席位——真人要走自己发 leave_room。
-    function handleRemoveAi(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleRemoveAi(message) {
+      const room = rooms.get(conn.roomId);
       if (!room) {
         ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
         return;
       }
-      if (room.hostId !== currentPlayerId) {
+      if (room.hostId !== conn.playerId) {
         ws.send(JSON.stringify({ type: 'error', message: '只有房主可以移除AI' }));
         return;
       }
@@ -213,19 +367,19 @@ export function setupWebSocket(server) {
       if (!seat) return;
 
       room.players = room.players.filter(p => p.id !== seat.id);
-      broadcastToRoom(currentRoom, roomUpdate(room));
-      console.log(`AI ${seat.name} removed from room ${currentRoom}`);
+      broadcastToRoom(conn.roomId, roomUpdate(room));
+      console.log(`AI ${seat.name} removed from room ${conn.roomId}`);
     }
 
-    function handleStartGame(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleStartGame() {
+      const room = rooms.get(conn.roomId);
 
       if (!room) {
         ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
         return;
       }
 
-      if (room.hostId !== currentPlayerId) {
+      if (room.hostId !== conn.playerId) {
         ws.send(JSON.stringify({ type: 'error', message: '只有房主可以开始游戏' }));
         return;
       }
@@ -257,18 +411,18 @@ export function setupWebSocket(server) {
         }
       });
 
-      console.log(`Game started in room ${currentRoom}`);
+      console.log(`Game started in room ${conn.roomId}`);
 
       // 如果第一个玩家是AI，自动执行
       checkAndExecuteAiTurn(room);
     }
 
-    function handleTakeTokens(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleTakeTokens(message) {
+      const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === currentPlayerId);
+      const playerIndex = game.players.findIndex(p => p.id === conn.playerId);
 
       if (playerIndex !== game.currentPlayerIndex) {
         ws.send(JSON.stringify({ type: 'error', message: '不是你的回合' }));
@@ -303,26 +457,26 @@ export function setupWebSocket(server) {
         return;
       }
 
-      broadcastToRoom(currentRoom, {
+      broadcastToRoom(conn.roomId, {
         type: 'tokens_taken',
-        playerId: currentPlayerId,
+        playerId: conn.playerId,
         tokens,
         gameState: getSanitizedGameState(game)
       });
       endTurn(game);
-      broadcastToRoomWithPlayerState(currentRoom, {
+      broadcastToRoomWithPlayerState(conn.roomId, {
         type: 'turn_changed',
         currentPlayerIndex: game.currentPlayerIndex
       }, game);
       checkAndExecuteAiTurn(room);
     }
 
-    function handleBuyCard(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleBuyCard(message) {
+      const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === currentPlayerId);
+      const playerIndex = game.players.findIndex(p => p.id === conn.playerId);
 
       if (playerIndex !== game.currentPlayerIndex) {
         ws.send(JSON.stringify({ type: 'error', message: '不是你的回合' }));
@@ -356,17 +510,17 @@ export function setupWebSocket(server) {
           player.prestige += noble.prestige;
           player.nobles.push(noble);
           game.bank.nobles = game.bank.nobles.filter(n => n.id !== noble.id);
-          broadcastToRoom(currentRoom, {
+          broadcastToRoom(conn.roomId, {
             type: 'noble_visit',
-            playerId: currentPlayerId,
+            playerId: conn.playerId,
             noble,
             message: `${noble.cn} 认可了你的学术成就！+${noble.prestige} 声誉`
           });
         }
 
-        broadcastToRoom(currentRoom, {
+        broadcastToRoom(conn.roomId, {
           type: 'card_bought',
-          playerId: currentPlayerId,
+          playerId: conn.playerId,
           card: result.card,
           gameState: getSanitizedGameState(game)
         });
@@ -374,13 +528,13 @@ export function setupWebSocket(server) {
         endTurn(game);
 
         if (game.gameOver) {
-          broadcastToRoom(currentRoom, {
+          broadcastToRoom(conn.roomId, {
             type: 'game_over',
             winner: game.winner,
             gameState: getSanitizedGameState(game)
           });
         } else {
-          broadcastToRoomWithPlayerState(currentRoom, {
+          broadcastToRoomWithPlayerState(conn.roomId, {
             type: 'turn_changed',
             currentPlayerIndex: game.currentPlayerIndex
           }, game);
@@ -391,12 +545,12 @@ export function setupWebSocket(server) {
       }
     }
 
-    function handleReserveCard(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleReserveCard(message) {
+      const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === currentPlayerId);
+      const playerIndex = game.players.findIndex(p => p.id === conn.playerId);
 
       if (playerIndex !== game.currentPlayerIndex) {
         ws.send(JSON.stringify({ type: 'error', message: '不是你的回合' }));
@@ -407,15 +561,15 @@ export function setupWebSocket(server) {
       const result = reserveCard(game, playerIndex, tier, cardIndex);
 
       if (result.success) {
-        broadcastToRoom(currentRoom, {
+        broadcastToRoom(conn.roomId, {
           type: 'card_reserved',
-          playerId: currentPlayerId,
+          playerId: conn.playerId,
           card: result.card,
           gameState: getSanitizedGameState(game)
         });
 
         endTurn(game);
-        broadcastToRoomWithPlayerState(currentRoom, {
+        broadcastToRoomWithPlayerState(conn.roomId, {
           type: 'turn_changed',
           currentPlayerIndex: game.currentPlayerIndex
         }, game);
@@ -429,13 +583,13 @@ export function setupWebSocket(server) {
     // 某个玩家最多只能设到「牌堆现有的 + 自己已有的」，超了就拒掉并回一条错误。
     // 凭空生成的话总数就变了，而且一超 takeTokens 那条「手里最多 10 枚」就把后面的
     // 拿取全堵死。不改回合、不结算。
-    function handleDebugSetTokens(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleDebugSetTokens(message) {
+      const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
 
       const game = room.game;
       // 请求方得在这局里（面板只对本局玩家可见，别拿它去戳别人的房间）
-      if (!game.players.some(p => p.id === currentPlayerId)) return;
+      if (!game.players.some(p => p.id === conn.playerId)) return;
       const player = game.players.find(p => p.id === message.playerId);
       if (!player || !message.tokens) return;
 
@@ -462,7 +616,7 @@ export function setupWebSocket(server) {
       }
       if (!changed) return;
 
-      broadcastToRoomWithPlayerState(currentRoom, {
+      broadcastToRoomWithPlayerState(conn.roomId, {
         type: 'debug_update'
       }, game);
     }
@@ -470,12 +624,12 @@ export function setupWebSocket(server) {
     // 测试面板发/收预留卡：+1 从牌桌明面随机抽一张（那一档补牌），−1 把最后一张
     // 退回同档（明面不满 4 张就回明面，否则压回抽牌堆尾巴，卡不会丢）。
     // 不像正式预留那样附送咖啡，也不改回合 —— 这就是个摆状态的工具。
-    function handleDebugReserved(ws, message) {
-      const room = rooms.get(currentRoom);
+    function handleDebugReserved(message) {
+      const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
 
       const game = room.game;
-      if (!game.players.some(p => p.id === currentPlayerId)) return;
+      if (!game.players.some(p => p.id === conn.playerId)) return;
       const player = game.players.find(p => p.id === message.playerId);
       if (!player) return;
 
@@ -506,12 +660,12 @@ export function setupWebSocket(server) {
         return;
       }
 
-      broadcastToRoomWithPlayerState(currentRoom, {
+      broadcastToRoomWithPlayerState(conn.roomId, {
         type: 'debug_update'
       }, game);
     }
 
-    function handleListRooms(ws) {
+    function handleListRooms() {
       const roomList = Array.from(rooms.values())
         .filter(r => !r.started)
         .map(r => ({
@@ -532,21 +686,26 @@ export function setupWebSocket(server) {
   return wss;
 }
 
-function broadcastToRoom(roomId, message) {
+function broadcastToRoom(roomId, message, exceptWs = null) {
   const room = rooms.get(roomId);
   if (!room) return;
 
   const msg = JSON.stringify(message);
   room.players.forEach(p => {
-    if (p.ws && p.ws.readyState === 1) { // WebSocket.OPEN
+    if (p.ws && p.ws !== exceptWs && p.ws.readyState === 1) { // WebSocket.OPEN
       p.ws.send(msg);
     }
   });
 }
 
-// 房间名单：大厅和等待室都读这一份，带 isAi 界面才标得出真人/AI
+// 房间名单：大厅和等待室都读这一份，带 isAi / offline 界面才标得出真人/AI/掉线
 function rosterOf(room) {
-  return room.players.map(p => ({ id: p.id, name: p.name, isAi: !!p.isAi }));
+  return room.players.map(p => ({
+    id: p.id,
+    name: p.name,
+    isAi: !!p.isAi,
+    offline: !p.isAi && !!p.offline
+  }));
 }
 
 function roomUpdate(room) {
@@ -559,13 +718,18 @@ function roomUpdate(room) {
   };
 }
 
-// 席位离开（主动退出和 socket 关闭走同一条）。
+// 席位离开（主动退出、保席超时走同一条）。
 function leaveSeat(roomId, playerId, reason = '离开') {
   const room = rooms.get(roomId);
   if (!room) return;
   const seat = room.players.find(p => p.id === playerId);
   if (!seat) return;
+  clearGrace(roomId, playerId);
   seat.ws = null;
+  seat.conn = null;
+  seat.offline = false;
+  // 掉线超时的席位留个认领标记：本人回来还能接回自己的进度；主动退出不留。
+  seat.wasHuman = reason === '掉线';
 
   if (!room.started) {
     room.players = room.players.filter(p => p.id !== playerId);
@@ -575,8 +739,9 @@ function leaveSeat(roomId, playerId, reason = '离开') {
     seat.isAi = true;
   }
 
-  // 一个真人都不剩，这房间没人看了，销毁；房主走了就移交给下一个真人
+  // 一个真人都不剩（保席中的也算真人），这房间没人看了，销毁；房主走了就移交给下一个真人
   if (!room.players.some(p => !p.isAi)) {
+    clearRoomGrace(roomId);
     rooms.delete(roomId);
     return;
   }
@@ -595,6 +760,8 @@ function leaveSeat(roomId, playerId, reason = '离开') {
       reason,
       hostId: room.hostId
     });
+    // 名单也得重发：这席位现在是 AI、不再离线，客户端的「离线」徽标靠这条撤掉
+    broadcastToRoom(roomId, roomUpdate(room));
     checkAndExecuteAiTurn(room);
   }
 }
@@ -604,12 +771,9 @@ function broadcastToRoomWithPlayerState(roomId, messageTemplate, game) {
   const room = rooms.get(roomId);
   if (!room) return;
 
-  console.log('broadcastToRoomWithPlayerState:', messageTemplate.type, 'players:', room.players.length);
-
   room.players.forEach(player => {
     if (player.ws && player.ws.readyState === 1) {
       const gameState = getSanitizedGameState(game);
-      console.log('  ->', player.name, 'tokens:', gameState.players.find(p => p.id === player.id)?.tokens);
       const message = {
         ...messageTemplate,
         gameState
@@ -621,7 +785,7 @@ function broadcastToRoomWithPlayerState(roomId, messageTemplate, game) {
 
 // 检查并执行AI回合
 function checkAndExecuteAiTurn(room) {
-  if (!room || !room.game || room.game.gameOver) return;
+  if (!room || !rooms.has(room.id) || !room.game || room.game.gameOver) return;
 
   const game = room.game;
   const currentPlayer = game.players[game.currentPlayerIndex];
@@ -630,19 +794,24 @@ function checkAndExecuteAiTurn(room) {
   if (playerInfo && playerInfo.isAi) {
     // AI回合，延迟1秒后执行（模拟思考时间）
     setTimeout(() => {
-      if (room.game && !room.game.gameOver && room.game.currentPlayerIndex === game.currentPlayerIndex) {
-        const aiBroadcast = (roomId, message) => {
-          if (message.gameState !== undefined) {
-            const { gameState, ...template } = message;
-            broadcastToRoomWithPlayerState(roomId, template, game);
-          } else {
-            broadcastToRoom(roomId, message);
-          }
-        };
-        executeAiTurn(game, game.currentPlayerIndex, room, aiBroadcast);
-        // 执行后继续检查下一个玩家是否是AI
-        setTimeout(() => checkAndExecuteAiTurn(room), 500);
-      }
+      // 最后一个真人退出时房间已经销毁，但排队中的这一发还在：不认房间就没了，
+      // 这桌 AI 会自己一直打下去（每 500ms 一轮）直到打出个胜负，白烧 CPU
+      if (!rooms.has(room.id) || !room.game || room.game.gameOver ||
+          room.game.currentPlayerIndex !== game.currentPlayerIndex) return;
+      // 排队这一秒里本人可能刚好重连认领回席位，开火前再确认一次还是 AI
+      const now = room.players.find(p => p.id === room.game.players[room.game.currentPlayerIndex].id);
+      if (!now || !now.isAi) return;
+      const aiBroadcast = (roomId, message) => {
+        if (message.gameState !== undefined) {
+          const { gameState, ...template } = message;
+          broadcastToRoomWithPlayerState(roomId, template, game);
+        } else {
+          broadcastToRoom(roomId, message);
+        }
+      };
+      executeAiTurn(game, game.currentPlayerIndex, room, aiBroadcast);
+      // 执行后继续检查下一个玩家是否是AI
+      setTimeout(() => checkAndExecuteAiTurn(room), 500);
     }, 1000);
   }
 }
