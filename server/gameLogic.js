@@ -17,7 +17,7 @@ export const RESOURCE_NAMES = {
 // 成本、产出、声誉都以那张表为准；要改数值改 tools/vc-matrix.js 的 BONUS / INPUTS / HI，
 // 跑 node tools/vc-matrix.js --write 回写注册表，别在服务端再硬编码一套。
 const TIERS = [1, 2, 3];
-const FACE_UP = 4;
+export const FACE_UP = 4;
 
 // 会议卡：卡面信息（英文名、中文、CCF 档、徽标）跟着卡进游戏状态，客户端不用再查一份表
 function buildDeck() {
@@ -53,9 +53,6 @@ export function initializeGame(playerCount) {
   // 每档洗一叠：前 4 张摊在桌上，其余进抽牌堆
   const bank = {
     tokens: tokenCounts[playerCount],
-    // 初始配额单独留一份底：调试面板把筹码塞回牌堆时得知道「最多还能回几张」，
-    // tokens 一旦被改动就再也推不回原始配额了
-    tokenMax: { ...tokenCounts[playerCount] },
     nobles: nobles
   };
   for (const tier of TIERS) {

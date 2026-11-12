@@ -8,7 +8,10 @@ import {
   canAffordCard,
   checkNobleVisit,
   endTurn,
-  RESOURCE_TYPES
+  refillTier,
+  RESOURCE_TYPES,
+  RESOURCE_NAMES,
+  FACE_UP
 } from './gameLogic.js';
 import { executeAiTurn } from './ai.js';
 
@@ -54,6 +57,9 @@ export function setupWebSocket(server) {
             break;
           case 'debug_set_tokens':
             handleDebugSetTokens(ws, message);
+            break;
+          case 'debug_reserved':
+            handleDebugReserved(ws, message);
             break;
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
@@ -386,10 +392,10 @@ export function setupWebSocket(server) {
       }
     }
 
-    // 测试面板改资源：把某个玩家手里的某几种筹码直接改成给定的数（0-99），
-    // 公共牌堆按差额收/放，但夹在 [0, 初始配额] 里 —— 牌堆不够就凭空生成，回收
-    // 超了就让那几枚消失。严格守恒的话永远测不出「一个人手里 12 枚数据」长什么样。
-    // 不改回合、不结算，纯改状态。
+    // 测试面板改资源：守恒 —— 每色的总数（公共牌堆 + 所有玩家手里）是固定的，所以
+    // 某个玩家最多只能设到「牌堆现有的 + 自己已有的」，超了就拒掉并回一条错误。
+    // 凭空生成的话总数就变了，而且一超 takeTokens 那条「手里最多 10 枚」就把后面的
+    // 拿取全堵死。不改回合、不结算。
     function handleDebugSetTokens(ws, message) {
       const room = rooms.get(currentRoom);
       if (!room || !room.game) return;
@@ -400,13 +406,71 @@ export function setupWebSocket(server) {
       const player = game.players.find(p => p.id === message.playerId);
       if (!player || !message.tokens) return;
 
+      const rejected = [];
+      let changed = false;
       for (const [type, want] of Object.entries(message.tokens)) {
         if (!(type in player.tokens)) continue;
-        if (!Number.isInteger(want) || want < 0 || want > 99) continue;
-        const delta = want - player.tokens[type];
+        if (!Number.isInteger(want) || want < 0) {
+          rejected.push(`${RESOURCE_NAMES[type] || type}只能填 0 以上的整数`);
+          continue;
+        }
+        const max = game.bank.tokens[type] + player.tokens[type];
+        if (want > max) {
+          rejected.push(`${RESOURCE_NAMES[type] || type}最多 ${max} 枚（牌堆 ${game.bank.tokens[type]} + 手里 ${player.tokens[type]}）`);
+          continue;
+        }
+        game.bank.tokens[type] -= want - player.tokens[type];
         player.tokens[type] = want;
-        const bankMax = game.bank.tokenMax[type];
-        game.bank.tokens[type] = Math.max(0, Math.min(game.bank.tokens[type] - delta, bankMax));
+        changed = true;
+      }
+
+      if (rejected.length) {
+        ws.send(JSON.stringify({ type: 'error', message: `设不进去：${rejected.join('、')}` }));
+      }
+      if (!changed) return;
+
+      broadcastToRoomWithPlayerState(currentRoom, {
+        type: 'debug_update'
+      }, game);
+    }
+
+    // 测试面板发/收预留卡：+1 从牌桌明面随机抽一张（那一档补牌），−1 把最后一张
+    // 退回同档（明面不满 4 张就回明面，否则压回抽牌堆尾巴，卡不会丢）。
+    // 不像正式预留那样附送咖啡，也不改回合 —— 这就是个摆状态的工具。
+    function handleDebugReserved(ws, message) {
+      const room = rooms.get(currentRoom);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!game.players.some(p => p.id === currentPlayerId)) return;
+      const player = game.players.find(p => p.id === message.playerId);
+      if (!player) return;
+
+      if (message.delta === 1) {
+        if (player.reservedCards.length >= 3) {
+          ws.send(JSON.stringify({ type: 'error', message: '预留已满（最多 3 张）' }));
+          return;
+        }
+        const tiers = [3, 2, 1].filter(t => game.bank[`tier${t}`].length > 0);
+        if (!tiers.length) {
+          ws.send(JSON.stringify({ type: 'error', message: '牌桌上没有可拿的卡了' }));
+          return;
+        }
+        const tier = tiers[Math.floor(Math.random() * tiers.length)];
+        const row = game.bank[`tier${tier}`];
+        player.reservedCards.push(row.splice(Math.floor(Math.random() * row.length), 1)[0]);
+        refillTier(game, tier);
+      } else if (message.delta === -1) {
+        const card = player.reservedCards.pop();
+        if (!card) {
+          ws.send(JSON.stringify({ type: 'error', message: '这个玩家没有预留卡' }));
+          return;
+        }
+        const row = game.bank[`tier${card.tier}`];
+        if (row.length < FACE_UP) row.push(card);
+        else game.bank[`draw${card.tier}`].push(card);
+      } else {
+        return;
       }
 
       broadcastToRoomWithPlayerState(currentRoom, {
