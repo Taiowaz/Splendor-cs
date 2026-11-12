@@ -278,7 +278,7 @@ export default function GameBoard({
                     const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
                     const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
                     return (
-                      <div key={type} className="opp-cell"
+                      <div key={type} className={`opp-cell ${type === 'coffee' ? 'opp-cell-coffee' : ''}`}
                         title={hasVC
                           ? `${info.name}｜筹码 ${n}｜论文 ${papers.length} 篇${breakdown ? `（${breakdown}）` : ''}`
                           : `${info.name}｜筹码 ${n}｜万能筹码，没有对应方向的论文`}>
@@ -293,25 +293,23 @@ export default function GameBoard({
                             <span className="vc-count">{papers.length}</span>
                           </div>
                         )}
+                        {/* 预留：只能从牌桌明面拿，这信息本来就翻给所有人看过，所以直接上
+                            真卡面（服务端已不再只发 tier），和本人那一摞同一个形式。
+                            挂在咖啡格里、绝对定位贴格的右上角 —— 顶边就跟着这一行走，
+                            和左边那张论文卡背齐平（几何见 .opp-reserved）。 */}
+                        {type === 'coffee' && reserved.length > 0 && (
+                          <div className="opp-reserved" title={`预留 ${reserved.length} 张（公开）｜悬停摊开看卡面`}>
+                            {reserved.map(c => (
+                              <div key={c.id} className="opp-reserved-slot">
+                                <PaperCard card={c} isMyTurn={false} />
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )
                   })}
                 </div>
-
-                {/* 预留：只能从牌桌明面拿，这信息本来就翻给所有人看过，所以直接上
-                    真卡面（服务端已不再只发 tier），和本人那一摞同一个形式。
-                    绝对定位在 2×3 网格右下角那块空 felt 上（咖啡格只有筹码，右边空出
-                    51.6 × 37.6），不进文档流 —— 进了要给框加 36.8 高，3 个框就顶穿
-                    玩家列那 609.6 的预算，整列开始滚动。 */}
-                {reserved.length > 0 && (
-                  <div className="opp-reserved" title={`预留 ${reserved.length} 张（公开）｜悬停摊开看卡面`}>
-                    {reserved.map(c => (
-                      <div key={c.id} className="opp-reserved-slot">
-                        <PaperCard card={c} isMyTurn={false} />
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 <div className="opp-inventory">
                   {fcs.length > 0 && (
