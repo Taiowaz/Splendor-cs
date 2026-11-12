@@ -13,6 +13,10 @@
   --vc-w: min(clamp(150px, 16.5vmin, 182px), calc((100vh - 15.5rem) / 4.5));
   --vc-col: calc(4.5 * var(--vc-w) + 1.4rem);
   --fc-gap: 0.6rem;
+  /* 牌桌的固定最小宽高：窗口比这小就不让牌桌跟着缩，也不出滚动条，
+     改由 .gb-toosmall 提示把窗口放大（见 GameBoard.jsx 的尺寸监听）。 */
+  --board-min-w: 1280px;
+  --board-min-h: 768px;
 }
 
 .gb-root {
@@ -31,11 +35,15 @@
   overflow: hidden;
 }
 
-/* 窄屏保护：牌桌按三列内容的自然宽度取最小宽（max-content 会随卡高/视口高
-   自己算，不用写死像素）。窗口比它窄时整页横向滚动，而不是让 1fr 的对手列
-   被压到牌面上去。结算页不加这个类，窄屏照样居中不滚。 */
+/* 牌桌只保底、不缩水。宽度要同时满足「固定下限」和「三列内容的自然宽」，但
+   max() 里不能塞 max-content（关键字不是长度，整条声明会被丢掉），所以拆成
+   width 管固定下限、min-width 管自然宽——高屏时卡变大，自然宽比 1280 还大，
+   min-width 会把它顶上去。窗口比这小时页面不出滚动条（index.css 锁了 overflow），
+   改由 .gb-toosmall 提示放大窗口。结算页不加这个类，窄屏照样居中自适应。 */
 .gb-playing {
+  width: max(var(--board-min-w), 100%);
   min-width: max-content;
+  min-height: max(var(--board-min-h), 100vh);
 }
 
 /* ---- 顶部标题栏 ---- */
@@ -990,3 +998,90 @@
 .gb-rules-modal .gb-modal-buttons { margin-top: 1rem; }
 
 .gb-restart-hint { color: #cfc5a6; margin-bottom: 0.6rem; }
+
+/* 窗口小于牌桌保底尺寸时的提示。牌桌不缩水也不滚动，所以这里必须盖住整屏说清楚
+   「差多少」，否则用户只看到被裁掉的一角，以为是布局坏了。z 压过断线遮罩(900)
+   之外的一切——窗口不够大时，先解决窗口。 */
+.gb-toosmall {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(4, 6, 12, 0.82);
+  backdrop-filter: blur(6px);
+}
+.gb-toosmall-card {
+  width: min(92vw, 28rem);
+  padding: 1.7rem 1.9rem 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+  background: linear-gradient(160deg, rgba(26, 31, 52, 0.98), rgba(13, 16, 28, 0.98));
+  border: 2px solid rgba(212, 175, 55, 0.7);
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.65), inset 0 0 2.5rem rgba(212, 175, 55, 0.08);
+  animation: toosmall-in 0.26s ease-out;
+}
+@keyframes toosmall-in {
+  from { opacity: 0; transform: translateY(0.6rem); }
+  to { opacity: 1; transform: none; }
+}
+.gb-toosmall-card .ts-icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: #f2d675;
+  margin-bottom: 0.5rem;
+}
+.gb-toosmall-card h3 {
+  font-size: 1.45rem;
+  color: #f2d675;
+  -webkit-text-stroke: 0.02rem rgb(82, 55, 24);
+  margin-bottom: 0.45rem;
+}
+.gb-toosmall-card .ts-sub {
+  color: #d8d2bd;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+.ts-sizes {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+.ts-sizes > div {
+  flex: 1;
+  padding: 0.55rem 0.4rem;
+  border-radius: 0.6rem;
+  background: rgba(8, 10, 18, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+}
+.ts-sizes span {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: #a89f86;
+  margin-bottom: 0.2rem;
+}
+.ts-sizes strong {
+  font-size: 1.12rem;
+  letter-spacing: 0.04em;
+  color: #ece3c8;
+  font-variant-numeric: tabular-nums;
+}
+.ts-sizes strong.short { color: #ff9f6b; }
+.gb-toosmall-card .ts-hint {
+  color: #cfc5a6;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.gb-toosmall-card .ts-hint kbd {
+  font-family: inherit;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.3rem;
+  color: #f2d675;
+  background: rgba(8, 10, 18, 0.8);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+}

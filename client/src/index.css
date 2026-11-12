@@ -22,9 +22,14 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  /* 牌桌比窗口窄不下（.gb-playing 的 min-width），窄窗口靠横向滚动看全，
-     这里裁掉的话对手列就又被压回牌面上了 */
-  overflow-x: auto;
+  overflow-x: hidden;
+}
+
+/* 对局中整页锁死不滚：牌桌有固定最小宽高（.gb-playing），窗口比它小时宁可裁掉
+   一角并由 .gb-toosmall 提示放大，也不要横向/纵向滚动条把牌桌切成两半。 */
+html:has(.gb-playing),
+html:has(.gb-playing) body {
+  overflow: hidden;
 }
 
 /* 整页滚动条跟牌桌同一套描金皮：暗轨、金thumb、hover 提亮 */

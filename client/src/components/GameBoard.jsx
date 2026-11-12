@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import PaperCard from './PaperCard.jsx'
 import NobleTile from './NobleTile.jsx'
 import DebugPanel from './DebugPanel.jsx'
@@ -54,6 +54,30 @@ export default function GameBoard({
   const [showReserved, setShowReserved] = useState(false)
   // 顶栏 ☰ 菜单：null 收起，'open' 展开，另两个值是它里面的二级弹窗
   const [menu, setMenu] = useState(null)
+
+  // 牌桌有固定最小宽高（.gb-playing），窗口比它小时页面既不缩也不滚，只裁掉边角，
+  // 所以量一下实际尺寸，摆不下就盖层提示说清楚差多少，别让人以为是布局坏了。
+  const boardRef = useRef(null)
+  const [tooSmall, setTooSmall] = useState(null)
+
+  useEffect(() => {
+    const el = boardRef.current
+    if (!el) return
+    const measure = () => {
+      const need = { w: el.offsetWidth, h: el.offsetHeight }
+      const have = { w: window.innerWidth, h: window.innerHeight }
+      setTooSmall(have.w < need.w || have.h < need.h ? { need, have } : null)
+    }
+    measure()
+    // 卡宽跟着 vmin/vh 走，字体图片加载完也会改自然宽，所以除了 resize 还盯元素本身
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    window.addEventListener('resize', measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [gameState.gameOver])
 
   const myPlayer = gameState.players.find(p => p.id === myPlayerId)
   const myReserved = myPlayer?.reservedCards || []
@@ -166,7 +190,7 @@ export default function GameBoard({
   const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
 
   return (
-    <div className="gb gb-root gb-playing">
+    <div className="gb gb-root gb-playing" ref={boardRef}>
       {/* ☰ 菜单：规则和出口以前压根没有，想换人重开只能刷新页面。挂在 .gb-root 上
           而不是顶栏里——顶栏是个 z-index 5 的层叠上下文，菜单在里面永远压不过牌桌。 */}
       <div className="gb-menu">
@@ -526,6 +550,27 @@ export default function GameBoard({
         onSetTokens={onDebugSetTokens}
         onSetReserved={onDebugSetReserved}
       />
+
+      {tooSmall && (
+        <div className="gb-toosmall">
+          <div className="gb-toosmall-card">
+            <div className="ts-icon">🖥️</div>
+            <h3>窗口太小，牌桌摆不开</h3>
+            <p className="ts-sub">牌桌不缩水、也不出滚动条，窗口得有下面这么大才摆得下整桌。</p>
+            <div className="ts-sizes">
+              <div>
+                <span>需要</span>
+                <strong>{tooSmall.need.w} × {tooSmall.need.h}</strong>
+              </div>
+              <div>
+                <span>当前</span>
+                <strong className="short">{tooSmall.have.w} × {tooSmall.have.h}</strong>
+              </div>
+            </div>
+            <p className="ts-hint">拖大浏览器窗口，或按 <kbd>F11</kbd> 全屏。</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
