@@ -53,6 +53,9 @@ export function initializeGame(playerCount) {
   // 每档洗一叠：前 4 张摊在桌上，其余进抽牌堆
   const bank = {
     tokens: tokenCounts[playerCount],
+    // 初始配额单独留一份底：调试面板把筹码塞回牌堆时得知道「最多还能回几张」，
+    // tokens 一旦被改动就再也推不回原始配额了
+    tokenMax: { ...tokenCounts[playerCount] },
     nobles: nobles
   };
   for (const tier of TIERS) {

@@ -8,8 +8,6 @@ import {
   canAffordCard,
   checkNobleVisit,
   endTurn,
-  refillTier,
-  checkVictory,
   RESOURCE_TYPES
 } from './gameLogic.js';
 import { executeAiTurn } from './ai.js';
@@ -54,8 +52,8 @@ export function setupWebSocket(server) {
           case 'list_rooms':
             handleListRooms(ws);
             break;
-          case 'debug_random':
-            handleDebugRandom(ws);
+          case 'debug_set_tokens':
+            handleDebugSetTokens(ws, message);
             break;
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
@@ -388,53 +386,31 @@ export function setupWebSocket(server) {
       }
     }
 
-    function handleDebugRandom(ws) {
+    // 测试面板改资源：把某个玩家手里的某几种筹码直接改成给定的数（0-99），
+    // 公共牌堆按差额收/放，但夹在 [0, 初始配额] 里 —— 牌堆不够就凭空生成，回收
+    // 超了就让那几枚消失。严格守恒的话永远测不出「一个人手里 12 枚数据」长什么样。
+    // 不改回合、不结算，纯改状态。
+    function handleDebugSetTokens(ws, message) {
       const room = rooms.get(currentRoom);
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === currentPlayerId);
-      if (playerIndex === -1) return;
+      // 请求方得在这局里（面板只对本局玩家可见，别拿它去戳别人的房间）
+      if (!game.players.some(p => p.id === currentPlayerId)) return;
+      const player = game.players.find(p => p.id === message.playerId);
+      if (!player || !message.tokens) return;
 
-      const player = game.players[playerIndex];
-      const resources = ['data', 'compute', 'citation', 'collaborator', 'funding'];
-
-      // 随机加 2-5 个资源
-      const addCount = 2 + Math.floor(Math.random() * 4);
-      for (let i = 0; i < addCount; i++) {
-        const r = resources[Math.floor(Math.random() * resources.length)];
-        if (game.bank.tokens[r] > 0) {
-          player.tokens[r]++;
-          game.bank.tokens[r]--;
-        }
+      for (const [type, want] of Object.entries(message.tokens)) {
+        if (!(type in player.tokens)) continue;
+        if (!Number.isInteger(want) || want < 0 || want > 99) continue;
+        const delta = want - player.tokens[type];
+        player.tokens[type] = want;
+        const bankMax = game.bank.tokenMax[type];
+        game.bank.tokens[type] = Math.max(0, Math.min(game.bank.tokens[type] - delta, bankMax));
       }
 
-      // 随机获得 1-2 张低 tier 卡牌
-      const cardCount = 1 + Math.floor(Math.random() * 2);
-      for (let i = 0; i < cardCount; i++) {
-        const tier = Math.random() < 0.6 ? 1 : 2;
-        const tierCards = game.bank[`tier${tier}`];
-        if (tierCards.length > 0) {
-          const idx = Math.floor(Math.random() * tierCards.length);
-          const card = tierCards.splice(idx, 1)[0];
-          card.tier = tier;
-          player.cards.push(card);
-          player.bonus[card.bonus]++;
-          player.prestige += card.prestige;
-          refillTier(game, tier);
-        }
-      }
-
-      const winner = checkVictory(game);
-      if (winner) {
-        game.gameOver = true;
-        game.winner = winner.id;
-      }
-
-      // 广播更新后的状态
       broadcastToRoomWithPlayerState(currentRoom, {
-        type: 'debug_update',
-        message: '随机资源已添加'
+        type: 'debug_update'
       }, game);
     }
 
