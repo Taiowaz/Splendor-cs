@@ -17,6 +17,9 @@
      改由 .gb-toosmall 提示把窗口放大（见 GameBoard.jsx 的尺寸监听）。 */
   --board-min-w: 1280px;
   --board-min-h: 768px;
+  /* .gb-main 的左留白。筹码行要按视口中线居中（和底栏同一根轴），得知道
+     tokens 那块 grid 区域离视口左边有多远，就是这份 padding。 */
+  --main-pad-l: 2.5rem;
 }
 
 .gb-root {
@@ -104,7 +107,7 @@
     "tokens tokens  players";
   align-content: center;
   gap: 1.2rem 1.4rem;
-  padding: 1rem 1.2rem 5rem 2.5rem;
+  padding: 1rem 1.2rem 5rem var(--main-pad-l);
   overflow: hidden;
 }
 
@@ -327,6 +330,14 @@
   align-items: center;
   justify-content: center;
   gap: 1.1rem;
+  /* 和底栏「我的资源」同一根中轴：tokens 区域只跨 cards+nobles 两列，直接在
+     区域里居中会偏左（右边那块 felt 归对手列）。先把左缘推到视口中线
+     （区域左缘 = --main-pad-l），再退回自身半宽，筹码行就正好压在底栏中线上。
+     width 必须 max-content，否则 shrink-to-fit 会按区域宽算、translate 退多。 */
+  justify-self: start;
+  width: max-content;
+  left: calc(50vw - var(--main-pad-l));
+  transform: translateX(-50%);
 }
 .pool-gem {
   position: relative;
@@ -643,16 +654,16 @@
 
 /* ---- 资源选择确认条 ---- */
 .gb-actionbar {
-  /* 挂在筹码行右侧，不再浮在底部：筹码行下移之后，底部那条 fixed 会正好压住
-     最右边那两枚筹码（1366 压 30px，1920 压 45px），点不动了。
-     左边界按筹码行自己算：行居中，占宽 = 6 枚 × 3em（见 .pool-gem .gem-circle）
+  /* 挂在筹码行左侧的空 felt 上：筹码行现在按视口中线居中（和底栏同轴），
+     右边再挂条就会伸进对手列（1280 宽时条尾到 ~1105，对手列左缘 ~1045），
+     左边那侧在筹码行这一档没有别的东西，挂左最稳。
+     右边界按筹码行自己算：行占宽 = 6 枚 × 3em（见 .pool-gem .gem-circle）
      + 5 个 1.1rem 间距（见 .gb-tokenpool 的 gap），半宽再让开一个同样的 1.1rem
-     间距就是条的起点。原来这里写死 10.4rem，那是 5 枚时代的数，补上第 6 枚咖啡
-     后正好压住它 21.6px。条 inherit 到和筹码同一个 16px，两边的 em 解析一致。
+     间距就是条的终点。条 inherit 到和筹码同一个 16px，两边的 em 解析一致。
      竖向跟行底对齐：条比 48px 的筹码行高，居中会压到下面「我的资源」那条上。 */
   position: absolute;
   bottom: 0;
-  left: calc(50% + (6 * 3em + 5 * 1.1rem) / 2 + 1.1rem);
+  right: calc(50% + (6 * 3em + 5 * 1.1rem) / 2 + 1.1rem);
   display: flex;
   align-items: center;
   gap: 0.8rem;
