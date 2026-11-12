@@ -247,7 +247,8 @@ export default function GameBoard({
             咖啡没有论文方向，那一格只有筹码。
             6 格排两列三行（框只有 216 宽，三格一行会把角标挤到一起），所以框比原来
             高一些，表头那一行也按章的直径留出一整条带，免得第一格圆片压在章上；
-            再下面是预留分级卡背（服务端只下发 tier）和会士缩小旗面。 */}
+            预留是右下角那块空 felt 上的真卡面小摞（绝对定位，不给框加高），
+            再下面是会士缩小旗面。 */}
         <div className="gb-players">
           {opponents.map(player => {
             const order = gameState.players.findIndex(p => p.id === player.id) + 1
@@ -295,13 +296,22 @@ export default function GameBoard({
                   })}
                 </div>
 
-                <div className="opp-inventory">
-                  {reserved.length > 0 && (
-                    <div className="opp-reserved" title={`预留 ${reserved.length} 张（别人看不到卡面）`}>
-                      {reserved.map((c, i) => <img key={i} src={TIER_DECK[c.tier] || TIER_DECK[1]} alt="" />)}
-                    </div>
-                  )}
+                {/* 预留：只能从牌桌明面拿，这信息本来就翻给所有人看过，所以直接上
+                    真卡面（服务端已不再只发 tier），和本人那一摞同一个形式。
+                    绝对定位在 2×3 网格右下角那块空 felt 上（咖啡格只有筹码，右边空出
+                    51.6 × 37.6），不进文档流 —— 进了要给框加 36.8 高，3 个框就顶穿
+                    玩家列那 609.6 的预算，整列开始滚动。 */}
+                {reserved.length > 0 && (
+                  <div className="opp-reserved" title={`预留 ${reserved.length} 张（公开）｜悬停摊开看卡面`}>
+                    {reserved.map(c => (
+                      <div key={c.id} className="opp-reserved-slot">
+                        <PaperCard card={c} isMyTurn={false} />
+                      </div>
+                    ))}
+                  </div>
+                )}
 
+                <div className="opp-inventory">
                   {fcs.length > 0 && (
                     <div className="opp-fcs" title={`会士卡 ${fcs.length} 张`}>
                       {fcs.map(n => (

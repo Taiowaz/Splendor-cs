@@ -504,8 +504,8 @@
 .opp-name { font-size: 1.15em; font-weight: 700; color: #f2d675; }
 .opp-order { font-size: 0.8em; color: #b9b29a; }
 
-/* 预留 / 会士挤在同一带里，装不下就换行，行与行居中（论文数不在这里了，
-   上面 6 格里那枚卡背角标就是，和本人资源条同一个口径） */
+/* 会士旗：装不下就换行，行与行居中（论文数不在这里了，上面 6 格里那枚卡背角标
+   就是，和本人资源条同一个口径；预留改成绝对定位的小卡摞，见 .opp-reserved） */
 .opp-inventory {
   display: flex;
   flex-wrap: wrap;
@@ -537,20 +537,42 @@
   width: 1.4em;
 }
 
-/* 预留：服务端只下发 tier，所以画分级卡背，虚线边跟已发表论文区分开 */
+/* 预留：真卡面小摞，和本人那一摞（.mc-reserved）同一个形式 —— 服务端现在下发
+   整张卡（明面预留本来就公开）。绝对定位塞进网格第三行右边那块空 felt（咖啡格只有
+   筹码，那档空出 51.6 × 37.6），不进文档流：进了要给框加 36.8 高，3 个框顶穿
+   玩家列 609.6 的预算，整列就开始滚动。
+   卡宽 25 → 高 1.5×25 = 37.5，正好落在第三行那一档；三张露 40% 边
+   = 25 + 2×10 = 45 ≤ 51.6，一眼数得出张数。hover 摊开到 81.4 会压着左边那格，
+   靠 z-index 盖上去；放大以 right bottom 为原点，往左上长就不会出框。
+   3 面旗那档（最宽的会士带，旗之间叠 -1.5em 所以只有 67.2 宽）右边缘离摞的左边缘
+   还有 18.8px，不需要给会士带让位 —— 这个最坏情况是 /tmp/probe-pile-worst.js 合成的。 */
 .opp-reserved {
+  position: absolute;
+  right: 0.6em; /* == .opp-panel 的右内边距，贴着内容右边界 */
+  bottom: 0.45em;
+  z-index: 6;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 }
-.opp-reserved img {
-  width: 1.5em;
-  aspect-ratio: 6 / 9;
-  object-fit: cover;
-  border-radius: 0.25rem;
-  border: 1px dashed rgba(212, 175, 55, 0.65);
-  box-shadow: rgba(0, 0, 0, 0.45) -1px 1px 3px -1px;
+.opp-reserved-slot {
+  --vc-w: 25px;
+  position: relative;
+  flex: 0 0 auto;
+  transition: margin-left 0.12s ease;
 }
-.opp-reserved img + img { margin-left: -1em; }
+.opp-reserved-slot + .opp-reserved-slot {
+  margin-left: calc(var(--vc-w) * -0.6);
+}
+.opp-reserved:hover .opp-reserved-slot + .opp-reserved-slot {
+  margin-left: 0.25rem;
+}
+.opp-reserved-slot:hover {
+  z-index: 50;
+}
+.opp-reserved-slot:hover .paper-card {
+  transform: scale(1.75);
+  transform-origin: right bottom;
+}
 
 /* 会士卡：立在玩家面前的旗形卡，这里缩成一面小旗，只留机构徽标 */
 .opp-fcs {
