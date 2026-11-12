@@ -166,7 +166,7 @@ export default function GameBoard({
   const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
 
   return (
-    <div className="gb gb-root">
+    <div className="gb gb-root gb-playing">
       {/* ☰ 菜单：规则和出口以前压根没有，想换人重开只能刷新页面。挂在 .gb-root 上
           而不是顶栏里——顶栏是个 z-index 5 的层叠上下文，菜单在里面永远压不过牌桌。 */}
       <div className="gb-menu">

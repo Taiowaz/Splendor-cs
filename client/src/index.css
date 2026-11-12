@@ -22,7 +22,23 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
+  /* 牌桌比窗口窄不下（.gb-playing 的 min-width），窄窗口靠横向滚动看全，
+     这里裁掉的话对手列就又被压回牌面上了 */
+  overflow-x: auto;
+}
+
+/* 整页滚动条跟牌桌同一套描金皮：暗轨、金thumb、hover 提亮 */
+html::-webkit-scrollbar { width: 10px; height: 10px; }
+html::-webkit-scrollbar-track { background: rgba(8, 10, 18, 0.9); }
+html::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.5);
+  border-radius: 5px;
+  border: 2px solid rgba(8, 10, 18, 0.9);
+}
+html::-webkit-scrollbar-thumb:hover { background: rgba(242, 214, 117, 0.8); }
+html::-webkit-scrollbar-corner { background: rgba(8, 10, 18, 0.9); }
+@supports not (selector(::-webkit-scrollbar)) {
+  html { scrollbar-color: rgba(212, 175, 55, 0.55) rgba(8, 10, 18, 0.9); scrollbar-width: thin; }
 }
 
 button {

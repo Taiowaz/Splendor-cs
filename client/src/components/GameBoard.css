@@ -31,6 +31,13 @@
   overflow: hidden;
 }
 
+/* 窄屏保护：牌桌按三列内容的自然宽度取最小宽（max-content 会随卡高/视口高
+   自己算，不用写死像素）。窗口比它窄时整页横向滚动，而不是让 1fr 的对手列
+   被压到牌面上去。结算页不加这个类，窄屏照样居中不滚。 */
+.gb-playing {
+  min-width: max-content;
+}
+
 /* ---- 顶部标题栏 ---- */
 .gb-topbar {
   position: relative;
@@ -56,7 +63,9 @@
 }
 
 .gb-turnpill {
-  position: absolute;
+  /* 固定在视口右上角：窄屏横向滚动时回合提示不能跟着牌桌滚出屏幕 */
+  position: fixed;
+  top: 0.75rem;
   right: 1rem;
   padding: 0.3rem 0.9rem;
   border-radius: 2rem;
@@ -892,11 +901,11 @@
 .standing-score { font-family: 'Lobster', cursive; color: #f2d675; }
 
 /* ---- ☰ 菜单：顶栏左侧，规则 / 房号 / 退出 ----
-   层级：.gb-root 定位后它是根上下文里的直接子元素，z-index 60 才真的压得过牌桌
-   （.gb-cards 40 / 对手列 50）和底栏（.gb-my-cards 35）；弹窗 100 在它上面。
-   垂直对齐顶栏：顶栏 3.4rem 高、按钮 2.1rem，所以 top 留 (3.4-2.1)/2。 */
+   固定在视口左上角：窄屏横向滚动时菜单不能跟着牌桌滚出屏幕。
+   层级：z-index 60 压得过牌桌（.gb-cards 40 / 对手列 50）和底栏（.gb-my-cards 35），
+   弹窗 100 在它上面。垂直对齐顶栏：顶栏 3.4rem 高、按钮 2.1rem，top 留 (3.4-2.1)/2。 */
 .gb-menu {
-  position: absolute;
+  position: fixed;
   left: 1rem;
   top: 0.65rem;
   z-index: 60;
