@@ -39,11 +39,12 @@ const VC_TYPES = ['data', 'compute', 'citation', 'collaborator', 'funding']
 export default function GameBoard({
   gameState,
   myPlayerId,
-  roomInfo,
+  room,
   onTakeTokens,
   onBuyCard,
   onReserveCard,
   onRestart,
+  onExitRoom,
   onDebugSetTokens,
   onDebugSetReserved
 }) {
@@ -51,6 +52,8 @@ export default function GameBoard({
   const [showReserve, setShowReserve] = useState(false)
   const [reserveTarget, setReserveTarget] = useState(null)
   const [showReserved, setShowReserved] = useState(false)
+  // 顶栏 ☰ 菜单：null 收起，'open' 展开，另两个值是它里面的二级弹窗
+  const [menu, setMenu] = useState(null)
 
   const myPlayer = gameState.players.find(p => p.id === myPlayerId)
   const myReserved = myPlayer?.reservedCards || []
@@ -131,6 +134,7 @@ export default function GameBoard({
 
   if (gameState.gameOver) {
     const winner = gameState.winner
+    const isHost = room?.hostId === myPlayerId
     return (
       <div className="gb gb-root">
         <div className="gb-gameover">
@@ -148,7 +152,11 @@ export default function GameBoard({
                 </div>
               ))}
           </div>
-          <button className="gb-btn gb-btn-gold" onClick={onRestart}>再来一局</button>
+          {/* 重开由房主发起（服务端只认房主），其他人这条只能等 */}
+          {isHost
+            ? <button className="gb-btn gb-btn-gold" onClick={onRestart}>再来一局</button>
+            : <p className="gb-restart-hint">等房主点「再来一局」…</p>}
+          <button className="gb-btn gb-btn-ghost" onClick={onExitRoom}>回大厅</button>
         </div>
       </div>
     )
@@ -159,6 +167,28 @@ export default function GameBoard({
 
   return (
     <div className="gb gb-root">
+      {/* ☰ 菜单：规则和出口以前压根没有，想换人重开只能刷新页面。挂在 .gb-root 上
+          而不是顶栏里——顶栏是个 z-index 5 的层叠上下文，菜单在里面永远压不过牌桌。 */}
+      <div className="gb-menu">
+        <button
+          className={`gb-menu-btn ${menu ? 'active' : ''}`}
+          onClick={() => setMenu(menu ? null : 'open')}
+          title="菜单"
+        >☰</button>
+        {/* 弹层只在菜单本身打开时出现：规则和退出确认是盖在上面的整屏遮罩，
+            菜单条跟着留着会亮在遮罩外面，像是还能点。 */}
+        {menu === 'open' && (
+          <div className="gb-menu-pop">
+            <button onClick={() => setMenu('rules')}>规则说明</button>
+            <div className="gb-menu-room">
+              <span>房间号</span>
+              <strong>{room?.roomId || '单机'}</strong>
+            </div>
+            <button className="danger" onClick={() => setMenu('exit')}>退出房间</button>
+          </div>
+        )}
+      </div>
+
       {/* 顶部标题栏 */}
       <div className="gb-topbar">
         <div className="gb-title">学术宝石</div>
@@ -435,6 +465,55 @@ export default function GameBoard({
             </div>
             <div className="gb-modal-buttons">
               <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserved(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 菜单里的二级弹窗：规则小抄 / 退出确认 */}
+      {menu === 'rules' && (
+        <div className="gb-modal-overlay" onClick={() => setMenu('open')}>
+          <div className="gb-modal gb-rules-modal" onClick={e => e.stopPropagation()}>
+            <h3>学术宝石 · 规则</h3>
+            <div className="rules-body">
+              <section>
+                <h4>每回合做一件事</h4>
+                <ul>
+                  <li><b>取筹码</b>：3 枚不同色，或 2 枚同色（公共堆该色得有 ≥4），或单独取 1 枚咖啡。</li>
+                  <li><b>买论文</b>：按卡面付筹码，咖啡能顶任何缺口；买下来当场拿走这张卡的 1 枚产出筹码。</li>
+                  <li><b>预留论文</b>：从牌面挑一张压进自己的预留区（最多 3 张），立刻换 1 枚咖啡，以后再来买。</li>
+                </ul>
+              </section>
+              <section>
+                <h4>筹码</h4>
+                <p>
+                  手里最多 10 枚，会超就不能这么取。六色里只有咖啡是万能筹码，
+                  它不对应任何论文方向，所以不能拿 2 枚同色咖啡。
+                </p>
+              </section>
+              <section>
+                <h4>会士卡与胜负</h4>
+                <p>
+                  论文卡在某一方向攒够数，对应的会士就来访，给你声誉。
+                  桌上会士人数比玩家多 1 位。谁先到 15 声誉，本轮打完就结算，声誉最高者胜。
+                </p>
+              </section>
+            </div>
+            <div className="gb-modal-buttons">
+              <button className="gb-btn gb-btn-ghost" onClick={() => setMenu('open')}>知道了</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {menu === 'exit' && (
+        <div className="gb-modal-overlay" onClick={() => setMenu('open')}>
+          <div className="gb-modal" onClick={e => e.stopPropagation()}>
+            <h3>退出房间？</h3>
+            <p>本局进度不保存。要是已经开局了，你那席位在这桌改由 AI 代打。</p>
+            <div className="gb-modal-buttons">
+              <button className="gb-btn gb-btn-ghost" onClick={() => setMenu('open')}>继续玩</button>
+              <button className="gb-btn gb-btn-gold" onClick={onExitRoom}>退出</button>
             </div>
           </div>
         </div>
