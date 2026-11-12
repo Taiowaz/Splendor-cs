@@ -1,96 +1,149 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import TitleScreen from './components/TitleScreen.jsx'
 import Lobby from './components/Lobby.jsx'
+import WaitingRoom from './components/WaitingRoom.jsx'
 import GameBoard from './components/GameBoard.jsx'
 import useWebSocket from './hooks/useWebSocket.js'
 import './App.css'
 
+// 名字记在本地，下次进来不用重新填
+const NAME_KEY = 'academic-gems-name'
+const MAX_PLAYERS = 4
+
 function App() {
-  const [gameState, setGameState] = useState(null)
+  // title 填名字 → lobby 挑/建/进房 → room 等待室凑人 → game 牌桌
+  const [screen, setScreen] = useState('title')
+  const [playerName, setPlayerName] = useState(() => localStorage.getItem(NAME_KEY) || '')
   const [myPlayerId, setMyPlayerId] = useState(null)
-  const [roomInfo, setRoomInfo] = useState(null)
+  const [room, setRoom] = useState(null)
+  const [roomList, setRoomList] = useState([])
+  const [gameState, setGameState] = useState(null)
   const [notification, setNotification] = useState(null)
-  const autoStartRef = useRef(false)
+  // 每开一局换一次 key：牌桌那些内部状态（选中筹码、预留弹窗）得跟着新一局清空
+  const [gameSeq, setGameSeq] = useState(0)
+  // 快速开局＝建房 + 塞 3 个 AI + 直接开始。房号要等 room_created 回来才有，
+  // 所以把「房建好之后接着干什么」记在这儿。
+  const intentRef = useRef(null)
 
   const { connected, sendMessage, lastMessage } = useWebSocket()
 
-  // 自动创建房间并开始游戏（开发模式）
+  const showNotification = useCallback((message) => {
+    setNotification(message)
+    setTimeout(() => setNotification(null), 3000)
+  }, [])
+
+  const saveName = useCallback((name) => {
+    const trimmed = name.slice(0, 12)
+    setPlayerName(trimmed)
+    localStorage.setItem(NAME_KEY, trimmed)
+  }, [])
+
+  // 没填名字就退回「我」，别让空名字建出一个匿名席位
+  const currentName = useCallback(() => playerName.trim() || '我', [playerName])
+
+  const requestRooms = useCallback(() => {
+    if (connected) sendMessage({ type: 'list_rooms' })
+  }, [connected, sendMessage])
+
   useEffect(() => {
-    if (connected && !autoStartRef.current && !gameState && !roomInfo) {
-      autoStartRef.current = true
-      // 创建房间
-      sendMessage({ type: 'create_room', playerName: '我' })
-    }
-  }, [connected, gameState, roomInfo, sendMessage])
+    if (screen === 'lobby') requestRooms()
+  }, [screen, requestRooms])
 
   // 处理 WebSocket 消息
   useEffect(() => {
     if (!lastMessage) return
+    const m = lastMessage
 
-    switch (lastMessage.type) {
+    switch (m.type) {
       case 'room_created':
-      case 'joined_room':
-        setMyPlayerId(lastMessage.playerId)
-        setRoomInfo({
-          roomId: lastMessage.roomId,
-          players: lastMessage.players
-        })
-        // 房间创建后，添加 3 个 AI
-        setTimeout(() => sendMessage({ type: 'add_ai', aiName: 'AI玩家1' }), 100)
-        setTimeout(() => sendMessage({ type: 'add_ai', aiName: 'AI玩家2' }), 200)
-        setTimeout(() => sendMessage({ type: 'add_ai', aiName: 'AI玩家3' }), 300)
-        // 开始游戏
-        setTimeout(() => sendMessage({ type: 'start_game' }), 500)
+      case 'joined_room': {
+        setMyPlayerId(m.playerId)
+        setRoom({ roomId: m.roomId, hostId: m.hostId, started: false, players: m.players })
+        if (intentRef.current === 'quick') {
+          intentRef.current = null
+          for (let i = 1; i < MAX_PLAYERS; i++) {
+            sendMessage({ type: 'add_ai', aiName: `AI玩家${i}` })
+          }
+          sendMessage({ type: 'start_game' })
+          break
+        }
+        setScreen('room')
+        break
+      }
+
+      case 'room_update':
+        setRoom({ roomId: m.roomId, hostId: m.hostId, started: m.started, players: m.players })
         break
 
-      case 'player_joined':
-        setRoomInfo(prev => ({
-          ...prev,
-          players: lastMessage.players
-        }))
+      case 'room_list':
+        setRoomList(m.rooms)
         break
 
-      case 'player_left':
-        setRoomInfo(prev => ({
-          ...prev,
-          players: prev.players.filter(p => p.id !== lastMessage.playerId)
-        }))
+      case 'left_room':
+        setRoom(null)
+        setGameState(null)
+        setScreen('lobby')
         break
 
       case 'game_started':
-        setGameState(lastMessage.gameState)
+        setGameState(m.gameState)
+        setGameSeq(s => s + 1)
+        setScreen('game')
+        break
+
+      case 'player_left':
+        // 局中掉线的那席位服务端已经转成 AI 代打，名单不用动，只提示 + 同步房主
+        if (m.takenOverByAi) {
+          showNotification(`⚠️ ${m.playerName} 掉线，该席位由 AI 代打`)
+          setRoom(prev => (prev ? { ...prev, hostId: m.hostId } : prev))
+        }
         break
 
       case 'tokens_taken':
       case 'card_bought':
       case 'card_reserved':
       case 'turn_changed':
-        console.log('Received:', lastMessage.type, 'gameState players:', lastMessage.gameState?.players?.map(p => ({ id: p.id, name: p.name, tokens: p.tokens })))
-        setGameState(lastMessage.gameState)
-        break
-
       case 'debug_update':
-        setGameState(lastMessage.gameState)
+        setGameState(m.gameState)
         break
 
       case 'noble_visit':
-        showNotification(lastMessage.message)
+        showNotification(m.message)
         break
 
       case 'game_over':
-        setGameState(lastMessage.gameState)
-        showNotification(`🎉 游戏结束！${lastMessage.winner.name} 获胜！`)
+        setGameState(m.gameState)
         break
 
       case 'error':
-        showNotification(`❌ ${lastMessage.message}`)
+        showNotification(`❌ ${m.message}`)
         break
     }
-  }, [lastMessage])
+  }, [lastMessage, sendMessage, showNotification])
 
-  const showNotification = useCallback((message) => {
-    setNotification(message)
-    setTimeout(() => setNotification(null), 3000)
-  }, [])
+  const handleQuickStart = () => {
+    intentRef.current = 'quick'
+    sendMessage({ type: 'create_room', playerName: currentName() })
+  }
+
+  const handleCreateRoom = () => {
+    intentRef.current = null
+    sendMessage({ type: 'create_room', playerName: currentName() })
+  }
+
+  const handleJoinRoom = (code) => {
+    intentRef.current = null
+    sendMessage({ type: 'join_room', roomId: code.toUpperCase(), playerName: currentName() })
+  }
+
+  const handleLeaveRoom = () => sendMessage({ type: 'leave_room' })
+
+  const handleAddAi = () =>
+    sendMessage({ type: 'add_ai', aiName: `AI玩家${(room?.players.length || 0) + 1}` })
+
+  const handleRemoveAi = (playerId) => sendMessage({ type: 'remove_ai', playerId })
+
+  const handleStartGame = () => sendMessage({ type: 'start_game' })
 
   const handleTakeTokens = (tokens) => {
     sendMessage({ type: 'take_tokens', tokens })
@@ -104,40 +157,66 @@ function App() {
     sendMessage({ type: 'reserve_card', tier, cardIndex })
   }
 
-  const handleRestart = () => {
-    setGameState(null)
-    setRoomInfo(null)
-    setMyPlayerId(null)
-    autoStartRef.current = false
-  }
-
   return (
     <div className="app">
       {notification && (
         <div className="notification">{notification}</div>
       )}
 
-      {!gameState ? (
-        <Lobby
-          connected={connected}
-          roomInfo={roomInfo}
-          onCreateRoom={() => {}}
-          onJoinRoom={() => {}}
-          onStartGame={() => {}}
-          onAddAi={() => {}}
-        />
-      ) : (
+      {screen === 'game' && gameState ? (
         <GameBoard
+          key={gameSeq}
           gameState={gameState}
           myPlayerId={myPlayerId}
-          roomInfo={roomInfo}
+          room={room}
           onTakeTokens={handleTakeTokens}
           onBuyCard={handleBuyCard}
           onReserveCard={handleReserveCard}
-          onRestart={handleRestart}
+          onRestart={handleStartGame}
+          onExitRoom={handleLeaveRoom}
           onDebugSetTokens={(playerId, tokens) => sendMessage({ type: 'debug_set_tokens', playerId, tokens })}
           onDebugSetReserved={(playerId, delta) => sendMessage({ type: 'debug_reserved', playerId, delta })}
         />
+      ) : screen === 'room' && room ? (
+        <WaitingRoom
+          room={room}
+          myPlayerId={myPlayerId}
+          maxPlayers={MAX_PLAYERS}
+          onAddAi={handleAddAi}
+          onRemoveAi={handleRemoveAi}
+          onStartGame={handleStartGame}
+          onLeave={handleLeaveRoom}
+        />
+      ) : screen === 'lobby' ? (
+        <Lobby
+          playerName={playerName}
+          connected={connected}
+          rooms={roomList}
+          maxPlayers={MAX_PLAYERS}
+          onNameChange={saveName}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+          onRefresh={requestRooms}
+          onBackToTitle={() => setScreen('title')}
+        />
+      ) : (
+        <TitleScreen
+          playerName={playerName}
+          connected={connected}
+          onNameChange={saveName}
+          onQuickStart={handleQuickStart}
+          onCreateRoom={handleCreateRoom}
+          onEnterLobby={() => setScreen('lobby')}
+        />
+      )}
+
+      {screen !== 'title' && !connected && (
+        <div className="sc-offline">
+          <div className="sc-offline-box">
+            <h3>与实验室服务器失去连接</h3>
+            <p>正在自动重连，稍等几秒；一直回不来就刷新页面。</p>
+          </div>
+        </div>
       )}
     </div>
   )
