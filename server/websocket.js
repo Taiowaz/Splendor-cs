@@ -37,8 +37,14 @@ export function setupWebSocket(server) {
           case 'join_room':
             handleJoinRoom(ws, message);
             break;
+          case 'leave_room':
+            handleLeaveRoom(ws);
+            break;
           case 'add_ai':
             handleAddAi(ws, message);
+            break;
+          case 'remove_ai':
+            handleRemoveAi(ws, message);
             break;
           case 'start_game':
             handleStartGame(ws, message);
@@ -71,17 +77,8 @@ export function setupWebSocket(server) {
     });
 
     ws.on('close', () => {
-      // 清理：玩家断开连接
       if (currentRoom && currentPlayerId) {
-        const room = rooms.get(currentRoom);
-        if (room) {
-          broadcastToRoom(currentRoom, {
-            type: 'player_left',
-            playerId: currentPlayerId,
-            playerName: room.game?.players.find(p => p.id === currentPlayerId)?.name
-          });
-          // 可选：删除房间或让AI接管
-        }
+        leaveSeat(currentRoom, currentPlayerId, '掉线');
       }
     });
 
@@ -105,8 +102,10 @@ export function setupWebSocket(server) {
         type: 'room_created',
         roomId,
         playerId,
-        players: room.players.map(p => ({ id: p.id, name: p.name }))
+        hostId: playerId,
+        players: rosterOf(room)
       }));
+      broadcastToRoom(roomId, roomUpdate(room));
 
       console.log(`Room created: ${roomId} by ${message.playerName}`);
     }
@@ -139,18 +138,27 @@ export function setupWebSocket(server) {
         type: 'joined_room',
         roomId: message.roomId,
         playerId,
-        players: room.players.map(p => ({ id: p.id, name: p.name }))
+        hostId: room.hostId,
+        players: rosterOf(room)
       }));
 
-      // 广播给房间内所有人
-      broadcastToRoom(message.roomId, {
-        type: 'player_joined',
-        playerId,
-        playerName: message.playerName,
-        players: room.players.map(p => ({ id: p.id, name: p.name }))
-      });
+      // 房间里的人重新拿一遍名单
+      broadcastToRoom(message.roomId, roomUpdate(room));
 
       console.log(`${message.playerName} joined room ${message.roomId}`);
+    }
+
+    // 主动退出房间（回大厅）。开完局之后退出＝把这席位交给 AI 代打，
+    // 和掉线走同一条清理逻辑。
+    function handleLeaveRoom(ws) {
+      if (!currentRoom || !currentPlayerId) return;
+      const room = rooms.get(currentRoom);
+      if (!room) return;
+
+      leaveSeat(currentRoom, currentPlayerId, '离开');
+      ws.send(JSON.stringify({ type: 'left_room' }));
+      currentRoom = null;
+      currentPlayerId = null;
     }
 
     function handleAddAi(ws, message) {
@@ -180,14 +188,33 @@ export function setupWebSocket(server) {
       const aiName = message.aiName || `AI玩家${room.players.length}`;
       room.players.push({ id: aiId, name: aiName, ws: null, isAi: true });
 
-      broadcastToRoom(currentRoom, {
-        type: 'player_joined',
-        playerId: aiId,
-        playerName: aiName,
-        players: room.players.map(p => ({ id: p.id, name: p.name }))
-      });
+      broadcastToRoom(currentRoom, roomUpdate(room));
 
       console.log(`AI ${aiName} added to room ${currentRoom}`);
+    }
+
+    // 等待室里反悔加多了的 AI。只允许摘 AI 席位——真人要走自己发 leave_room。
+    function handleRemoveAi(ws, message) {
+      const room = rooms.get(currentRoom);
+      if (!room) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
+        return;
+      }
+      if (room.hostId !== currentPlayerId) {
+        ws.send(JSON.stringify({ type: 'error', message: '只有房主可以移除AI' }));
+        return;
+      }
+      if (room.started) {
+        ws.send(JSON.stringify({ type: 'error', message: '游戏已开始' }));
+        return;
+      }
+
+      const seat = room.players.find(p => p.id === message.playerId && p.isAi);
+      if (!seat) return;
+
+      room.players = room.players.filter(p => p.id !== seat.id);
+      broadcastToRoom(currentRoom, roomUpdate(room));
+      console.log(`AI ${seat.name} removed from room ${currentRoom}`);
     }
 
     function handleStartGame(ws, message) {
@@ -205,6 +232,12 @@ export function setupWebSocket(server) {
 
       if (room.players.length < 2) {
         ws.send(JSON.stringify({ type: 'error', message: '至少需要2名玩家' }));
+        return;
+      }
+
+      // 局没打完就想重开，会把这些人的进度全冲掉 —— 结算之后才允许再来一局。
+      if (room.started && room.game && !room.game.gameOver) {
+        ws.send(JSON.stringify({ type: 'error', message: '本局还在进行' }));
         return;
       }
 
@@ -485,7 +518,8 @@ export function setupWebSocket(server) {
           id: r.id,
           playerCount: r.players.length,
           maxPlayers: 4,
-          hostName: r.players[0]?.name
+          hostName: r.players.find(p => p.id === r.hostId)?.name || r.players[0]?.name,
+          players: rosterOf(r)
         }));
 
       ws.send(JSON.stringify({
@@ -508,6 +542,61 @@ function broadcastToRoom(roomId, message) {
       p.ws.send(msg);
     }
   });
+}
+
+// 房间名单：大厅和等待室都读这一份，带 isAi 界面才标得出真人/AI
+function rosterOf(room) {
+  return room.players.map(p => ({ id: p.id, name: p.name, isAi: !!p.isAi }));
+}
+
+function roomUpdate(room) {
+  return {
+    type: 'room_update',
+    roomId: room.id,
+    hostId: room.hostId,
+    started: room.started,
+    players: rosterOf(room)
+  };
+}
+
+// 席位离开（主动退出和 socket 关闭走同一条）。
+function leaveSeat(roomId, playerId, reason = '离开') {
+  const room = rooms.get(roomId);
+  if (!room) return;
+  const seat = room.players.find(p => p.id === playerId);
+  if (!seat) return;
+  seat.ws = null;
+
+  if (!room.started) {
+    room.players = room.players.filter(p => p.id !== playerId);
+  } else {
+    // 已经开局就不能摘席位了：回合顺序和牌堆都是按这桌人数发的。改由 AI 代打，
+    // 否则后面的人会干等一个页面早就关掉的客户端。
+    seat.isAi = true;
+  }
+
+  // 一个真人都不剩，这房间没人看了，销毁；房主走了就移交给下一个真人
+  if (!room.players.some(p => !p.isAi)) {
+    rooms.delete(roomId);
+    return;
+  }
+  if (room.hostId === playerId) {
+    room.hostId = room.players.find(p => !p.isAi).id;
+  }
+
+  if (!room.started) {
+    broadcastToRoom(roomId, roomUpdate(room));
+  } else {
+    broadcastToRoom(roomId, {
+      type: 'player_left',
+      playerId,
+      playerName: seat.name,
+      takenOverByAi: true,
+      reason,
+      hostId: room.hostId
+    });
+    checkAndExecuteAiTurn(room);
+  }
 }
 
 // 为每个玩家单独广播（包含各自的资源信息）
