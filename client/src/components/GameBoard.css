@@ -863,19 +863,3 @@
   background: rgba(218, 165, 32, 0.22);
 }
 .standing-score { font-family: 'Lobster', cursive; color: #f2d675; }
-
-/* ---- 调试按钮 ---- */
-.btn-debug {
-  position: fixed;
-  bottom: 12px;
-  right: 12px;
-  z-index: 150;
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 8px;
-  border: 1px solid #ff9800;
-  background: rgba(255, 152, 0, 0.85);
-  color: #1a1408;
-  cursor: pointer;
-}
-.btn-debug:hover { filter: brightness(1.1); }

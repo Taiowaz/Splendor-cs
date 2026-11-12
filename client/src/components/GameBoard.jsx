@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PaperCard from './PaperCard.jsx'
 import NobleTile from './NobleTile.jsx'
+import DebugPanel from './DebugPanel.jsx'
 import './GameBoard.css'
 
 const TIER_NAMES = {
@@ -43,7 +44,7 @@ export default function GameBoard({
   onBuyCard,
   onReserveCard,
   onRestart,
-  onDebugRandom
+  onDebugSetTokens
 }) {
   const [selectedTokens, setSelectedTokens] = useState({})
   const [showReserve, setShowReserve] = useState(false)
@@ -440,8 +441,8 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* 调试按钮 */}
-      <button className="btn-debug" onClick={onDebugRandom}>🎲 随机资源</button>
+      {/* 测试开关：右下角点开，逐个玩家改手里的筹码 */}
+      <DebugPanel gameState={gameState} myPlayerId={myPlayerId} onSetTokens={onDebugSetTokens} />
     </div>
   )
 }

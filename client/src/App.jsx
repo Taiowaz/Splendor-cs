@@ -135,7 +135,7 @@ function App() {
           onBuyCard={handleBuyCard}
           onReserveCard={handleReserveCard}
           onRestart={handleRestart}
-          onDebugRandom={() => sendMessage({ type: 'debug_random' })}
+          onDebugSetTokens={(playerId, tokens) => sendMessage({ type: 'debug_set_tokens', playerId, tokens })}
         />
       )}
     </div>
