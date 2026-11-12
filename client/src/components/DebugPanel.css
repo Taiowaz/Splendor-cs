@@ -90,6 +90,30 @@
 }
 .dbg-cell input:focus { border-color: #ff9800; outline: none; }
 
+.dbg-res {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.dbg-res span {
+  width: 26px;
+  text-align: center;
+  color: #d9cfae;
+}
+.dbg-res button {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  line-height: 16px;
+  border: 1px solid #5a5342;
+  border-radius: 4px;
+  background: transparent;
+  color: #e8e0cc;
+  font-size: 12px;
+  cursor: pointer;
+}
+.dbg-res button:hover { border-color: #ff9800; color: #f2d675; }
+
 .dbg-clear {
   padding: 2px 6px;
   border: 1px solid #5a5342;

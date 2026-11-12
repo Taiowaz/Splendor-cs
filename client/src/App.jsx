@@ -136,6 +136,7 @@ function App() {
           onReserveCard={handleReserveCard}
           onRestart={handleRestart}
           onDebugSetTokens={(playerId, tokens) => sendMessage({ type: 'debug_set_tokens', playerId, tokens })}
+          onDebugSetReserved={(playerId, delta) => sendMessage({ type: 'debug_reserved', playerId, delta })}
         />
       )}
     </div>

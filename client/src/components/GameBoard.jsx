@@ -44,7 +44,8 @@ export default function GameBoard({
   onBuyCard,
   onReserveCard,
   onRestart,
-  onDebugSetTokens
+  onDebugSetTokens,
+  onDebugSetReserved
 }) {
   const [selectedTokens, setSelectedTokens] = useState({})
   const [showReserve, setShowReserve] = useState(false)
@@ -441,8 +442,13 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* 测试开关：右下角点开，逐个玩家改手里的筹码 */}
-      <DebugPanel gameState={gameState} myPlayerId={myPlayerId} onSetTokens={onDebugSetTokens} />
+      {/* 测试开关：右下角点开，逐个玩家改手里的筹码和预留卡 */}
+      <DebugPanel
+        gameState={gameState}
+        myPlayerId={myPlayerId}
+        onSetTokens={onDebugSetTokens}
+        onSetReserved={onDebugSetReserved}
+      />
     </div>
   )
 }
