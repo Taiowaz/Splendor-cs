@@ -181,11 +181,15 @@
   font-size: 0.92rem;
 }
 
+/* 按钮下面那行说明：负 margin 把它往按钮上收，和下一个按钮之间留出组间距，
+   三组「按钮 + 小字」读起来才是三件事而不是六个散件。 */
 .sc-btn-note {
+  margin: -0.35rem 0 0.1rem;
   font-size: 0.82rem;
   font-weight: 400;
-  opacity: 0.75;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: #b3a98c;
 }
 
 .sc-icon-btn,

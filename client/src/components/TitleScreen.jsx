@@ -19,7 +19,7 @@ export default function TitleScreen({
       </div>
 
       <h1 className="sc-logo">学术宝石</h1>
-      <p className="sc-tagline">攒资源 · 发论文 · 拿会士</p>
+      <p className="sc-tagline">攒资源 · 发论文 · 当院士</p>
 
       <div className="sc-panel">
         <label className="sc-field">
@@ -34,16 +34,21 @@ export default function TitleScreen({
           />
         </label>
 
+        {/* 说明小字放在按钮下面单独一行：塞在按钮里会把主标题挤得偏左，
+            按钮看着不居中。挪出来后按钮只剩一行居中的标题。 */}
         <div className="sc-buttons">
           <button className="sc-btn primary" onClick={onQuickStart} disabled={!connected}>
-            快速开局<span className="sc-btn-note">你 + 3 个 AI</span>
+            快速开局
           </button>
+          <p className="sc-btn-note">你 + 3 个 AI</p>
           <button className="sc-btn" onClick={onCreateRoom} disabled={!connected}>
-            创建房间<span className="sc-btn-note">开房号，等同学进来</span>
+            创建房间
           </button>
+          <p className="sc-btn-note">开房号，等同学进来</p>
           <button className="sc-btn" onClick={onEnterLobby} disabled={!connected}>
-            加入同学的房间<span className="sc-btn-note">看房间列表 / 输房号</span>
+            加入同学的房间
           </button>
+          <p className="sc-btn-note">看房间列表 / 输房号</p>
         </div>
 
         <div className="sc-status">
