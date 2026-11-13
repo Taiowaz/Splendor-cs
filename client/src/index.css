@@ -5,27 +5,29 @@
 }
 
 :root {
-  --bg-primary: #171122;
-  --bg-secondary: #201730;
-  --bg-card: #2b1f3a;
-  --text-primary: #ece3c8;
-  --text-secondary: #a89f86;
-  --accent: #e0492f;
-  --accent-hover: #ff6a4d;
-  --success: #2fbf8f;
-  --warning: #f0b429;
-  --border: #3a2b4a;
-  /* 玄墨丝绸底：朱砂 / 青金 / 玉 三团晕光 + 细织纹 + plum 渐变，替代原来的蓝毡照片 */
+  --bg-primary: #f3ecdd;
+  --bg-secondary: #efe6d3;
+  --bg-card: #e6dcc6;
+  --text-primary: #26221c;
+  --text-secondary: #8a8172;
+  --accent: #c0392b;
+  --accent-hover: #d43a2f;
+  --success: #2e7d5b;
+  --warning: #b07a14;
+  --border: #c9bd9f;
+  /* 宣纸底：纸纤维经纬纹 + 朱砂/石青两团极淡晕染 + 暖纸渐变 */
   --silk:
-    radial-gradient(52rem 34rem at 14% -8%, rgba(224, 73, 47, 0.16), transparent 62%),
-    radial-gradient(46rem 32rem at 88% 10%, rgba(79, 125, 249, 0.14), transparent 62%),
-    radial-gradient(44rem 36rem at 50% 112%, rgba(47, 191, 143, 0.11), transparent 62%),
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0 2px, transparent 2px 5px),
-    linear-gradient(160deg, #201730 0%, #171122 48%, #120d1a 100%);
-  --cinnabar: #e0492f;
-  --lapis: #4f7df9;
-  --jade: #2fbf8f;
-  --amber: #f0b429;
+    radial-gradient(60rem 40rem at 85% -10%, rgba(192, 57, 43, 0.07), transparent 60%),
+    radial-gradient(50rem 36rem at 8% 110%, rgba(43, 95, 168, 0.06), transparent 60%),
+    repeating-linear-gradient(0deg, rgba(38, 34, 28, 0.022) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(38, 34, 28, 0.016) 0 1px, transparent 1px 4px),
+    linear-gradient(160deg, #f8f2e4 0%, #f3ecdd 50%, #ece2cc 100%);
+  --cinnabar: #c0392b;
+  --lapis: #2b5fa8;
+  --jade: #2e7d5b;
+  --amber: #b07a14;
+  --ink: #26221c;
+  --paper: #f7f1e3;
 }
 
 body {
@@ -43,18 +45,18 @@ html:has(.gb-playing) body {
   overflow: hidden;
 }
 
-/* 整页滚动条跟牌桌同一套描金皮：暗轨、金thumb、hover 提亮 */
+/* 整页滚动条跟牌桌同一套宣纸朱印皮：纸轨、朱砂 thumb、hover 加深 */
 html::-webkit-scrollbar { width: 10px; height: 10px; }
-html::-webkit-scrollbar-track { background: rgba(14, 9, 20, 0.9); }
+html::-webkit-scrollbar-track { background: rgba(233, 223, 198, 0.9); }
 html::-webkit-scrollbar-thumb {
-  background: rgba(201, 118, 74, 0.5);
+  background: rgba(192, 57, 43, 0.5);
   border-radius: 5px;
-  border: 2px solid rgba(14, 9, 20, 0.9);
+  border: 2px solid rgba(233, 223, 198, 0.9);
 }
-html::-webkit-scrollbar-thumb:hover { background: rgba(236, 185, 141, 0.8); }
-html::-webkit-scrollbar-corner { background: rgba(14, 9, 20, 0.9); }
+html::-webkit-scrollbar-thumb:hover { background: rgba(142, 31, 31, 0.8); }
+html::-webkit-scrollbar-corner { background: rgba(233, 223, 198, 0.9); }
 @supports not (selector(::-webkit-scrollbar)) {
-  html { scrollbar-color: rgba(201, 118, 74, 0.55) rgba(14, 9, 20, 0.9); scrollbar-width: thin; }
+  html { scrollbar-color: rgba(192, 57, 43, 0.55) rgba(233, 223, 198, 0.9); scrollbar-width: thin; }
 }
 
 button {

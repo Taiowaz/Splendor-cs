@@ -29,13 +29,13 @@
   zoom: var(--fc-scale);
   padding: 2px;
   clip-path: var(--flag-shape);
-  background: linear-gradient(180deg, rgba(201, 118, 74, 0.9), rgba(138, 75, 45, 0.85));
+  background: linear-gradient(180deg, rgba(192, 57, 43, 0.9), rgba(142, 31, 31, 0.85));
   filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
 }
 
 /* 三色院士牌：金边更亮，压住双色会士牌 */
 .noble-flag[data-tier='triple'] {
-  background: linear-gradient(180deg, #f4d3ae, #a05a34);
+  background: linear-gradient(180deg, #f7f1e3, #8e1f1f);
 }
 
 .noble-tile {
@@ -56,18 +56,18 @@
      ——只把文字提上去、把它和筹码之间的距离拉开，不改动筹码的落位。 */
   padding: 0.35em calc(var(--flag-d) + 0.7em) 0.95em 0.7em;
   clip-path: var(--flag-shape);
-  color: #ece3c8;
+  color: #26221c;
   background:
-    linear-gradient(180deg, rgba(30, 40, 72, 0.96), rgba(12, 16, 32, 0.97));
+    linear-gradient(180deg, rgba(233, 223, 198, 0.96), rgba(243, 236, 221, 0.97));
 }
 
 .noble-flag[data-tier='triple'] .noble-tile {
   background:
-    linear-gradient(180deg, rgba(46, 36, 70, 0.96), rgba(15, 13, 32, 0.97));
+    linear-gradient(180deg, rgba(230, 220, 198, 0.96), rgba(243, 236, 221, 0.97));
 }
 
 /* 声誉筹码：和 VC 卡（论文卡）左上角那枚声誉章同一套配色 ——
-   金底 radial #f6d9b8 → #c9764a → #8a4b2d、深金描边 #7a4026、深棕数字 #5e331d，
+   金底 radial #f7f1e3 → #c0392b → #7a1a1a、深金描边 #6e1717、深棕数字 #5c1414，
    这样牌桌上两种牌的声誉值看起来是同一类东西。
    圆心从三角深度 0.5d 推到 0.62d（往牌身方向挪），斜边余量反而从 0.054d 涨到 0.138d。 */
 .noble-prestige {
@@ -81,9 +81,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #f6d9b8, #c9764a 62%, #8a4b2d);
-  border: 0.12em solid #7a4026;
-  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(122, 62, 36, 0.5);
+  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c0392b 62%, #7a1a1a);
+  border: 0.12em solid #6e1717;
+  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(142, 31, 31, 0.5);
   pointer-events: none;
 }
 
@@ -91,8 +91,8 @@
   font-family: 'Lobster', cursive;
   font-size: calc(var(--badge) * 0.55);
   line-height: 1;
-  color: #5e331d;
-  text-shadow: 0 1px 0 rgba(246, 217, 184, 0.75);
+  color: #5c1414;
+  text-shadow: 0 1px 0 rgba(250, 245, 233, 0.75);
 }
 
 .noble-name {
@@ -100,14 +100,14 @@
   font-size: 0.95em;
   font-weight: 700;
   line-height: 1.15;
-  color: #ecb98d;
+  color: #8e1f1f;
   white-space: nowrap;
 }
 
 .noble-sub {
   font-size: 0.72em;
   line-height: 1.25;
-  color: rgba(236, 227, 200, 0.62);
+  color: rgba(38, 34, 28, 0.62);
   white-space: nowrap;
 }
 
@@ -171,7 +171,7 @@
   line-height: 1.35;
   min-width: 1.35em;
   text-align: center;
-  color: #3a2417;
+  color: #38221c;
   background: #f4ead0;
   border: 0.09em solid #a8811f;
   border-radius: 50%;

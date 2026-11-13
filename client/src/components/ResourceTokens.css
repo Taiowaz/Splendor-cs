@@ -49,7 +49,7 @@
   padding: 8px 12px;
   border-radius: 8px;
   background: var(--bg-primary);
-  border: 2px solid var(--border);
+  border: 2px solid rgba(38, 34, 28, 0.3);
   min-width: 60px;
   transition: all 0.2s;
   position: relative;
@@ -68,8 +68,8 @@
 
 .token.selected {
   border-color: var(--accent) !important;
-  background: rgba(224, 73, 47, 0.1);
-  box-shadow: 0 0 12px rgba(224, 73, 47, 0.3);
+  background: rgba(192, 57, 43, 0.1);
+  box-shadow: 0 0 12px rgba(192, 57, 43, 0.3);
 }
 
 .token-icon {

@@ -6,11 +6,11 @@
    预览页那张 264px 的卡基准因此是 17.6px，它用 rem 写死，
    所以那边的数值 = 这边的 em × 1.1（17.6 / 根字号 16），改 em 要换算着同步。 */
 .paper-card {
-  --tier-A: #a05a34;
+  --tier-A: #8e1f1f;
   --tier-B: #3b4a8c;
   --tier-C: #4a7c43;
   --ink: #3a2a12;
-  --frame: rgba(201, 118, 74, 0.55);
+  --frame: rgba(192, 57, 43, 0.55);
 
   position: relative;
   width: var(--vc-w);
@@ -28,12 +28,12 @@
   font-family: 'Noto Serif SC', 'Judson', serif;
   background:
     radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
-    radial-gradient(140% 120% at 50% 120%, rgba(62, 38, 24, 0.32), transparent 60%),
+    radial-gradient(140% 120% at 50% 120%, rgba(90, 28, 22, 0.32), transparent 60%),
     linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
   border: 1px solid var(--frame);
   box-shadow:
     rgba(0, 0, 0, 0.85) -0.25em 0.375em 0.875em -0.125em,
-    inset 0 0 2.125em rgba(70, 42, 26, 0.14);
+    inset 0 0 2.125em rgba(100, 32, 26, 0.14);
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
 
@@ -45,8 +45,8 @@
   border-radius: 0.625em;
   pointer-events: none;
   background-image:
-    repeating-linear-gradient(0deg, rgba(90, 52, 32, 0.05) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(90, 52, 32, 0.04) 0 1px, transparent 1px 4px);
+    repeating-linear-gradient(0deg, rgba(120, 40, 32, 0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 40, 32, 0.04) 0 1px, transparent 1px 4px);
   mix-blend-mode: multiply;
   opacity: 0.5;
 }
@@ -57,9 +57,9 @@
 }
 
 .paper-card.affordable {
-  border-color: rgb(236, 185, 141);
+  border-color: rgb(142, 31, 31);
   box-shadow:
-    0 0 0 0.1em rgba(236, 185, 141, 0.55),
+    0 0 0 0.1em rgba(142, 31, 31, 0.55),
     rgba(0, 0, 0, 0.7) -0.25em 0.375em 0.875em -0.125em;
 }
 
@@ -74,9 +74,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #f6d9b8, #c9764a 62%, #8a4b2d);
-  border: 0.14em solid #7a4026;
-  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(122, 62, 36, 0.5);
+  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c0392b 62%, #7a1a1a);
+  border: 0.14em solid #6e1717;
+  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(142, 31, 31, 0.5);
   pointer-events: none;
 }
 
@@ -84,7 +84,7 @@
   font-family: 'Lobster', cursive;
   font-size: 1.5em;
   line-height: 1;
-  color: #5e331d;
+  color: #5c1414;
   text-shadow: 0 1px 0 #fff2c2;
 }
 
@@ -108,7 +108,7 @@
   width: 0.5em;
   height: 0.5em;
   border-radius: 50%;
-  background: rgb(236, 185, 141);
+  background: rgb(142, 31, 31);
 }
 
 .paper-card .title {
@@ -127,7 +127,7 @@
   font-size: 0.9em;
   line-height: 1.2;
   text-align: center;
-  color: #5a3a22;
+  color: #5c1414;
   letter-spacing: 0.06em;
 }
 
@@ -137,7 +137,7 @@
   place-items: center;
   margin: 0.25em 0 0;
   min-height: 3.25em;
-  color: #5a3a22;
+  color: #5c1414;
   flex: 1 1 auto;
 }
 
@@ -151,7 +151,7 @@
 .paper-card .card-art.tone-light {
   padding: 0.25em 0.625em;
   border-radius: 0.5em;
-  background: radial-gradient(ellipse at center, rgba(24, 16, 12, 0.85), rgba(24, 16, 12, 0.55) 65%, transparent 100%);
+  background: radial-gradient(ellipse at center, rgba(38, 34, 28, 0.85), rgba(38, 34, 28, 0.55) 65%, transparent 100%);
 }
 
 .paper-card .body {
@@ -170,7 +170,7 @@
   gap: 0.2em;
   padding: 0.25em 0.35em;
   border-radius: 0.5em;
-  background: rgba(90, 52, 32, 0.1);
+  background: rgba(120, 40, 32, 0.1);
 }
 
 /* 产出/费用圆圈直接贴牌桌那枚筹码图（images/tokens/*Token.png），资源符号已经烧在图里 */
@@ -201,7 +201,7 @@
 .paper-card .cap {
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
   font-size: 1em;
-  color: #3a2417;
+  color: #38221c;
   letter-spacing: 0.02em;
 }
 
@@ -234,14 +234,14 @@
 .paper-card .cost .n {
   font-family: 'Lobster', cursive;
   font-size: 1.15em;
-  color: #3a2417;
+  color: #38221c;
   min-width: 0.8em;
 }
 
 .paper-card .cost .lbl {
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
   font-size: 1.05em;
-  color: #3a2417;
+  color: #38221c;
   letter-spacing: 0.03em;
   margin-left: 0.1em;
 }
