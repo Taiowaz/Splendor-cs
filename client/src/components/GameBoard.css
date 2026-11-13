@@ -1069,12 +1069,6 @@
   font-size: 1.45rem;
   color: #f2d675;
   -webkit-text-stroke: 0.02rem rgb(82, 55, 24);
-  margin-bottom: 0.45rem;
-}
-.gb-toosmall-card .ts-sub {
-  color: #d8d2bd;
-  font-size: 0.98rem;
-  line-height: 1.55;
   margin-bottom: 1rem;
 }
 .ts-sizes {

@@ -565,7 +565,6 @@ export default function GameBoard({
           <div className="gb-toosmall-card">
             <div className="ts-icon">🖥️</div>
             <h3>窗口太小，牌桌摆不开</h3>
-            <p className="ts-sub">牌桌不缩水、也不出滚动条，窗口得有下面这么大才摆得下整桌。</p>
             <div className="ts-sizes">
               <div>
                 <span>需要</span>
