@@ -29,13 +29,13 @@
   zoom: var(--fc-scale);
   padding: 2px;
   clip-path: var(--flag-shape);
-  background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
+  background: linear-gradient(180deg, rgba(201, 118, 74, 0.9), rgba(138, 75, 45, 0.85));
   filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
 }
 
 /* 三色院士牌：金边更亮，压住双色会士牌 */
 .noble-flag[data-tier='triple'] {
-  background: linear-gradient(180deg, #ffe6a0, #b8860b);
+  background: linear-gradient(180deg, #f4d3ae, #a05a34);
 }
 
 .noble-tile {
@@ -67,7 +67,7 @@
 }
 
 /* 声誉筹码：和 VC 卡（论文卡）左上角那枚声誉章同一套配色 ——
-   金底 radial #ffe9a8 → #d9a520 → #9c7010、深金描边 #8a6a15、深棕数字 #6b4d0a，
+   金底 radial #f6d9b8 → #c9764a → #8a4b2d、深金描边 #7a4026、深棕数字 #5e331d，
    这样牌桌上两种牌的声誉值看起来是同一类东西。
    圆心从三角深度 0.5d 推到 0.62d（往牌身方向挪），斜边余量反而从 0.054d 涨到 0.138d。 */
 .noble-prestige {
@@ -81,9 +81,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #ffe9a8, #d9a520 62%, #9c7010);
-  border: 0.12em solid #8a6a15;
-  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(120, 80, 10, 0.5);
+  background: radial-gradient(circle at 38% 32%, #f6d9b8, #c9764a 62%, #8a4b2d);
+  border: 0.12em solid #7a4026;
+  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(122, 62, 36, 0.5);
   pointer-events: none;
 }
 
@@ -91,8 +91,8 @@
   font-family: 'Lobster', cursive;
   font-size: calc(var(--badge) * 0.55);
   line-height: 1;
-  color: #6b4d0a;
-  text-shadow: 0 1px 0 rgba(255, 242, 194, 0.75);
+  color: #5e331d;
+  text-shadow: 0 1px 0 rgba(246, 217, 184, 0.75);
 }
 
 .noble-name {
@@ -100,7 +100,7 @@
   font-size: 0.95em;
   font-weight: 700;
   line-height: 1.15;
-  color: #f2d675;
+  color: #ecb98d;
   white-space: nowrap;
 }
 
@@ -171,7 +171,7 @@
   line-height: 1.35;
   min-width: 1.35em;
   text-align: center;
-  color: #4a3410;
+  color: #3a2417;
   background: #f4ead0;
   border: 0.09em solid #a8811f;
   border-radius: 50%;

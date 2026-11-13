@@ -15,8 +15,8 @@
   padding: 6px 12px;
   font-size: 12px;
   border-radius: 8px;
-  border: 1px solid #ff9800;
-  background: rgba(255, 152, 0, 0.85);
+  border: 1px solid #f0b429;
+  background: rgba(240, 180, 41, 0.85);
   color: #1a1408;
   cursor: pointer;
 }
@@ -26,9 +26,9 @@
 .dbg-panel {
   width: max-content;
   padding: 10px 12px 12px;
-  border: 1px solid rgba(255, 152, 0, 0.55);
+  border: 1px solid rgba(240, 180, 41, 0.55);
   border-radius: 10px;
-  background: rgba(26, 22, 14, 0.94);
+  background: rgba(22, 16, 14, 0.94);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
   color: #e8e0cc;
   font-size: 12px;
@@ -40,7 +40,7 @@
   gap: 2px;
   margin-bottom: 8px;
 }
-.dbg-head b { color: #f2d675; font-size: 12px; }
+.dbg-head b { color: #ecb98d; font-size: 12px; }
 .dbg-head span { color: #9c9480; font-size: 11px; }
 
 .dbg-row {
@@ -56,7 +56,7 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.dbg-name.me { color: #f2d675; }
+.dbg-name.me { color: #ecb98d; }
 
 .dbg-cells {
   display: flex;
@@ -88,7 +88,7 @@
   -webkit-appearance: none;
   margin: 0;
 }
-.dbg-cell input:focus { border-color: #ff9800; outline: none; }
+.dbg-cell input:focus { border-color: #f0b429; outline: none; }
 
 .dbg-res {
   display: flex;
@@ -112,7 +112,7 @@
   font-size: 12px;
   cursor: pointer;
 }
-.dbg-res button:hover { border-color: #ff9800; color: #f2d675; }
+.dbg-res button:hover { border-color: #f0b429; color: #ecb98d; }
 
 .dbg-clear {
   padding: 2px 6px;
@@ -123,4 +123,4 @@
   font-size: 11px;
   cursor: pointer;
 }
-.dbg-clear:hover { border-color: #ff9800; color: #f2d675; }
+.dbg-clear:hover { border-color: #f0b429; color: #ecb98d; }

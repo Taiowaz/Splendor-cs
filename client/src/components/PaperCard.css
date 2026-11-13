@@ -6,11 +6,11 @@
    预览页那张 264px 的卡基准因此是 17.6px，它用 rem 写死，
    所以那边的数值 = 这边的 em × 1.1（17.6 / 根字号 16），改 em 要换算着同步。 */
 .paper-card {
-  --tier-A: #b8860b;
+  --tier-A: #a05a34;
   --tier-B: #3b4a8c;
   --tier-C: #4a7c43;
   --ink: #3a2a12;
-  --frame: rgba(212, 175, 55, 0.55);
+  --frame: rgba(201, 118, 74, 0.55);
 
   position: relative;
   width: var(--vc-w);
@@ -28,12 +28,12 @@
   font-family: 'Noto Serif SC', 'Judson', serif;
   background:
     radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
-    radial-gradient(140% 120% at 50% 120%, rgba(80, 55, 20, 0.32), transparent 60%),
+    radial-gradient(140% 120% at 50% 120%, rgba(62, 38, 24, 0.32), transparent 60%),
     linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
   border: 1px solid var(--frame);
   box-shadow:
     rgba(0, 0, 0, 0.85) -0.25em 0.375em 0.875em -0.125em,
-    inset 0 0 2.125em rgba(90, 60, 20, 0.14);
+    inset 0 0 2.125em rgba(70, 42, 26, 0.14);
   transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
 
@@ -45,8 +45,8 @@
   border-radius: 0.625em;
   pointer-events: none;
   background-image:
-    repeating-linear-gradient(0deg, rgba(120, 90, 40, 0.05) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(120, 90, 40, 0.04) 0 1px, transparent 1px 4px);
+    repeating-linear-gradient(0deg, rgba(90, 52, 32, 0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(90, 52, 32, 0.04) 0 1px, transparent 1px 4px);
   mix-blend-mode: multiply;
   opacity: 0.5;
 }
@@ -57,9 +57,9 @@
 }
 
 .paper-card.affordable {
-  border-color: rgb(245, 204, 101);
+  border-color: rgb(236, 185, 141);
   box-shadow:
-    0 0 0 0.1em rgba(245, 204, 101, 0.55),
+    0 0 0 0.1em rgba(236, 185, 141, 0.55),
     rgba(0, 0, 0, 0.7) -0.25em 0.375em 0.875em -0.125em;
 }
 
@@ -74,9 +74,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #ffe9a8, #d9a520 62%, #9c7010);
-  border: 0.14em solid #8a6a15;
-  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(120, 80, 10, 0.5);
+  background: radial-gradient(circle at 38% 32%, #f6d9b8, #c9764a 62%, #8a4b2d);
+  border: 0.14em solid #7a4026;
+  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(122, 62, 36, 0.5);
   pointer-events: none;
 }
 
@@ -84,7 +84,7 @@
   font-family: 'Lobster', cursive;
   font-size: 1.5em;
   line-height: 1;
-  color: #6b4d0a;
+  color: #5e331d;
   text-shadow: 0 1px 0 #fff2c2;
 }
 
@@ -108,7 +108,7 @@
   width: 0.5em;
   height: 0.5em;
   border-radius: 50%;
-  background: rgb(245, 204, 101);
+  background: rgb(236, 185, 141);
 }
 
 .paper-card .title {
@@ -127,7 +127,7 @@
   font-size: 0.9em;
   line-height: 1.2;
   text-align: center;
-  color: #6a5326;
+  color: #5a3a22;
   letter-spacing: 0.06em;
 }
 
@@ -137,7 +137,7 @@
   place-items: center;
   margin: 0.25em 0 0;
   min-height: 3.25em;
-  color: #6a5326;
+  color: #5a3a22;
   flex: 1 1 auto;
 }
 
@@ -151,7 +151,7 @@
 .paper-card .card-art.tone-light {
   padding: 0.25em 0.625em;
   border-radius: 0.5em;
-  background: radial-gradient(ellipse at center, rgba(30, 20, 8, 0.85), rgba(30, 20, 8, 0.55) 65%, transparent 100%);
+  background: radial-gradient(ellipse at center, rgba(24, 16, 12, 0.85), rgba(24, 16, 12, 0.55) 65%, transparent 100%);
 }
 
 .paper-card .body {
@@ -170,7 +170,7 @@
   gap: 0.2em;
   padding: 0.25em 0.35em;
   border-radius: 0.5em;
-  background: rgba(120, 90, 40, 0.1);
+  background: rgba(90, 52, 32, 0.1);
 }
 
 /* 产出/费用圆圈直接贴牌桌那枚筹码图（images/tokens/*Token.png），资源符号已经烧在图里 */
@@ -181,7 +181,7 @@
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  box-shadow: rgba(0, 0, 0, 0.26) 0 0.125em 0.3125em, inset 0 0 0 1px rgba(74, 52, 16, 0.18);
+  box-shadow: rgba(0, 0, 0, 0.26) 0 0.125em 0.3125em, inset 0 0 0 1px rgba(58, 36, 23, 0.18);
 }
 
 .paper-card .gem .plus {
@@ -201,7 +201,7 @@
 .paper-card .cap {
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
   font-size: 1em;
-  color: #4a3410;
+  color: #3a2417;
   letter-spacing: 0.02em;
 }
 
@@ -228,20 +228,20 @@
   background-size: cover;
   background-position: center;
   flex: 0 0 auto;
-  box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625em 0.1875em, inset 0 0 0 1px rgba(74, 52, 16, 0.18);
+  box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625em 0.1875em, inset 0 0 0 1px rgba(58, 36, 23, 0.18);
 }
 
 .paper-card .cost .n {
   font-family: 'Lobster', cursive;
   font-size: 1.15em;
-  color: #4a3410;
+  color: #3a2417;
   min-width: 0.8em;
 }
 
 .paper-card .cost .lbl {
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
   font-size: 1.05em;
-  color: #4a3410;
+  color: #3a2417;
   letter-spacing: 0.03em;
   margin-left: 0.1em;
 }
