@@ -5,29 +5,35 @@
 }
 
 :root {
-  --bg-primary: #f3ecdd;
-  --bg-secondary: #efe6d3;
-  --bg-card: #e6dcc6;
-  --text-primary: #26221c;
-  --text-secondary: #8a8172;
-  --accent: #c0392b;
-  --accent-hover: #d43a2f;
-  --success: #2e7d5b;
-  --warning: #b07a14;
-  --border: #c9bd9f;
-  /* 宣纸底：纸纤维经纬纹 + 朱砂/石青两团极淡晕染 + 暖纸渐变 */
+  /* 纸面自象牙白沉向牙色/旧绢，墨分浓淡，朱砂印泥点睛 */
+  --bg-primary: #f1e8d4;
+  --bg-secondary: #e9dec5;
+  --bg-card: #e2d5b8;
+  --text-primary: #26221c; /* 浓墨 */
+  --text-secondary: #6b6152; /* 淡墨 */
+  --accent: #c3272b; /* 赤 · 印泥红 */
+  --accent-hover: #d12920; /* 银朱 */
+  --success: #057748; /* 松花绿 */
+  --warning: #845a33; /* 赭石 */
+  --border: #c6b28c; /* 旧绢边 */
+  /* 宣纸底八层：印泥/石青淡晕 + 墨色远山两抹 + 四角墨晕 + 纸 grain（SVG 噪点）
+     + 赭石帘纹 + 陈纸渐变。色值出中国色/国画颜料系：
+     赤 #C3272B、石青 #1685A9、墨色 #50616D、赭石 #845A33。 */
   --silk:
-    radial-gradient(60rem 40rem at 85% -10%, rgba(192, 57, 43, 0.07), transparent 60%),
-    radial-gradient(50rem 36rem at 8% 110%, rgba(43, 95, 168, 0.06), transparent 60%),
-    repeating-linear-gradient(0deg, rgba(38, 34, 28, 0.022) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(38, 34, 28, 0.016) 0 1px, transparent 1px 4px),
-    linear-gradient(160deg, #f8f2e4 0%, #f3ecdd 50%, #ece2cc 100%);
-  --cinnabar: #c0392b;
-  --lapis: #2b5fa8;
-  --jade: #2e7d5b;
-  --amber: #b07a14;
+    radial-gradient(52rem 34rem at 88% -12%, rgba(195, 39, 43, 0.09), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(22, 133, 169, 0.08), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(80, 97, 109, 0.13), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(80, 97, 109, 0.1), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 52%, rgba(43, 38, 32, 0.16) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.085'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(132, 90, 51, 0.055) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #f6efde 0%, #efe5cd 48%, #d9c7a2 100%);
+  --cinnabar: #c3272b; /* 赤 · 印泥 */
+  --lapis: #003472; /* 花青（石青系） */
+  --jade: #057748; /* 松花绿（石绿系） */
+  --amber: #845a33; /* 赭石 */
   --ink: #26221c;
-  --paper: #f7f1e3;
+  --paper: #f6f0e0;
 }
 
 body {
@@ -47,16 +53,16 @@ html:has(.gb-playing) body {
 
 /* 整页滚动条跟牌桌同一套宣纸朱印皮：纸轨、朱砂 thumb、hover 加深 */
 html::-webkit-scrollbar { width: 10px; height: 10px; }
-html::-webkit-scrollbar-track { background: rgba(233, 223, 198, 0.9); }
+html::-webkit-scrollbar-track { background: rgba(226, 213, 184, 0.9); }
 html::-webkit-scrollbar-thumb {
-  background: rgba(192, 57, 43, 0.5);
+  background: rgba(195, 39, 43, 0.5);
   border-radius: 5px;
-  border: 2px solid rgba(233, 223, 198, 0.9);
+  border: 2px solid rgba(226, 213, 184, 0.9);
 }
-html::-webkit-scrollbar-thumb:hover { background: rgba(142, 31, 31, 0.8); }
-html::-webkit-scrollbar-corner { background: rgba(233, 223, 198, 0.9); }
+html::-webkit-scrollbar-thumb:hover { background: rgba(157, 41, 51, 0.8); }
+html::-webkit-scrollbar-corner { background: rgba(226, 213, 184, 0.9); }
 @supports not (selector(::-webkit-scrollbar)) {
-  html { scrollbar-color: rgba(192, 57, 43, 0.55) rgba(233, 223, 198, 0.9); scrollbar-width: thin; }
+  html { scrollbar-color: rgba(195, 39, 43, 0.55) rgba(226, 213, 184, 0.9); scrollbar-width: thin; }
 }
 
 button {

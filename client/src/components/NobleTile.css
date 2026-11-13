@@ -29,13 +29,13 @@
   zoom: var(--fc-scale);
   padding: 2px;
   clip-path: var(--flag-shape);
-  background: linear-gradient(180deg, rgba(192, 57, 43, 0.9), rgba(142, 31, 31, 0.85));
+  background: linear-gradient(180deg, rgba(195, 39, 43, 0.9), rgba(157, 41, 51, 0.85));
   filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
 }
 
 /* 三色院士牌：金边更亮，压住双色会士牌 */
 .noble-flag[data-tier='triple'] {
-  background: linear-gradient(180deg, #f7f1e3, #8e1f1f);
+  background: linear-gradient(180deg, #f7f1e3, #9d2933);
 }
 
 .noble-tile {
@@ -58,16 +58,16 @@
   clip-path: var(--flag-shape);
   color: #26221c;
   background:
-    linear-gradient(180deg, rgba(233, 223, 198, 0.96), rgba(243, 236, 221, 0.97));
+    linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
 }
 
 .noble-flag[data-tier='triple'] .noble-tile {
   background:
-    linear-gradient(180deg, rgba(230, 220, 198, 0.96), rgba(243, 236, 221, 0.97));
+    linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
 }
 
 /* 声誉筹码：和 VC 卡（论文卡）左上角那枚声誉章同一套配色 ——
-   金底 radial #f7f1e3 → #c0392b → #7a1a1a、深金描边 #6e1717、深棕数字 #5c1414，
+   金底 radial #f7f1e3 → #c3272b → #7a1a1a、深金描边 #6e1717、深棕数字 #5c1414，
    这样牌桌上两种牌的声誉值看起来是同一类东西。
    圆心从三角深度 0.5d 推到 0.62d（往牌身方向挪），斜边余量反而从 0.054d 涨到 0.138d。 */
 .noble-prestige {
@@ -81,9 +81,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c0392b 62%, #7a1a1a);
+  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c3272b 62%, #7a1a1a);
   border: 0.12em solid #6e1717;
-  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(142, 31, 31, 0.5);
+  box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(157, 41, 51, 0.5);
   pointer-events: none;
 }
 
@@ -92,7 +92,7 @@
   font-size: calc(var(--badge) * 0.55);
   line-height: 1;
   color: #5c1414;
-  text-shadow: 0 1px 0 rgba(250, 245, 233, 0.75);
+  text-shadow: 0 1px 0 rgba(246, 240, 224, 0.75);
 }
 
 .noble-name {
@@ -100,7 +100,7 @@
   font-size: 0.95em;
   font-weight: 700;
   line-height: 1.15;
-  color: #8e1f1f;
+  color: #9d2933;
   white-space: nowrap;
 }
 

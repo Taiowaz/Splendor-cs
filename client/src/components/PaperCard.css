@@ -6,11 +6,11 @@
    预览页那张 264px 的卡基准因此是 17.6px，它用 rem 写死，
    所以那边的数值 = 这边的 em × 1.1（17.6 / 根字号 16），改 em 要换算着同步。 */
 .paper-card {
-  --tier-A: #8e1f1f;
+  --tier-A: #9d2933;
   --tier-B: #3b4a8c;
   --tier-C: #4a7c43;
   --ink: #3a2a12;
-  --frame: rgba(192, 57, 43, 0.55);
+  --frame: rgba(195, 39, 43, 0.55);
 
   position: relative;
   width: var(--vc-w);
@@ -57,9 +57,9 @@
 }
 
 .paper-card.affordable {
-  border-color: rgb(142, 31, 31);
+  border-color: rgb(157, 41, 51);
   box-shadow:
-    0 0 0 0.1em rgba(142, 31, 31, 0.55),
+    0 0 0 0.1em rgba(157, 41, 51, 0.55),
     rgba(0, 0, 0, 0.7) -0.25em 0.375em 0.875em -0.125em;
 }
 
@@ -74,9 +74,9 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c0392b 62%, #7a1a1a);
+  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c3272b 62%, #7a1a1a);
   border: 0.14em solid #6e1717;
-  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(142, 31, 31, 0.5);
+  box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(157, 41, 51, 0.5);
   pointer-events: none;
 }
 
@@ -108,7 +108,7 @@
   width: 0.5em;
   height: 0.5em;
   border-radius: 50%;
-  background: rgb(142, 31, 31);
+  background: rgb(157, 41, 51);
 }
 
 .paper-card .title {

@@ -12,7 +12,7 @@
 }
 
 .player-panel.current-turn {
-  box-shadow: 0 0 10px rgba(192, 57, 43, 0.3);
+  box-shadow: 0 0 10px rgba(195, 39, 43, 0.3);
   border-color: var(--accent);
 }
 
@@ -105,7 +105,7 @@
   align-items: center;
   gap: 2px;
   font-size: 11px;
-  background: rgba(46, 125, 91, 0.1);
+  background: rgba(5, 119, 72, 0.1);
   padding: 2px 5px;
   border-radius: 3px;
   color: var(--success);
@@ -135,8 +135,8 @@
   border-left: 2px solid;
 }
 
-.mini-card.tier-1 { border-left-color: #2e7d5b; background: rgba(46, 125, 91, 0.05); }
-.mini-card.tier-2 { border-left-color: #2196f3; background: rgba(43, 95, 168, 0.05); }
+.mini-card.tier-1 { border-left-color: #057748; background: rgba(5, 119, 72, 0.05); }
+.mini-card.tier-2 { border-left-color: #2196f3; background: rgba(22, 133, 169, 0.05); }
 .mini-card.tier-3 { border-left-color: #9c27b0; background: rgba(122, 48, 140, 0.05); }
 .mini-card.reserved { border-left-style: dashed; }
 
@@ -162,7 +162,7 @@
 }
 
 .btn-buy-mini:hover:not(:disabled) {
-  background: #256b4c;
+  background: #06875a;
 }
 
 .btn-buy-mini:disabled {

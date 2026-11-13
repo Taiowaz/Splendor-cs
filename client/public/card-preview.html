@@ -13,7 +13,7 @@
     --gold: rgb(245, 204, 101);
     --gold-deep: rgb(110, 81, 7);
     --frame: rgba(212, 175, 55, 0.55);
-    --tierA: #8e1f1f;   /* 金 · 顶会 CCF-A */
+    --tierA: #9d2933;   /* 金 · 顶会 CCF-A */
     --tierB: #3b4a8c;   /* 蓝 · CCF-B */
     --tierC: #4a7c43;   /* 绿 · CCF-C */
     --data: #efe9dc; --compute: #2f6fb0; --citation: #3f8f52;
@@ -78,7 +78,7 @@
     position: absolute; top: .385rem; left: .55rem; z-index: 3;
     width: 2.55em; height: 2.55em; border-radius: 50%;
     display: grid; place-items: center;
-    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c0392b 62%, #9c7010);
+    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c3272b 62%, #9c7010);
     border: .14em solid #6e1717;
     box-shadow: rgba(0,0,0,.45) 0 2.2px 5.5px, inset 0 0 6.6px rgba(120,80,10,.5);
   }
@@ -215,7 +215,7 @@
     background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
     filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
   }
-  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #8e1f1f); }
+  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #9d2933); }
   .nobles-preview .noble-flag.bench { opacity: .5; filter: grayscale(.35) drop-shadow(-3px 2px 6px rgba(0,0,0,.85)); }
   .nobles-preview .noble-tile {
     font-size: calc(var(--flag-font-ref) / 7.375);
@@ -225,23 +225,23 @@
     color: #26221c;
     /* 不写 font-family，和 client/src/components/NobleTile.css 一样继承页面基准，
        否则 FC 的中文会掉到黑体、和羊皮纸卡的宋体不一致 */
-    background: linear-gradient(180deg, rgba(233, 223, 198, 0.96), rgba(243, 236, 221, 0.97));
+    background: linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
   }
   .nobles-preview .noble-flag[data-tier='triple'] .noble-tile {
-    background: linear-gradient(180deg, rgba(230, 220, 198, 0.96), rgba(243, 236, 221, 0.97));
+    background: linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
   }
   .nobles-preview .noble-prestige {
     --badge: calc(var(--flag-h) * 0.28);
     position: absolute; left: calc(100% - var(--flag-d) * 0.62); top: 50%;
     transform: translate(-50%, -50%); width: var(--badge); height: var(--badge);
     border-radius: 50%; display: grid; place-items: center;
-    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c0392b 62%, #9c7010);
+    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c3272b 62%, #9c7010);
     border: 0.12em solid #6e1717; box-shadow: 0 0.1em 0.25em rgba(0,0,0,.45), inset 0 0 0.3em rgba(120,80,10,.5);
     pointer-events: none;
   }
   .nobles-preview .noble-prestige span {
     font-family: 'Lobster', cursive; font-size: calc(var(--badge) * 0.55); line-height: 1;
-    color: #6b4d0a; text-shadow: 0 1px 0 rgba(250, 245, 233, 0.75);
+    color: #6b4d0a; text-shadow: 0 1px 0 rgba(246, 240, 224, 0.75);
   }
   .nobles-preview .noble-head { display: flex; align-items: center; gap: 0.3em; min-width: 0; }
   .nobles-preview .noble-text { min-width: 0; }
