@@ -118,6 +118,12 @@ function issueToken(user) {
   return sign({ uid: user.id, exp: Date.now() + TOKEN_TTL_MS });
 }
 
+// 名字是不是已经被某个注册账号占了。账号名永久落 users.json，游客取名/改名要避开它，
+// 注册新账号时也拿它先查一道重（在线游客的重名另由 websocket 的 nameTaken 兜着）。
+export function nameRegistered(name) {
+  return users.some(u => u.name === name);
+}
+
 // 游客身份：名字直接签进 token，不落 users.json（游客没有密码可验）
 export function guestToken(rawName) {
   let name = String(rawName ?? '').trim().slice(0, NAME_MAX);

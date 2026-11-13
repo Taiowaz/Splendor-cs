@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { networkInterfaces } from 'os';
 import cors from 'cors';
-import { setupWebSocket } from './websocket.js';
-import { register, login, verifyToken, AuthError } from './accounts.js';
+import { setupWebSocket, nameTaken } from './websocket.js';
+import { register, login, verifyToken, AuthError, nameRegistered } from './accounts.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,6 +39,12 @@ const authFail = (res, err) => {
 
 app.post('/api/register', (req, res) => {
   try {
+    const name = String(req.body?.name ?? '').trim();
+    // 名字正被在线游客/保席占着也不给注册（账号名永久，别和正玩着的人撞名）。
+    // 已注册的重名交给 register 自己报「直接登录吧」，这里只拦在线占用。
+    if (name && !nameRegistered(name) && nameTaken(name)) {
+      throw new AuthError('这个名字正有人用着，换一个吧', 409);
+    }
     res.json(register(req.body?.name, req.body?.password));
   } catch (err) {
     authFail(res, err);

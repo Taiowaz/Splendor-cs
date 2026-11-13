@@ -74,7 +74,10 @@ function App() {
         case 'welcome':
           saveToken(m.token)
           setAccount(m.player)
-          if (m.player.guest && !localStorage.getItem(NAME_KEY)) {
+          // 服务端是游客名字的权威：改名被拒（重名）时这条把输入框退回原名，所以总是
+          // 同步，不再只在首次落名时写。welcome 只在握手/改名回执时到，而改名 hello 是
+          // 停手 500ms 后才发的，不会打断正在输入。
+          if (m.player.guest) {
             localStorage.setItem(NAME_KEY, m.player.name)
             setPlayerName(m.player.name)
           }

@@ -1,4 +1,5 @@
 import { WebSocketServer } from 'ws';
+import { randomBytes } from 'crypto';
 import {
   initializeGame,
   createPlayer,
@@ -14,10 +15,31 @@ import {
   FACE_UP
 } from './gameLogic.js';
 import { executeAiTurn } from './ai.js';
-import { verifyToken, guestToken, renameGuest } from './accounts.js';
+import { verifyToken, guestToken, renameGuest, nameRegistered } from './accounts.js';
 
 // 房间管理
 const rooms = new Map();
+
+// 在线连接登记：游客昵称不落 users.json，查重得看「谁正用着这个名字」——包括还没进房、
+// 只在入口页/大厅挂着的人。连接一断就移除，名字随即释放给别人用。
+const liveConns = new Set();
+
+// 这个名字现在有没有人用着：注册账号（永久）＋在线连接＋房里保着的席位（掉线保席/
+// 空房保号/被 AI 代打期间名字也给他留着，本人回来还要认领）。exceptUid 跳过本人，
+// 刷新、改名、认领都不会被自己的名字挡下来。注册新账号时也用它查在线重名。
+export function nameTaken(name, exceptUid = null) {
+  if (!name) return false;
+  if (nameRegistered(name)) return true;
+  for (const c of liveConns) {
+    if (c.identity && c.identity.id !== exceptUid && c.identity.name === name) return true;
+  }
+  for (const room of rooms.values()) {
+    for (const p of room.players) {
+      if ((!p.isAi || p.wasHuman) && p.id !== exceptUid && p.name === name) return true;
+    }
+  }
+  return false;
+}
 
 // 掉线保席：刷新/断网不立刻把席位交给 AI，先留一段时间等本人回来。
 // 测试可以用 GRACE_MS 缩短（见 probe-account.mjs 的超时用例）。
@@ -71,6 +93,7 @@ export function setupWebSocket(server) {
     // 一条连接一份上下文。身份来自 hello 里的 token（账号或游客），席位按身份 id
     // 认，所以刷新换一条 socket 也还是同一个人 —— 这是「刷新不丢房间」的根。
     const conn = { ws, identity: null, roomId: null, playerId: null, detached: false };
+    liveConns.add(conn);
 
     ws.on('message', (data) => {
       try {
@@ -132,6 +155,8 @@ export function setupWebSocket(server) {
     });
 
     ws.on('close', () => {
+      // 先摘登记再走保席逻辑：被顶掉的旧连接、没进房的连接也得释放名字，别漏在集合里
+      liveConns.delete(conn);
       if (conn.detached || !conn.roomId || !conn.playerId) return;
       const room = rooms.get(conn.roomId);
       const seat = room?.players.find(p => p.id === conn.playerId);
@@ -165,20 +190,46 @@ export function setupWebSocket(server) {
     function handleHello(message) {
       let token = message.token;
       let identity = verifyToken(token);
+      const requested = String(message.name ?? '').trim();
+      let nameError = null;
+
       if (!identity) {
-        const g = guestToken(message.name);
+        // 新游客：名字被占就退回随机游客名，并明说一声让他换（uid 是新的，不跳过任何人）
+        let name = requested;
+        if (nameTaken(name)) {
+          nameError = `名字「${name}」已经有人用了，换一个吧`;
+          name = '';
+        }
+        const g = guestToken(name);
         token = g.token;
         identity = verifyToken(token);
-      } else if (identity.guest && message.name && message.name.trim() && message.name.trim() !== identity.name) {
-        // 游客在入口页改了昵称：uid 不变重签一张，席位还是他的
-        const renamed = renameGuest(token, message.name);
-        if (renamed) {
-          token = renamed;
-          identity = verifyToken(token);
+      } else if (identity.guest) {
+        const oldName = identity.name;
+        if (requested && requested !== oldName) {
+          // 游客在入口页改了昵称：uid 不变重签一张，席位还是他的。重名就拒绝、保留原名
+          //（exceptUid 跳过本人，自己的名字不会误挡）。
+          if (nameTaken(requested, identity.id)) {
+            nameError = `名字「${requested}」已经有人用了，换一个吧`;
+          } else {
+            const renamed = renameGuest(token, requested);
+            if (renamed) {
+              token = renamed;
+              identity = verifyToken(token);
+            }
+          }
+        } else if (nameRegistered(oldName)) {
+          // 本人离线那会儿名字被人注册了：保留 uid（席位还认得他），换个随机游客名避开账号
+          const renamed = renameGuest(token, `游客${randomBytes(2).toString('hex')}`);
+          if (renamed) {
+            token = renamed;
+            identity = verifyToken(token);
+          }
+          nameError = `名字「${oldName}」已经被注册了，先给你换个游客名`;
         }
       }
       conn.identity = identity;
       ws.send(JSON.stringify({ type: 'welcome', token, player: identity }));
+      if (nameError) ws.send(JSON.stringify({ type: 'error', message: nameError }));
 
       const found = findSeat(identity.id);
       if (!found) {
