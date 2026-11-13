@@ -59,7 +59,7 @@ export default function TitleScreen({
         <img className="sc-deck a" src="/images/decks/crest-A.jpg" alt="" />
       </div>
 
-      <h1 className="sc-logo">码上顶会</h1>
+      <h1 className="sc-logo">学术宝石</h1>
       <p className="sc-tagline">攒资源 · 发论文 · 当院士</p>
 
       <div className="sc-panel">

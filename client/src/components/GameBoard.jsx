@@ -219,7 +219,7 @@ export default function GameBoard({
 
       {/* 顶部标题栏 */}
       <div className="gb-topbar">
-        <div className="gb-title">码上顶会</div>
+        <div className="gb-title">学术宝石</div>
         <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''} ${currentOffline ? 'waiting' : ''}`}>
           {isMyTurn
             ? '轮到你行动'
@@ -510,7 +510,7 @@ export default function GameBoard({
       {menu === 'rules' && (
         <div className="gb-modal-overlay" onClick={() => setMenu('open')}>
           <div className="gb-modal gb-rules-modal" onClick={e => e.stopPropagation()}>
-            <h3>码上顶会 · 规则</h3>
+            <h3>学术宝石 · 规则</h3>
             <div className="rules-body">
               <section>
                 <h4>每回合做一件事</h4>
