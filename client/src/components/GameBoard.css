@@ -107,7 +107,9 @@
 /* ---- 主体：牌桌 + 对手列共用一个 grid ----
    三列两行，对手列占第三列并跨两行，靠 align-self:start 把列顶压齐 VC/FC 那一行，
    列底再往下多借 tokens 那一档（见 .gb-players，框加高后要那点 felt 才不滚动）。
-   第三列的 1fr 顺手吃掉右边那块 felt。 */
+   第三列的 1fr 顺手吃掉右边那块 felt，对手列 justify-self:end 贴右 —— 窄屏这样
+   才给确认条留出它右侧那块净空（见 .gb-actionbar）。宽屏改整组居中，见下面的
+   @media：那条缝不再随宽度暴涨。 */
 .gb-main {
   flex: 1;
   position: relative;
@@ -120,6 +122,24 @@
   gap: 1.2rem 1.4rem;
   padding: 1rem 1.2rem 5rem var(--main-pad-l);
   overflow: hidden;
+}
+
+/* 宽屏：左右两条 minmax(0,1fr) 空档把 VC/FC/对手整组推到视口中央，多出来的 felt
+   均分到两侧，FC 和对手之间只留一个列距（原来对手列独占 1fr 贴右，缝随宽度暴涨：
+   1280 时 230、1920 时 546、2560 时 1162）。
+   阈值 1600：再窄整组居中会把对手列左缘推过确认条右缘（筹码行按视口中线居中、
+   条挂它右侧，右缘 ≈ 视口中线 + 370），两者相叠；1600 以上居中后仍有 ≥12 净空。
+   空档 min 必须是 0：非 0 下限会进 .gb-playing 的 min-width:max-content，把牌桌
+   保底宽顶过 1280 触发「窗口太小」。
+   tokens 区域横跨「左空档 + cards + nobles」，左缘仍钉在 --main-pad-l，筹码行那条
+   视口中线公式（见 .gb-tokenpool）不受整组居中影响。对手列仍跨两行借高度。 */
+@media (min-width: 1600px) {
+  .gb-main {
+    grid-template-columns: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+      ".      cards  nobles  players ."
+      "tokens tokens tokens players .";
+  }
 }
 
 /* 通用面板 */
@@ -341,9 +361,9 @@
   align-items: center;
   justify-content: center;
   gap: 1.1rem;
-  /* 和底栏「我的资源」同一根中轴：tokens 区域只跨 cards+nobles 两列，直接在
-     区域里居中会偏左（右边那块 felt 归对手列）。先把左缘推到视口中线
-     （区域左缘 = --main-pad-l），再退回自身半宽，筹码行就正好压在底栏中线上。
+  /* 和底栏「我的资源」同一根中轴：tokens 区域左缘始终 = --main-pad-l（窄屏跨
+     cards+nobles，宽屏居中时再带上左空档，左缘都不动），所以这条公式两种布局通用。
+     先把左缘推到视口中线，再退回自身半宽，筹码行就正好压在底栏中线上。
      width 必须 max-content，否则 shrink-to-fit 会按区域宽算、translate 退多。 */
   justify-self: start;
   width: max-content;
