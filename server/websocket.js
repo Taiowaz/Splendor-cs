@@ -92,7 +92,9 @@ export function setupWebSocket(server) {
   wss.on('connection', (ws) => {
     // 一条连接一份上下文。身份来自 hello 里的 token（账号或游客），席位按身份 id
     // 认，所以刷新换一条 socket 也还是同一个人 —— 这是「刷新不丢房间」的根。
-    const conn = { ws, identity: null, roomId: null, playerId: null, detached: false };
+    // leftSeat：这条连接主动退过席。退席后改名之类的 hello 不该把他又拽回牌桌，
+    // 想回去得走大厅「回到牌桌」或刷新（新连接不带这个标记）。
+    const conn = { ws, identity: null, roomId: null, playerId: null, detached: false, leftSeat: false };
     liveConns.add(conn);
 
     ws.on('message', (data) => {
@@ -240,6 +242,11 @@ export function setupWebSocket(server) {
       }
       const { room, seat } = found;
 
+      // 这条连接刚主动退过席（退出对局回到大厅）：改名之类的 hello 不该把他又拽回牌桌。
+      // 只拦「被 AI 代打的旧席位」——想回去得走大厅「回到牌桌」(join_room) 或刷新页面
+      //（那是新连接，不带 leftSeat 标记）。掉线保席中的真人席不受影响，那不是主动退出。
+      if (conn.leftSeat && seat.isAi) return;
+
       // 同账号在别的标签页/设备还连着：把旧连接请下去，避免两条连接操纵同一席位
       if (seat.conn && seat.conn !== conn && seat.conn.ws.readyState === 1) {
         seat.conn.detached = true;
@@ -288,6 +295,7 @@ export function setupWebSocket(server) {
       rooms.set(roomId, room);
       conn.roomId = roomId;
       conn.playerId = playerId;
+      conn.leftSeat = false;
 
       ws.send(JSON.stringify({
         type: 'room_created',
@@ -347,6 +355,7 @@ export function setupWebSocket(server) {
       clearRoomHold(room.id);
       conn.roomId = message.roomId;
       conn.playerId = playerId;
+      conn.leftSeat = false;
 
       // 通知新玩家
       ws.send(JSON.stringify({
@@ -375,6 +384,8 @@ export function setupWebSocket(server) {
       ws.send(JSON.stringify({ type: 'left_room' }));
       conn.roomId = null;
       conn.playerId = null;
+      // 主动退席：这条连接后续的 hello（改名等）不再自动认领旧席位，回房走显式动作
+      conn.leftSeat = true;
     }
 
     function handleAddAi(message) {
@@ -800,6 +811,7 @@ function resumeSeat(room, seat, ws, conn, identity) {
   if (gamePlayer) gamePlayer.name = identity.name;
   conn.roomId = room.id;
   conn.playerId = seat.id;
+  conn.leftSeat = false;
 
   ws.send(JSON.stringify({
     type: 'session_restored',
