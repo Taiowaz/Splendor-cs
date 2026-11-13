@@ -543,7 +543,7 @@ export default function GameBoard({
         <div className="gb-modal-overlay" onClick={() => setMenu('open')}>
           <div className="gb-modal" onClick={e => e.stopPropagation()}>
             <h3>退出房间？</h3>
-            <p>本局进度不保存。要是已经开局了，你那席位在这桌改由 AI 代打。</p>
+            <p>你的席位会交给 AI 代打，进度留着。回到大厅点「回到牌桌」，或直接刷新，就能接回来继续。</p>
             <div className="gb-modal-buttons">
               <button className="gb-btn gb-btn-ghost" onClick={() => setMenu('open')}>继续玩</button>
               <button className="gb-btn gb-btn-gold" onClick={onExitRoom}>退出</button>

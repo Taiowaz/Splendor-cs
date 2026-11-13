@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import './screens.css'
 
-// 大厅：没开起来的房间列表 + 房号直达。服务端 list_rooms 只回未开始的房，
-// 所以这里不用再过滤「已开始」。
+// 大厅：没开起来的房间列表 + 房号直达。服务端 list_rooms 回未开始的房，外加
+// 「你的席位正由 AI 代打」的已开局房（rejoinable），点「回到牌桌」就能接回来。
 export default function Lobby({
   playerName,
   account,
@@ -108,22 +108,28 @@ export default function Lobby({
             </thead>
             <tbody>
               {shown.map(r => {
-                const full = r.playerCount >= maxPlayers
+                const rejoin = !!r.rejoinable
+                const full = r.playerCount >= maxPlayers && !rejoin
                 return (
                   <tr key={r.id} className={full ? 'full' : ''}>
-                    <td className="room-code">{r.id}</td>
+                    <td className="room-code">
+                      {r.id}
+                      {r.started && <span className="badge playing">进行中</span>}
+                    </td>
                     <td>{r.hostName || '—'}</td>
                     <td className="roster">
-                      {(r.players || []).map(p => p.offline ? `${p.name}（离线）` : p.name).join('、') || '空'}
+                      {(r.players || []).map(p =>
+                        p.offline ? `${p.name}（离线）` : p.isAi ? `${p.name}（AI 代打）` : p.name
+                      ).join('、') || '空'}
                       <span className="seats">{r.playerCount}/{maxPlayers}</span>
                     </td>
                     <td>
                       <button
-                        className="sc-btn small"
+                        className={`sc-btn small${rejoin ? ' rejoin' : ''}`}
                         onClick={() => join(r.id)}
                         disabled={!connected || full}
                       >
-                        {full ? '已满' : '加入'}
+                        {rejoin ? '回到牌桌' : full ? '已满' : '加入'}
                       </button>
                     </td>
                   </tr>

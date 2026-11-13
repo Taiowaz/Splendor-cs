@@ -24,8 +24,8 @@ const rooms = new Map();
 const GRACE_MS = Number(process.env.GRACE_MS || 120000);
 const graceTimers = new Map(); // `${roomId}|${playerId}` -> timeout
 
-// 空房保号：等待室里最后一个真人走了，房号可能已经发给同学了，不能立刻销毁。
-// 留一段时间等人回来或同学进来，超时没人再回收。
+// 空房保号：房里最后一个真人走了（等待室空了、或开局后全转成 AI 代打），房号和牌局
+// 进度都先留着 —— 房号可能已经发给同学了，本人退出去一趟也得能回来。超时没人再回收。
 const ROOM_HOLD_MS = Number(process.env.ROOM_HOLD_MS || 600000);
 const roomHolds = new Map(); // roomId -> timeout
 
@@ -40,13 +40,13 @@ function holdEmptyRoom(room) {
   roomHolds.set(room.id, setTimeout(() => {
     roomHolds.delete(room.id);
     const r = rooms.get(room.id);
-    if (r && !r.started && !r.players.some(p => !p.isAi)) {
+    if (r && !r.players.some(p => !p.isAi)) {
       clearRoomGrace(r.id);
       rooms.delete(r.id);
-      console.log(`Empty room ${r.id} recycled after ${ROOM_HOLD_MS}ms`);
+      console.log(`Room ${r.id} (no humans) recycled after ${ROOM_HOLD_MS}ms`);
     }
   }, ROOM_HOLD_MS));
-  console.log(`Room ${room.id} empty, code held ${ROOM_HOLD_MS}ms`);
+  console.log(`Room ${room.id} has no humans, held ${ROOM_HOLD_MS}ms`);
 }
 
 const graceKey = (roomId, playerId) => `${roomId}|${playerId}`;
@@ -197,38 +197,7 @@ export function setupWebSocket(server) {
         seat.conn.ws.send(JSON.stringify({ type: 'session_elsewhere' }));
       }
 
-      const reclaimed = !!seat.isAi;
-      clearGrace(room.id, seat.id);
-      seat.ws = ws;
-      seat.conn = conn;
-      seat.isAi = false;
-      seat.offline = false;
-      seat.wasHuman = true;
-      seat.name = identity.name;
-      const gamePlayer = room.game?.players.find(p => p.id === seat.id);
-      if (gamePlayer) gamePlayer.name = identity.name;
-      conn.roomId = room.id;
-      conn.playerId = seat.id;
-
-      ws.send(JSON.stringify({
-        type: 'session_restored',
-        roomId: room.id,
-        playerId: seat.id,
-        hostId: room.hostId,
-        started: room.started,
-        players: rosterOf(room),
-        gameState: room.started && room.game ? getSanitizedGameState(room.game) : null,
-        reclaimed
-      }));
-      broadcastToRoom(room.id, roomUpdate(room));
-      // 「回来了 / 认领回来了」是说给同桌其他人听的，本人那份提示在 session_restored 里，
-      // 发给自己会把「已回到房间 X」盖成「✅ 自己 回来了」
-      broadcastToRoom(room.id, {
-        type: reclaimed ? 'player_reclaimed' : 'player_online',
-        playerId: seat.id,
-        playerName: seat.name
-      }, ws);
-      console.log(`${seat.name} resumed seat in room ${room.id}${reclaimed ? ' (reclaimed from AI)' : ''}`);
+      resumeSeat(room, seat, ws, conn, identity);
     }
 
     // 找这个身份的席位：优先真人席（在线或保席中），其次是被 AI 代打但原本属于
@@ -293,8 +262,17 @@ export function setupWebSocket(server) {
         return;
       }
 
+      const playerId = conn.identity.id;
+      const existing = room.players.find(p => p.id === playerId);
+
       if (room.started) {
-        ws.send(JSON.stringify({ type: 'error', message: '游戏已开始' }));
+        // 开过局的房只认原席位本人回来认领（他的席位正由 AI 代打），别人不能中途加入
+        if (existing && existing.isAi && existing.wasHuman) {
+          clearRoomHold(room.id);
+          resumeSeat(room, existing, ws, conn, conn.identity);
+          return;
+        }
+        ws.send(JSON.stringify({ type: 'error', message: '游戏已开始，没法中途加入' }));
         return;
       }
 
@@ -303,8 +281,7 @@ export function setupWebSocket(server) {
         return;
       }
 
-      const playerId = conn.identity.id;
-      if (room.players.some(p => p.id === playerId)) {
+      if (existing) {
         ws.send(JSON.stringify({ type: 'error', message: '你已经在这个房间里了' }));
         return;
       }
@@ -336,7 +313,7 @@ export function setupWebSocket(server) {
     }
 
     // 主动退出房间（回大厅）。开完局之后退出＝把这席位交给 AI 代打，和掉线走同一条
-    // 清理逻辑；但主动走的不留认领标记（他是故意不要这席位的）。
+    // 清理逻辑；席位留认领标记，本人回来能从大厅「回到牌桌」接回自己的进度。
     function handleLeaveRoom() {
       if (!conn.roomId || !conn.playerId) return;
       const room = rooms.get(conn.roomId);
@@ -700,14 +677,19 @@ export function setupWebSocket(server) {
     }
 
     function handleListRooms() {
+      const uid = conn.identity.id;
+      // 未开局的房大家都能看；开过局的房只给「席位正由 AI 代打的原主人」看，让他能回来认领
+      const mineToReclaim = r => r.started && r.players.some(p => p.id === uid && p.isAi && p.wasHuman);
       const roomList = Array.from(rooms.values())
-        .filter(r => !r.started)
+        .filter(r => !r.started || mineToReclaim(r))
         .map(r => ({
           id: r.id,
           playerCount: r.players.length,
           maxPlayers: 4,
           hostName: r.players.find(p => p.id === r.hostId)?.name || r.hostName || r.players[0]?.name,
-          players: rosterOf(r)
+          players: rosterOf(r),
+          started: r.started,
+          rejoinable: mineToReclaim(r)
         }));
 
       ws.send(JSON.stringify({
@@ -752,6 +734,46 @@ function roomUpdate(room) {
   };
 }
 
+// 把席位接回一条活连接：刷新回房、掉线重连、退出后认领都走这里。reclaimed 表示
+// 这席位之前是不是正由 AI 代打（是不是从 AI 手里接回来的）。
+function resumeSeat(room, seat, ws, conn, identity) {
+  const reclaimed = !!seat.isAi;
+  clearGrace(room.id, seat.id);
+  seat.ws = ws;
+  seat.conn = conn;
+  seat.isAi = false;
+  seat.offline = false;
+  seat.wasHuman = true;
+  seat.name = identity.name;
+  const gamePlayer = room.game?.players.find(p => p.id === seat.id);
+  if (gamePlayer) gamePlayer.name = identity.name;
+  conn.roomId = room.id;
+  conn.playerId = seat.id;
+
+  ws.send(JSON.stringify({
+    type: 'session_restored',
+    roomId: room.id,
+    playerId: seat.id,
+    hostId: room.hostId,
+    started: room.started,
+    players: rosterOf(room),
+    gameState: room.started && room.game ? getSanitizedGameState(room.game) : null,
+    reclaimed
+  }));
+  broadcastToRoom(room.id, roomUpdate(room));
+  // 「回来了 / 认领回来了」是说给同桌其他人听的，本人那份提示在 session_restored 里，
+  // 发给自己会把「已回到房间 X」盖成「✅ 自己 回来了」
+  broadcastToRoom(room.id, {
+    type: reclaimed ? 'player_reclaimed' : 'player_online',
+    playerId: seat.id,
+    playerName: seat.name
+  }, ws);
+  console.log(`${seat.name} resumed seat in room ${room.id}${reclaimed ? ' (reclaimed from AI)' : ''}`);
+  // 认领回来时若正轮到 AI，把暂停的 AI 回合续上（无真人时 checkAndExecuteAiTurn 会停）
+  if (room.started) checkAndExecuteAiTurn(room);
+  return reclaimed;
+}
+
 // 席位离开（主动退出、保席超时走同一条）。
 function leaveSeat(roomId, playerId, reason = '离开') {
   const room = rooms.get(roomId);
@@ -762,8 +784,6 @@ function leaveSeat(roomId, playerId, reason = '离开') {
   seat.ws = null;
   seat.conn = null;
   seat.offline = false;
-  // 掉线超时的席位留个认领标记：本人回来还能接回自己的进度；主动退出不留。
-  seat.wasHuman = reason === '掉线';
 
   if (!room.started) {
     room.players = room.players.filter(p => p.id !== playerId);
@@ -771,18 +791,14 @@ function leaveSeat(roomId, playerId, reason = '离开') {
     // 已经开局就不能摘席位了：回合顺序和牌堆都是按这桌人数发的。改由 AI 代打，
     // 否则后面的人会干等一个页面早就关掉的客户端。
     seat.isAi = true;
+    // 不论主动退出还是掉线超时都留认领标记：本人回来还能接回自己的进度。
+    seat.wasHuman = true;
   }
 
-  // 一个真人都不剩（保席中的也算真人）：开过局的房间没人看了，销毁；还没开局的
-  // 等待室先保号 —— 房号可能已经发给同学了，本人退出去一趟也得能回来。
+  // 一个真人都不剩（保席中的也算真人）：不管等待室还是开过局的房都先保号/保席 ——
+  // 房号可能已经发给同学了、牌局进度也还留着，本人退出去一趟也得能回来。超时没人再回收。
   if (!room.players.some(p => !p.isAi)) {
-    if (!room.started) {
-      holdEmptyRoom(room);
-      return;
-    }
-    clearRoomGrace(roomId);
-    clearRoomHold(roomId);
-    rooms.delete(roomId);
+    holdEmptyRoom(room);
     return;
   }
   if (room.hostId === playerId) {
@@ -828,6 +844,9 @@ function broadcastToRoomWithPlayerState(roomId, messageTemplate, game) {
 // 检查并执行AI回合
 function checkAndExecuteAiTurn(room) {
   if (!room || !rooms.has(room.id) || !room.game || room.game.gameOver) return;
+  // 一个真人都不剩（全退出/掉线转 AI 了）：这桌先停，别让 AI 自己打出个胜负白烧 CPU。
+  // 本人回来认领时 resumeSeat 会再调这里续上。
+  if (!room.players.some(p => !p.isAi)) return;
 
   const game = room.game;
   const currentPlayer = game.players[game.currentPlayerIndex];
@@ -836,10 +855,10 @@ function checkAndExecuteAiTurn(room) {
   if (playerInfo && playerInfo.isAi) {
     // AI回合，延迟1秒后执行（模拟思考时间）
     setTimeout(() => {
-      // 最后一个真人退出时房间已经销毁，但排队中的这一发还在：不认房间就没了，
-      // 这桌 AI 会自己一直打下去（每 500ms 一轮）直到打出个胜负，白烧 CPU
+      // 排队这一发可能房间已回收、或本人已回来认领：开火前把房间、回合、真人、AI 都再确认一遍
       if (!rooms.has(room.id) || !room.game || room.game.gameOver ||
           room.game.currentPlayerIndex !== game.currentPlayerIndex) return;
+      if (!room.players.some(p => !p.isAi)) return;
       // 排队这一秒里本人可能刚好重连认领回席位，开火前再确认一次还是 AI
       const now = room.players.find(p => p.id === room.game.players[room.game.currentPlayerIndex].id);
       if (!now || !now.isAi) return;

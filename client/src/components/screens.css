@@ -298,6 +298,17 @@
   font-size: 0.92rem;
 }
 
+/* 「回到牌桌」：回自己那局是这行唯一要做的事，用金色主按钮的份量，别混在普通「加入」里 */
+.sc-btn.small.rejoin {
+  background: linear-gradient(180deg, #c9a227, #8a6a12);
+  border-color: rgba(255, 240, 190, 0.7);
+  color: #2b1d07;
+}
+
+.sc-btn.small.rejoin:hover:not(:disabled) {
+  background: linear-gradient(180deg, #e0bb3a, #9c7a19);
+}
+
 /* 按钮下面那行说明：负 margin 把它往按钮上收，和下一个按钮之间留出组间距，
    三组「按钮 + 小字」读起来才是三件事而不是六个散件。 */
 .sc-btn-note {
@@ -511,6 +522,15 @@
   background: rgba(240, 173, 60, 0.2);
   color: #ffcf87;
   border: 1px solid rgba(240, 173, 60, 0.55);
+}
+
+/* 开过局的房：绿色「进行中」，和等待中的房区分开 */
+.badge.playing {
+  background: rgba(111, 208, 138, 0.18);
+  color: #a9e8bb;
+  border: 1px solid rgba(111, 208, 138, 0.5);
+  margin-left: 0.5rem;
+  letter-spacing: 0.02em;
 }
 
 .sc-actions {
