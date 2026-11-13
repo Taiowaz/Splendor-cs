@@ -675,28 +675,34 @@
 
 /* ---- 资源选择确认条 ---- */
 .gb-actionbar {
-  /* 挂在筹码行左侧的空 felt 上：筹码行现在按视口中线居中（和底栏同轴），
-     右边再挂条就会伸进对手列（1280 宽时条尾到 ~1105，对手列左缘 ~1045），
-     左边那侧在筹码行这一档没有别的东西，挂左最稳。
-     右边界按筹码行自己算：行占宽 = 6 枚 × 3em（见 .pool-gem .gem-circle）
-     + 5 个 1.1rem 间距（见 .gb-tokenpool 的 gap），半宽再让开一个同样的 1.1rem
-     间距就是条的终点。条 inherit 到和筹码同一个 16px，两边的 em 解析一致。
-     竖向跟行底对齐：条比 48px 的筹码行高，居中会压到下面「我的资源」那条上。 */
+  /* 挂在筹码行右侧那块净空 felt 上，竖排紧凑版。筹码行按视口中线居中（和底栏同轴），
+     条左缘 = 行右缘 + 1.1rem：行占宽 = 6 枚 × 3em（见 .pool-gem .gem-circle）+ 5 个
+     1.1rem 间距（见 .gb-tokenpool 的 gap），半宽再让开一个间距；条 inherit 到和筹码
+     同一个 16px，两边 em 解析一致。
+     这块净空在 1280 保底宽下只有 ~217×75：右界是对手列左缘（~1045），上界是发展卡/
+     贵族列底缘（~749）。后期对手拿到会士旗，框会长高、底缘探进筹码行这一档，所以条
+     必须整条落在列左缘以内（宽 ≤~199）才无论框多高都压不到；又必须矮到顶缘在 ~749
+     以下（高 ≤~67）才不压贵族列。竖排 + 收紧字号/内距正好塞进这块净空，也不裁切。
+     竖向跟行底对齐：再往下就压到「我的资源」那条（顶 ~824）上了。 */
   position: absolute;
   bottom: 0;
-  right: calc(50% + (6 * 3em + 5 * 1.1rem) / 2 + 1.1rem);
+  left: calc(50% + (6 * 3em + 5 * 1.1rem) / 2 + 1.1rem);
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.6rem 1.1rem;
-  border-radius: 2rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.3rem;
+  width: max-content;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.8rem;
   background: rgba(14, 16, 28, 0.85);
   border: 1px solid rgba(212, 175, 55, 0.6);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   z-index: 40;
   white-space: nowrap;
 }
-.action-summary { color: #f2d675; font-weight: 700; }
+.action-summary { color: #f2d675; font-weight: 700; font-size: 0.82rem; line-height: 1.15; text-align: center; }
+.action-buttons { display: flex; gap: 0.45rem; }
+.action-buttons .gb-btn { padding: 0.3rem 0.6rem; font-size: 0.9rem; line-height: 1.15; }
 
 /* ---- 底部中间：我的卡牌 ---- */
 .gb-my-cards {

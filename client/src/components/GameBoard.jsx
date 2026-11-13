@@ -294,12 +294,15 @@ export default function GameBoard({
               )
             })}
 
-            {/* 资源选择确认条：贴在筹码行右侧，不另占一行 */}
+            {/* 资源选择确认条：贴在筹码行右侧的空 felt 上，竖排紧凑版，整条落在
+                对手列左缘以内，后期对手框长高也压不到（几何见 .gb-actionbar） */}
             {totalSelected > 0 && (
               <div className="gb-actionbar">
                 <span className="action-summary">已选 {totalSelected} 个资源</span>
-                <button className="gb-btn gb-btn-gold" onClick={handleConfirmTokens}>确认拿取</button>
-                <button className="gb-btn gb-btn-ghost" onClick={() => setSelectedTokens({})}>取消</button>
+                <div className="action-buttons">
+                  <button className="gb-btn gb-btn-gold" onClick={handleConfirmTokens}>确认拿取</button>
+                  <button className="gb-btn gb-btn-ghost" onClick={() => setSelectedTokens({})}>取消</button>
+                </div>
               </div>
             )}
           </div>
