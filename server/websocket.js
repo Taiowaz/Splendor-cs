@@ -1,5 +1,4 @@
 import { WebSocketServer } from 'ws';
-import { randomBytes } from 'crypto';
 import {
   initializeGame,
   createPlayer,
@@ -92,7 +91,8 @@ export function setupWebSocket(server) {
   wss.on('connection', (ws) => {
     // 一条连接一份上下文。身份来自 hello 里的 token（账号或游客），席位按身份 id
     // 认，所以刷新换一条 socket 也还是同一个人 —— 这是「刷新不丢房间」的根。
-    const conn = { ws, identity: null, roomId: null, playerId: null, detached: false };
+    // token 存着当前身份签的那张，进房落定昵称时拿它重签（游客改名 uid 不变）。
+    const conn = { ws, token: null, identity: null, roomId: null, playerId: null, detached: false };
     liveConns.add(conn);
 
     ws.on('message', (data) => {
@@ -187,49 +187,19 @@ export function setupWebSocket(server) {
 
     // 握手：验 token（账号或游客），没带/验不过就发一张游客 token。然后看这个
     // 身份有没有席位等着认领 —— 刷新回房、掉线重连都走这里。
+    // 昵称不在这里查重：打字阶段纯本地，名字进房那一刻（create_room/join_room）才落定，
+    // 见 applyEntryName。新游客先按带来的名字签一张临时 token（没带就随机游客名）。
     function handleHello(message) {
       let token = message.token;
       let identity = verifyToken(token);
-      const requested = String(message.name ?? '').trim();
-      let nameError = null;
-
       if (!identity) {
-        // 新游客：名字被占就退回随机游客名，并明说一声让他换（uid 是新的，不跳过任何人）
-        let name = requested;
-        if (nameTaken(name)) {
-          nameError = `名字「${name}」已经有人用了，换一个吧`;
-          name = '';
-        }
-        const g = guestToken(name);
+        const g = guestToken(String(message.name ?? '').trim());
         token = g.token;
         identity = verifyToken(token);
-      } else if (identity.guest) {
-        const oldName = identity.name;
-        if (requested && requested !== oldName) {
-          // 游客在入口页改了昵称：uid 不变重签一张，席位还是他的。重名就拒绝、保留原名
-          //（exceptUid 跳过本人，自己的名字不会误挡）。
-          if (nameTaken(requested, identity.id)) {
-            nameError = `名字「${requested}」已经有人用了，换一个吧`;
-          } else {
-            const renamed = renameGuest(token, requested);
-            if (renamed) {
-              token = renamed;
-              identity = verifyToken(token);
-            }
-          }
-        } else if (nameRegistered(oldName)) {
-          // 本人离线那会儿名字被人注册了：保留 uid（席位还认得他），换个随机游客名避开账号
-          const renamed = renameGuest(token, `游客${randomBytes(2).toString('hex')}`);
-          if (renamed) {
-            token = renamed;
-            identity = verifyToken(token);
-          }
-          nameError = `名字「${oldName}」已经被注册了，先给你换个游客名`;
-        }
       }
+      conn.token = token;
       conn.identity = identity;
       ws.send(JSON.stringify({ type: 'welcome', token, player: identity }));
-      if (nameError) ws.send(JSON.stringify({ type: 'error', message: nameError }));
 
       const found = findSeat(identity.id);
       if (!found) {
@@ -273,11 +243,34 @@ export function setupWebSocket(server) {
       return conn.roomId ? rooms.get(conn.roomId) || null : null;
     }
 
+    // 进房那一刻才落定昵称并查重：打字阶段纯本地不拦，点快速开局/创建/加入/回到牌桌时
+    // 拿输入的名字查一道重。重名就回错误、中止进房（客户端输入框保留原名让用户改）；
+    // 通过就给游客重签 token（uid 不变，席位还认得他）并回 welcome 让客户端存新 token。
+    // 账号名注册时就定死且唯一，不参与改名/查重，直接放行。
+    function applyEntryName(message) {
+      if (!conn.identity.guest) return true;
+      const name = String(message.playerName ?? '').trim().slice(0, 12) || conn.identity.name;
+      if (nameTaken(name, conn.identity.id)) {
+        ws.send(JSON.stringify({ type: 'error', message: `名字「${name}」已经有人用了，换一个吧` }));
+        return false;
+      }
+      if (name !== conn.identity.name) {
+        const renamed = renameGuest(conn.token, name);
+        if (renamed) {
+          conn.token = renamed;
+          conn.identity = verifyToken(renamed);
+          ws.send(JSON.stringify({ type: 'welcome', token: renamed, player: conn.identity }));
+        }
+      }
+      return true;
+    }
+
     function handleCreateRoom(message) {
       if (seatedElsewhere()) {
         ws.send(JSON.stringify({ type: 'error', message: `你已在房间 ${conn.roomId} 里，先退出再建新房` }));
         return;
       }
+      if (!applyEntryName(message)) return;
       const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
       const playerId = conn.identity.id;
 
@@ -317,6 +310,7 @@ export function setupWebSocket(server) {
         ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
         return;
       }
+      if (!applyEntryName(message)) return;
 
       const playerId = conn.identity.id;
       const existing = room.players.find(p => p.id === playerId);

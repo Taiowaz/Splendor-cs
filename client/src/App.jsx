@@ -4,7 +4,7 @@ import Lobby from './components/Lobby.jsx'
 import WaitingRoom from './components/WaitingRoom.jsx'
 import GameBoard from './components/GameBoard.jsx'
 import useWebSocket from './hooks/useWebSocket.js'
-import { NAME_KEY, loadToken, saveToken, clearToken } from './session.js'
+import { NAME_KEY, saveToken, clearToken } from './session.js'
 import './App.css'
 
 // 名字记在本地，下次进来不用重新填
@@ -40,20 +40,13 @@ function App() {
     notificationTimerRef.current = setTimeout(() => setNotification(null), 3000)
   }, [])
 
-  const renameTimerRef = useRef(null)
+  // 昵称打字阶段纯本地：只更新输入框和本地存储，不发 hello、不查重。名字进房那一刻
+  // （快速开局/创建/加入）才由服务端落定并查重，重名会回错误、输入框保留原名让用户改。
   const saveName = useCallback((name) => {
     const trimmed = name.slice(0, 12)
     setPlayerName(trimmed)
     localStorage.setItem(NAME_KEY, trimmed)
-    // 游客改名要重签 token（uid 不变），顺便让服务端把席位上的名字也改掉；
-    // 账号的名字在注册时就定死了，这里只改本地回显没意义，不发。
-    // 打字时每个键都发一次 hello 会让全桌刷「回来了」，停手半秒再报。
-    if (!account?.guest || !trimmed.trim()) return
-    clearTimeout(renameTimerRef.current)
-    renameTimerRef.current = setTimeout(() => {
-      sendMessage({ type: 'hello', token: loadToken(), name: trimmed })
-    }, 500)
-  }, [account, sendMessage])
+  }, [])
 
   // 没填名字就退回「我」，别让空名字建出一个匿名席位
   const currentName = useCallback(() => playerName.trim() || '我', [playerName])
@@ -74,18 +67,18 @@ function App() {
         case 'welcome':
           saveToken(m.token)
           setAccount(m.player)
-          // 服务端是游客名字的权威：改名被拒（重名）时这条把输入框退回原名，所以总是
-          // 同步，不再只在首次落名时写。welcome 只在握手/改名回执时到，而改名 hello 是
-          // 停手 500ms 后才发的，不会打断正在输入。
-          if (m.player.guest) {
+          // 游客名字以本地输入为准：打字不再发 hello，名字进房那一刻才落定查重。所以只在
+          // 本地还没名字（首次进场）时用服务端给的游客名填一下；之后的 welcome（握手/进房
+          // 改名回执）都不覆盖输入框，免得把用户刚打的名字冲掉。
+          if (m.player.guest && !localStorage.getItem(NAME_KEY)) {
             localStorage.setItem(NAME_KEY, m.player.name)
             setPlayerName(m.player.name)
           }
           break
 
         case 'session_restored': {
-          // 已经在这一桌了（游客改名触发的二次 hello）就别重建牌桌、也别再弹提示，
-          // 否则正在选的筹码和弹窗会被冲掉
+          // 已经在这一桌了（断线重连又收到一次 session_restored）就别重建牌桌、也别再弹
+          // 提示，否则正在选的筹码和弹窗会被冲掉
           const sameSeat = room?.roomId === m.roomId && (screen === 'game' || screen === 'room')
           setMyPlayerId(m.playerId)
           setRoom({ roomId: m.roomId, hostId: m.hostId, started: m.started, players: m.players })
