@@ -1,4 +1,4 @@
-/* ===== 学术宝石 · 宣纸朱印主题 ===== */
+/* ===== 学术宝石 · 瓷青朱印主题（暗底托纸卡） ===== */
 
 /* 牌桌的竖向尺寸链，VC 和 FC 共用一份：
    --vc-w   VC 卡宽。留白已经压到紧凑档，尺寸交回给卡宽本身，字号 = 卡宽 / 15，
@@ -55,9 +55,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom, rgba(246, 240, 224, 0.9), rgba(246, 240, 224, 0));
-  border-bottom: 1px solid rgba(195, 39, 43, 0.28);
-  box-shadow: 0 0.4rem 1.4rem rgba(38, 34, 28, 0.12);
+  background: linear-gradient(to bottom, rgba(13, 18, 24, 0.85), rgba(13, 18, 24, 0));
+  border-bottom: 1px solid rgba(209, 41, 32, 0.4);
+  box-shadow: 0 0.4rem 1.4rem rgba(0, 0, 0, 0.5);
   z-index: 5;
 }
 
@@ -67,7 +67,7 @@
   letter-spacing: 0.15rem;
   transition: opacity 0.2s ease;
   -webkit-text-stroke: 0.03rem rgb(38, 34, 28);
-  background: linear-gradient(to top, rgb(157, 41, 51), rgb(192, 57, 43), rgb(157, 41, 51));
+  background: linear-gradient(to top, rgb(209, 41, 32), rgb(239, 106, 90), rgb(209, 41, 32));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -96,6 +96,7 @@
 /* 当前回合的人掉线了：琥珀色 + 慢呼吸，说明牌桌不是在卡，是在等人回来 */
 .gb-turnpill.waiting {
   color: #ffcf87;
+  background: rgba(13, 18, 24, 0.72);
   border-color: rgba(132, 90, 51, 0.75);
   animation: turnpill-wait 1.8s ease-in-out infinite;
 }
@@ -233,8 +234,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: rgba(38, 34, 28, 0.28) 0 3px 6px, inset 0 0 6px rgba(38, 34, 28, 0.25);
-  border: 1px solid rgba(38, 34, 28, 0.35);
+  box-shadow: rgba(0, 0, 0, 0.5) 0 3px 6px, inset 0 0 6px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(246, 240, 224, 0.3);
 }
 /* 数量：右上角圆形小标。原来印在圆心，正好盖住筹码中间那枚 AR 线稿符号
    （FC 需求圈是符号居中 + 数字在右下，这里跟它同一套约定）。 */
@@ -576,7 +577,7 @@
   font-size: 0.7em;
   padding: 0.1em 0.4em;
   border-radius: 0.3em;
-  color: #ffcf87;
+  color: #845a33;
   background: rgba(132, 90, 51, 0.18);
   border: 1px solid rgba(132, 90, 51, 0.55);
 }
@@ -1026,7 +1027,7 @@
   background: rgba(138, 129, 114, 0.45);
   border-color: rgba(195, 39, 43, 0.5);
 }
-.gb-menu-pop button.danger { color: #ff9aa8; }
+.gb-menu-pop button.danger { color: #9d2933; }
 .gb-menu-room {
   display: flex;
   justify-content: space-between;
@@ -1130,7 +1131,7 @@
   color: #26221c;
   font-variant-numeric: tabular-nums;
 }
-.ts-sizes strong.short { color: #ff9f6b; }
+.ts-sizes strong.short { color: #95302e; }
 .gb-toosmall-card .ts-hint {
   color: #50616d;
   font-size: 0.92rem;
