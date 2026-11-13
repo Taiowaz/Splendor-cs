@@ -24,6 +24,31 @@ const rooms = new Map();
 const GRACE_MS = Number(process.env.GRACE_MS || 120000);
 const graceTimers = new Map(); // `${roomId}|${playerId}` -> timeout
 
+// 空房保号：等待室里最后一个真人走了，房号可能已经发给同学了，不能立刻销毁。
+// 留一段时间等人回来或同学进来，超时没人再回收。
+const ROOM_HOLD_MS = Number(process.env.ROOM_HOLD_MS || 600000);
+const roomHolds = new Map(); // roomId -> timeout
+
+function clearRoomHold(roomId) {
+  const t = roomHolds.get(roomId);
+  if (t) clearTimeout(t);
+  roomHolds.delete(roomId);
+}
+
+function holdEmptyRoom(room) {
+  clearRoomHold(room.id);
+  roomHolds.set(room.id, setTimeout(() => {
+    roomHolds.delete(room.id);
+    const r = rooms.get(room.id);
+    if (r && !r.started && !r.players.some(p => !p.isAi)) {
+      clearRoomGrace(r.id);
+      rooms.delete(r.id);
+      console.log(`Empty room ${r.id} recycled after ${ROOM_HOLD_MS}ms`);
+    }
+  }, ROOM_HOLD_MS));
+  console.log(`Room ${room.id} empty, code held ${ROOM_HOLD_MS}ms`);
+}
+
 const graceKey = (roomId, playerId) => `${roomId}|${playerId}`;
 
 function clearGrace(roomId, playerId) {
@@ -234,6 +259,7 @@ export function setupWebSocket(server) {
       const room = {
         id: roomId,
         hostId: playerId,
+        hostName: conn.identity.name,
         players: [{ id: playerId, name: conn.identity.name, ws, conn, wasHuman: true }],
         game: null,
         started: false
@@ -282,7 +308,15 @@ export function setupWebSocket(server) {
         ws.send(JSON.stringify({ type: 'error', message: '你已经在这个房间里了' }));
         return;
       }
+      // 空房保号期间进来的人接手房主：原房主退出后 hostId 还指着他，不移交的话
+      // 新房里没人能补 AI / 开局。
+      const wasEmpty = !room.players.some(p => !p.isAi);
       room.players.push({ id: playerId, name: conn.identity.name, ws, conn, wasHuman: true });
+      if (wasEmpty) {
+        room.hostId = playerId;
+        room.hostName = conn.identity.name;
+      }
+      clearRoomHold(room.id);
       conn.roomId = message.roomId;
       conn.playerId = playerId;
 
@@ -672,7 +706,7 @@ export function setupWebSocket(server) {
           id: r.id,
           playerCount: r.players.length,
           maxPlayers: 4,
-          hostName: r.players.find(p => p.id === r.hostId)?.name || r.players[0]?.name,
+          hostName: r.players.find(p => p.id === r.hostId)?.name || r.hostName || r.players[0]?.name,
           players: rosterOf(r)
         }));
 
@@ -739,14 +773,22 @@ function leaveSeat(roomId, playerId, reason = '离开') {
     seat.isAi = true;
   }
 
-  // 一个真人都不剩（保席中的也算真人），这房间没人看了，销毁；房主走了就移交给下一个真人
+  // 一个真人都不剩（保席中的也算真人）：开过局的房间没人看了，销毁；还没开局的
+  // 等待室先保号 —— 房号可能已经发给同学了，本人退出去一趟也得能回来。
   if (!room.players.some(p => !p.isAi)) {
+    if (!room.started) {
+      holdEmptyRoom(room);
+      return;
+    }
     clearRoomGrace(roomId);
+    clearRoomHold(roomId);
     rooms.delete(roomId);
     return;
   }
   if (room.hostId === playerId) {
-    room.hostId = room.players.find(p => !p.isAi).id;
+    const next = room.players.find(p => !p.isAi);
+    room.hostId = next.id;
+    room.hostName = next.name;
   }
 
   if (!room.started) {
