@@ -79,20 +79,17 @@ export default function TitleScreen({
             </div>
 
             {tab === 'guest' ? (
-              <>
-                <label className="sc-field">
-                  <span>怎么称呼你</span>
-                  <input
-                    type="text"
-                    value={playerName}
-                    placeholder="比如：小王师兄"
-                    maxLength={12}
-                    onChange={(e) => onNameChange(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && connected) onQuickStart() }}
-                  />
-                </label>
-                <p className="sc-note">游客身份记在这台浏览器：刷新照样回房，换设备要先登录。</p>
-              </>
+              <label className="sc-field">
+                <span>怎么称呼你</span>
+                <input
+                  type="text"
+                  value={playerName}
+                  placeholder="比如：小王师兄"
+                  maxLength={12}
+                  onChange={(e) => onNameChange(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && connected) onQuickStart() }}
+                />
+              </label>
             ) : (
               /* 登录/注册的提交按钮单独放在 .sc-auth 里，和下面三个玩法按钮分开 */
               <form className="sc-auth" onSubmit={submit}>
@@ -137,18 +134,9 @@ export default function TitleScreen({
                 <button className="sc-btn primary" type="submit" disabled={busy || !connected}>
                   {busy ? '处理中…' : tab === 'login' ? '登录' : '注册并登录'}
                 </button>
-                <p className="sc-note">
-                  {tab === 'login'
-                    ? '登录后换电脑、换浏览器都能回到原来的房间和进度。'
-                    : '只存在这台服务器上，密码是哈希，别用你在别处的真密码。'}
-                </p>
               </form>
             )}
           </>
-        )}
-
-        {loggedIn && (
-          <p className="sc-note">这个账号的席位跟着你走：刷新、断网、换设备都能回到原来的房间。</p>
         )}
 
         {/* 说明小字放在按钮下面单独一行：塞在按钮里会把主标题挤得偏左，

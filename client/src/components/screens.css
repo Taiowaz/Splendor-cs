@@ -100,12 +100,16 @@
 }
 
 .sc-field.inline {
-  flex: 1;
+  /* input 自带固有宽度，flex 子项默认 min-width:auto 就缩不下去，
+     并排两个密码框时右边那个会顶出面板。basis 归零 + 允许收缩才等宽。 */
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .sc-field input,
 .sc-search,
 .sc-lobby input {
+  width: 100%;
   padding: 0.65rem 0.8rem;
   border-radius: 0.5rem;
   border: 1px solid rgba(212, 175, 55, 0.35);
@@ -188,17 +192,6 @@
   color: #ff9fae;
   font-size: 0.9rem;
   line-height: 1.4;
-}
-
-/* 字段/表单下面那行小字，比 .sc-btn-note 少一点负 margin（它贴的是输入框不是按钮） */
-.sc-note {
-  margin: -0.3rem 0 0;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  text-align: center;
-  /* 折行时两行分匀，别让最后一行只剩一两个字 */
-  text-wrap: balance;
-  color: #b3a98c;
 }
 
 .sc-idcard {
@@ -622,6 +615,5 @@
   .sc-title .sc-buttons { gap: 0.35rem; }
   .sc-title .sc-btn { padding: 0.55rem 1.1rem; font-size: 1rem; }
   .sc-title .sc-btn-note { margin: -0.25rem 0 0; font-size: 0.76rem; }
-  .sc-title .sc-note { font-size: 0.76rem; line-height: 1.4; }
   .sc-title .sc-status { font-size: 0.8rem; }
 }
