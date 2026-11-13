@@ -92,9 +92,7 @@ export function setupWebSocket(server) {
   wss.on('connection', (ws) => {
     // 一条连接一份上下文。身份来自 hello 里的 token（账号或游客），席位按身份 id
     // 认，所以刷新换一条 socket 也还是同一个人 —— 这是「刷新不丢房间」的根。
-    // leftSeat：这条连接主动退过席。退席后改名之类的 hello 不该把他又拽回牌桌，
-    // 想回去得走大厅「回到牌桌」或刷新（新连接不带这个标记）。
-    const conn = { ws, identity: null, roomId: null, playerId: null, detached: false, leftSeat: false };
+    const conn = { ws, identity: null, roomId: null, playerId: null, detached: false };
     liveConns.add(conn);
 
     ws.on('message', (data) => {
@@ -242,10 +240,10 @@ export function setupWebSocket(server) {
       }
       const { room, seat } = found;
 
-      // 这条连接刚主动退过席（退出对局回到大厅）：改名之类的 hello 不该把他又拽回牌桌。
-      // 只拦「被 AI 代打的旧席位」——想回去得走大厅「回到牌桌」(join_room) 或刷新页面
-      //（那是新连接，不带 leftSeat 标记）。掉线保席中的真人席不受影响，那不是主动退出。
-      if (conn.leftSeat && seat.isAi) return;
+      // 本人主动退出对局后（席位转 AI 代打，带 leftByUser）：任何 hello 都不该把他又拽回
+      // 牌桌 —— 改名不算，刷新页面也不算（标记在席位上，跨连接有效）。想回去得走大厅
+      // 「回到牌桌」(join_room) 显式认领。掉线保席中的真人席不带这个标记，刷新照常接回。
+      if (seat.isAi && seat.leftByUser) return;
 
       // 同账号在别的标签页/设备还连着：把旧连接请下去，避免两条连接操纵同一席位
       if (seat.conn && seat.conn !== conn && seat.conn.ws.readyState === 1) {
@@ -295,7 +293,6 @@ export function setupWebSocket(server) {
       rooms.set(roomId, room);
       conn.roomId = roomId;
       conn.playerId = playerId;
-      conn.leftSeat = false;
 
       ws.send(JSON.stringify({
         type: 'room_created',
@@ -355,7 +352,6 @@ export function setupWebSocket(server) {
       clearRoomHold(room.id);
       conn.roomId = message.roomId;
       conn.playerId = playerId;
-      conn.leftSeat = false;
 
       // 通知新玩家
       ws.send(JSON.stringify({
@@ -384,8 +380,6 @@ export function setupWebSocket(server) {
       ws.send(JSON.stringify({ type: 'left_room' }));
       conn.roomId = null;
       conn.playerId = null;
-      // 主动退席：这条连接后续的 hello（改名等）不再自动认领旧席位，回房走显式动作
-      conn.leftSeat = true;
     }
 
     function handleAddAi(message) {
@@ -806,12 +800,12 @@ function resumeSeat(room, seat, ws, conn, identity) {
   seat.isAi = false;
   seat.offline = false;
   seat.wasHuman = true;
+  seat.leftByUser = false;
   seat.name = identity.name;
   const gamePlayer = room.game?.players.find(p => p.id === seat.id);
   if (gamePlayer) gamePlayer.name = identity.name;
   conn.roomId = room.id;
   conn.playerId = seat.id;
-  conn.leftSeat = false;
 
   ws.send(JSON.stringify({
     type: 'session_restored',
@@ -856,6 +850,9 @@ function leaveSeat(roomId, playerId, reason = '离开') {
     seat.isAi = true;
     // 不论主动退出还是掉线超时都留认领标记：本人回来还能接回自己的进度。
     seat.wasHuman = true;
+    // 只有主动退出（'离开'）才落 leftByUser：之后刷新页面也不自动接回，得走大厅「回到
+    // 牌桌」显式认领。掉线超时（'掉线'）不落 —— 那是被动断线，刷新/重连照常接回。
+    seat.leftByUser = reason === '离开';
   }
 
   // 一个真人都不剩（保席中的也算真人）：不管等待室还是开过局的房都先保号/保席 ——
