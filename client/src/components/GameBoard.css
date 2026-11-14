@@ -1,4 +1,4 @@
-/* ===== 学术宝石 · 瓷青朱印主题（暗底托纸卡） ===== */
+/* ===== 学术宝石 · 瓷青描金主题（暗底托纸卡） ===== */
 
 /* 牌桌的竖向尺寸链，VC 和 FC 共用一份：
    --vc-w   VC 卡宽。留白已经压到紧凑档，尺寸交回给卡宽本身，字号 = 卡宽 / 15，
@@ -56,7 +56,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(to bottom, rgba(13, 18, 24, 0.85), rgba(13, 18, 24, 0));
-  border-bottom: 1px solid rgba(209, 41, 32, 0.4);
+  border-bottom: 1px solid rgba(217, 180, 74, 0.4);
   box-shadow: 0 0.4rem 1.4rem rgba(0, 0, 0, 0.5);
   z-index: 5;
 }
@@ -67,7 +67,7 @@
   letter-spacing: 0.15rem;
   transition: opacity 0.2s ease;
   -webkit-text-stroke: 0.03rem rgb(38, 34, 28);
-  background: linear-gradient(to top, rgb(209, 41, 32), rgb(239, 106, 90), rgb(209, 41, 32));
+  background: linear-gradient(to top, rgb(201, 162, 39), rgb(230, 200, 120), rgb(201, 162, 39));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -82,15 +82,15 @@
   padding: 0.3rem 0.9rem;
   border-radius: 2rem;
   font-size: 0.95rem;
-  color: #9d2933;
+  color: #7e6418;
   background: rgba(241, 233, 214, 0.7);
-  border: 1px solid rgba(195, 39, 43, 0.5);
+  border: 1px solid rgba(201, 162, 39, 0.5);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 .gb-turnpill.mine {
-  color: #f1e8d4;
-  background: linear-gradient(to top, rgb(192, 57, 43), rgb(157, 41, 51));
-  border-color: rgb(157, 41, 51);
+  color: #26221c;
+  background: linear-gradient(to top, #c9a227, #d9b44a);
+  border-color: #b8912a;
   font-weight: 700;
 }
 /* 当前回合的人掉线了：琥珀色 + 慢呼吸，说明牌桌不是在卡，是在等人回来 */
@@ -152,7 +152,7 @@
 .inv-panel {
   position: relative;
   background: rgba(138, 129, 114, 0.22);
-  border: 1px solid rgba(195, 39, 43, 0.35);
+  border: 1px solid rgba(201, 162, 39, 0.35);
   border-radius: 1rem;
   box-shadow: rgba(0, 0, 0, 0.35) 0 4px 12px;
   backdrop-filter: blur(2px);
@@ -186,13 +186,13 @@
   justify-content: center;
   background-image: radial-gradient(circle at 35% 30%, #c6b28c, #e2d5b8 60%, #f1e8d4 100%);
   background-size: cover;
-  border: 0.22rem solid #c3272b;
+  border: 0.22rem solid #c9a227;
   box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
 }
 .inv-prestige span {
   font-family: 'Lobster', cursive;
   font-size: 1.4em;
-  color: rgb(157, 41, 51);
+  color: rgb(201, 162, 39);
   -webkit-text-stroke: 0.06rem black;
   text-shadow: 1px 2px 4px black;
 }
@@ -204,7 +204,7 @@
 .inv-name {
   font-size: 1.15em;
   font-weight: 700;
-  color: #9d2933;
+  color: #7e6418;
 }
 .inv-order {
   font-size: 0.8em;
@@ -289,7 +289,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 0.25rem;
-  border: 1px solid rgba(195, 39, 43, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.6);
   box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
 }
 /* 0 也占位：6 色筹码 + 6 色论文圈一律常驻，空位照公共筹码那套压暗去色 */
@@ -307,7 +307,7 @@
   height: 1.3em;
   padding: 0 0.12em;
   border-radius: 50%;
-  background: rgb(192, 57, 43);
+  background: #7e6418;
   border: 0.08em solid #f1e8d4;
   box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
@@ -334,7 +334,7 @@
   background-size: cover;
   background-position: center;
   box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
-  border: 1px solid rgba(195, 39, 43, 0.55);
+  border: 1px solid rgba(201, 162, 39, 0.55);
 }
 .mini-card.reserved {
   border-style: dashed;
@@ -347,7 +347,7 @@
   left: 0.2em;
   font-family: 'Lobster', cursive;
   font-size: 0.85em;
-  color: rgb(157, 41, 51);
+  color: rgb(201, 162, 39);
   -webkit-text-stroke: 0.05rem black;
   text-shadow: 1px 1px 2px black;
 }
@@ -392,8 +392,8 @@
   transform: translateY(-3px);
 }
 .pool-gem.selected .gem-circle {
-  border: 2px solid rgb(157, 41, 51);
-  box-shadow: 0 0 0 3px rgba(157, 41, 51, 0.35), rgba(0, 0, 0, 0.4) 0 3px 6px;
+  border: 2px solid rgb(201, 162, 39);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.35), rgba(0, 0, 0, 0.4) 0 3px 6px;
 }
 .pool-gem.empty {
   cursor: default;
@@ -403,7 +403,7 @@
 .pool-gem .gem-badge {
   bottom: -0.4em;
   right: -0.4em;
-  background-color: rgb(192, 57, 43);
+  background-color: #7e6418;
   color: #f1e8d4;
   border-color: #f1e8d4;
 }
@@ -436,7 +436,7 @@
   /* 原版那样的白纸边已经烘进图里了（tools/deck-backs.sh，四边等宽 16/400 = 4%），
      这里别再画一圈 inset 描边，否则会叠成双层。 */
   box-shadow: rgba(0, 0, 0, 0.9) -3px 2px 6px -1px;
-  border: 1px solid rgba(195, 39, 43, 0.4);
+  border: 1px solid rgba(201, 162, 39, 0.4);
 }
 .deck-count {
   position: absolute;
@@ -525,13 +525,13 @@
   gap: 0.3em;
   padding: 0.3em 0.6em 0.45em;
   background: rgba(138, 129, 114, 0.22);
-  border: 1px solid rgba(195, 39, 43, 0.35);
+  border: 1px solid rgba(201, 162, 39, 0.35);
   border-radius: 1rem;
   box-shadow: rgba(0, 0, 0, 0.35) 0 4px 12px;
 }
 .opp-panel.active {
-  border-color: rgb(157, 41, 51);
-  box-shadow: 0 0 0 2px rgba(157, 41, 51, 0.4), rgba(0, 0, 0, 0.35) 0 4px 12px;
+  border-color: rgb(201, 162, 39);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.4), rgba(0, 0, 0, 0.35) 0 4px 12px;
 }
 /* 声誉章放在框内左上角而不是骑边框：.gb-players 是滚动容器，overflow 会把探出
    列外的半截圆章裁平 */
@@ -547,13 +547,13 @@
   justify-content: center;
   background-image: radial-gradient(circle at 35% 30%, #c6b28c, #e2d5b8 60%, #f1e8d4 100%);
   background-size: cover;
-  border: 0.22rem solid #c3272b;
+  border: 0.22rem solid #c9a227;
   box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
 }
 .opp-prestige span {
   font-family: 'Lobster', cursive;
   font-size: 1.4em;
-  color: rgb(157, 41, 51);
+  color: rgb(201, 162, 39);
   -webkit-text-stroke: 0.06rem black;
   text-shadow: 1px 2px 4px black;
 }
@@ -570,7 +570,7 @@
   gap: 0.4em;
   line-height: 1.2;
 }
-.opp-name { font-size: 1.15em; font-weight: 700; color: #9d2933; }
+.opp-name { font-size: 1.15em; font-weight: 700; color: #e6c878; }
 .opp-order { font-size: 0.8em; color: #6b6459; }
 /* 掉线保席中：名字后面挂一枚琥珀小签，重连上就消失 */
 .opp-offline {
@@ -685,10 +685,10 @@
   justify-content: center;
   padding-left: 0.2em;
   clip-path: polygon(0 0, calc(100% - 0.45em) 0, 100% 50%, calc(100% - 0.45em) 100%, 0 100%);
-  background: linear-gradient(180deg, rgba(195, 39, 43, 0.9), rgba(157, 41, 51, 0.85));
+  background: linear-gradient(180deg, rgba(201, 162, 39, 0.9), rgba(201, 162, 39, 0.85));
 }
 .opp-fc[data-tier='triple'] {
-  background: linear-gradient(180deg, #f7f1e3, #9d2933);
+  background: linear-gradient(180deg, #f7f1e3, #8a6d1f);
 }
 .opp-fc + .opp-fc { margin-left: -1.5em; }
 .opp-fc img {
@@ -723,12 +723,12 @@
   padding: 0.4rem 0.8rem;
   border-radius: 0.8rem;
   background: rgba(241, 233, 214, 0.85);
-  border: 1px solid rgba(195, 39, 43, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.6);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   z-index: 40;
   white-space: nowrap;
 }
-.action-summary { color: #9d2933; font-weight: 700; font-size: 0.82rem; line-height: 1.15; text-align: center; }
+.action-summary { color: #7e6418; font-weight: 700; font-size: 0.82rem; line-height: 1.15; text-align: center; }
 .action-buttons { display: flex; gap: 0.45rem; }
 .action-buttons .gb-btn { padding: 0.3rem 0.6rem; font-size: 0.9rem; line-height: 1.15; }
 
@@ -749,7 +749,7 @@
   padding: 0.55rem 0.9rem;
   border-radius: 1rem;
   background: rgba(241, 233, 214, 0.72);
-  border: 1px solid rgba(195, 39, 43, 0.5);
+  border: 1px solid rgba(201, 162, 39, 0.5);
   box-shadow: rgba(0, 0, 0, 0.45) 0 4px 14px;
   backdrop-filter: blur(2px);
   z-index: 35;
@@ -765,14 +765,14 @@
 }
 .mc-pool {
   padding-right: 0.9rem;
-  border-right: 1px solid rgba(195, 39, 43, 0.35);
+  border-right: 1px solid rgba(201, 162, 39, 0.35);
 }
 .mc-me {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding-right: 0.9rem;
-  border-right: 1px solid rgba(195, 39, 43, 0.35);
+  border-right: 1px solid rgba(201, 162, 39, 0.35);
 }
 .mc-prestige {
   width: 2.6em;
@@ -783,13 +783,13 @@
   justify-content: center;
   background-image: radial-gradient(circle at 35% 30%, #c6b28c, #e2d5b8 60%, #f1e8d4 100%);
   background-size: cover;
-  border: 0.22rem solid #c3272b;
+  border: 0.22rem solid #c9a227;
   box-shadow: rgba(0, 0, 0, 0.4) 0 3px 8px;
 }
 .mc-prestige span {
   font-family: 'Lobster', cursive;
   font-size: 1.4em;
-  color: rgb(157, 41, 51);
+  color: rgb(201, 162, 39);
   -webkit-text-stroke: 0.06rem black;
   text-shadow: 1px 2px 4px black;
 }
@@ -803,7 +803,7 @@
   padding: 0 0.85rem;
 }
 .mc-type + .mc-type {
-  border-left: 1px solid rgba(195, 39, 43, 0.35);
+  border-left: 1px solid rgba(201, 162, 39, 0.35);
 }
 /* 预留区：挂在自己库存末尾 —— 真卡面竖着站（6:9 原比例，不旋转），等比缩到底条
    的内容高度，负 margin 叠成一摞只露出左边一条彩边（档位色），hover 整摞摊开、
@@ -824,7 +824,7 @@
      和左边 .mc-me 那条线一样长，读起来是「区块分界」而不是某一列的分界。
      卡本身只有 41.55，不拉伸的话线会比其他分隔线短一截。 */
   align-self: stretch;
-  border-left: 1px solid rgba(195, 39, 43, 0.35);
+  border-left: 1px solid rgba(201, 162, 39, 0.35);
   cursor: pointer;
 }
 .mc-reserved-slot {
@@ -872,18 +872,18 @@
   font-size: 1rem;
   padding: 0.45rem 1.1rem;
   border-radius: 0.6rem;
-  border: 1px solid rgba(195, 39, 43, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.6);
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.1s ease;
 }
 .gb-btn:hover { filter: brightness(1.12); }
 .gb-btn:active { transform: translateY(1px); }
 .gb-btn-gold {
-  background: linear-gradient(to top, #95302e, #c3272b, #d12920);
-  color: #f7f1e3;
+  background: linear-gradient(to top, #b8912a, #c9a227, #d9b44a);
+  color: #26221c;
   font-weight: 700;
-  border-color: rgb(157, 41, 51);
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+  border-color: #8a6d1f;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 .gb-btn-ghost {
   background: rgba(138, 129, 114, 0.25);
@@ -906,12 +906,12 @@
   border-radius: 1rem;
   text-align: center;
   background: rgba(246, 240, 224, 0.95);
-  border: 2px solid rgba(195, 39, 43, 0.7);
+  border: 2px solid rgba(201, 162, 39, 0.7);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
 }
 .gb-modal h3 {
   font-size: 1.6rem;
-  color: #9d2933;
+  color: #7e6418;
   -webkit-text-stroke: 0.02rem rgb(38, 34, 28);
   margin-bottom: 0.6rem;
 }
@@ -947,18 +947,18 @@
   text-align: center;
   border-radius: 1.2rem;
   background: rgba(246, 240, 224, 0.92);
-  border: 2px solid rgba(195, 39, 43, 0.7);
+  border: 2px solid rgba(201, 162, 39, 0.7);
   box-shadow: 0 12px 44px rgba(0, 0, 0, 0.6);
 }
 .gb-gameover h1 {
   font-size: 2.4rem;
-  background: linear-gradient(to top, rgb(157, 41, 51), rgb(192, 57, 43), rgb(157, 41, 51));
+  background: linear-gradient(to top, rgb(126, 100, 24), rgb(184, 145, 42), rgb(126, 100, 24));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(2px 2px 6px black);
 }
-.gb-gameover h2 { color: #9d2933; margin: 0.4rem 0 1.2rem; }
+.gb-gameover h2 { color: #7e6418; margin: 0.4rem 0 1.2rem; }
 .gb-standings { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
 .gb-standing {
   display: flex;
@@ -966,13 +966,13 @@
   padding: 0.5rem 0.9rem;
   border-radius: 0.6rem;
   background: rgba(138, 129, 114, 0.22);
-  border: 1px solid rgba(195, 39, 43, 0.3);
+  border: 1px solid rgba(201, 162, 39, 0.3);
 }
 .gb-standing.winner {
-  border-color: rgb(157, 41, 51);
-  background: rgba(195, 39, 43, 0.22);
+  border-color: rgb(201, 162, 39);
+  background: rgba(201, 162, 39, 0.22);
 }
-.standing-score { font-family: 'Lobster', cursive; color: #9d2933; }
+.standing-score { font-family: 'Lobster', cursive; color: #7e6418; }
 
 /* ---- ☰ 菜单：顶栏左侧，规则 / 房号 / 退出 ----
    固定在视口左上角：窄屏横向滚动时菜单不能跟着牌桌滚出屏幕。
@@ -989,15 +989,15 @@
   height: 2.1rem;
   border-radius: 0.5rem;
   font-size: 1.1rem;
-  color: #9d2933;
+  color: #7e6418;
   background: rgba(241, 233, 214, 0.7);
-  border: 1px solid rgba(195, 39, 43, 0.5);
+  border: 1px solid rgba(201, 162, 39, 0.5);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 .gb-menu-btn:hover,
 .gb-menu-btn.active {
   background: rgba(226, 213, 184, 0.95);
-  border-color: rgb(157, 41, 51);
+  border-color: rgb(201, 162, 39);
 }
 .gb-menu-pop {
   position: absolute;
@@ -1010,7 +1010,7 @@
   padding: 0.6rem;
   border-radius: 0.7rem;
   background: rgba(246, 240, 224, 0.96);
-  border: 1px solid rgba(195, 39, 43, 0.55);
+  border: 1px solid rgba(201, 162, 39, 0.55);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 .gb-menu-pop button {
@@ -1025,9 +1025,9 @@
 }
 .gb-menu-pop button:hover {
   background: rgba(138, 129, 114, 0.45);
-  border-color: rgba(195, 39, 43, 0.5);
+  border-color: rgba(201, 162, 39, 0.5);
 }
-.gb-menu-pop button.danger { color: #9d2933; }
+.gb-menu-pop button.danger { color: #7e6418; }
 .gb-menu-room {
   display: flex;
   justify-content: space-between;
@@ -1038,7 +1038,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.gb-menu-room strong { color: #9d2933; letter-spacing: 0.12em; }
+.gb-menu-room strong { color: #7e6418; letter-spacing: 0.12em; }
 
 /* 规则弹窗：左对齐的三段小抄，内容长所以自己滚 */
 .gb-rules-modal { width: min(92vw, 30rem); text-align: left; }
@@ -1050,7 +1050,7 @@
   max-height: 60vh;
   overflow-y: auto;
 }
-.rules-body h4 { color: #9d2933; font-size: 1.05rem; margin-bottom: 0.25rem; }
+.rules-body h4 { color: #7e6418; font-size: 1.05rem; margin-bottom: 0.25rem; }
 .rules-body ul {
   margin: 0;
   padding-left: 1.1rem;
@@ -1085,8 +1085,8 @@
   border-radius: 1rem;
   text-align: center;
   background: linear-gradient(160deg, rgba(226, 213, 184, 0.98), rgba(241, 233, 214, 0.98));
-  border: 2px solid rgba(195, 39, 43, 0.7);
-  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.65), inset 0 0 2.5rem rgba(195, 39, 43, 0.08);
+  border: 2px solid rgba(201, 162, 39, 0.7);
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.65), inset 0 0 2.5rem rgba(201, 162, 39, 0.08);
   animation: toosmall-in 0.26s ease-out;
 }
 @keyframes toosmall-in {
@@ -1096,12 +1096,12 @@
 .gb-toosmall-card .ts-icon {
   font-size: 2rem;
   line-height: 1;
-  color: #9d2933;
+  color: #7e6418;
   margin-bottom: 0.5rem;
 }
 .gb-toosmall-card h3 {
   font-size: 1.45rem;
-  color: #9d2933;
+  color: #7e6418;
   -webkit-text-stroke: 0.02rem rgb(38, 34, 28);
   margin-bottom: 1rem;
 }
@@ -1116,7 +1116,7 @@
   padding: 0.55rem 0.4rem;
   border-radius: 0.6rem;
   background: rgba(226, 213, 184, 0.75);
-  border: 1px solid rgba(195, 39, 43, 0.28);
+  border: 1px solid rgba(201, 162, 39, 0.28);
 }
 .ts-sizes span {
   display: block;
@@ -1131,7 +1131,7 @@
   color: #26221c;
   font-variant-numeric: tabular-nums;
 }
-.ts-sizes strong.short { color: #95302e; }
+.ts-sizes strong.short { color: #7e6418; }
 .gb-toosmall-card .ts-hint {
   color: #50616d;
   font-size: 0.92rem;
@@ -1141,7 +1141,7 @@
   font-family: inherit;
   padding: 0.05rem 0.35rem;
   border-radius: 0.3rem;
-  color: #9d2933;
+  color: #7e6418;
   background: rgba(226, 213, 184, 0.8);
-  border: 1px solid rgba(195, 39, 43, 0.45);
+  border: 1px solid rgba(201, 162, 39, 0.45);
 }

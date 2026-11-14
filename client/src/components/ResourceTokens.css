@@ -68,8 +68,8 @@
 
 .token.selected {
   border-color: var(--accent) !important;
-  background: rgba(195, 39, 43, 0.1);
-  box-shadow: 0 0 12px rgba(195, 39, 43, 0.3);
+  background: rgba(201, 162, 39, 0.1);
+  box-shadow: 0 0 12px rgba(201, 162, 39, 0.3);
 }
 
 .token-icon {
@@ -87,7 +87,7 @@
   top: -6px;
   right: -6px;
   background: var(--accent);
-  color: white;
+  color: #26221c;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -146,5 +146,5 @@
   font-weight: 700;
   min-width: 20px;
   text-align: center;
-  color: var(--accent);
+  color: #7e6418;
 }

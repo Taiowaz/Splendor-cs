@@ -12,7 +12,7 @@
 }
 
 .player-panel.current-turn {
-  box-shadow: 0 0 10px rgba(195, 39, 43, 0.3);
+  box-shadow: 0 0 10px rgba(201, 162, 39, 0.3);
   border-color: var(--accent);
 }
 
@@ -51,7 +51,7 @@
 
 .me-badge {
   background: var(--accent);
-  color: white;
+  color: #26221c;
   padding: 1px 5px;
   border-radius: 3px;
   font-size: 10px;
@@ -67,7 +67,7 @@
 }
 
 .prestige {
-  color: #9d2933;
+  color: #7e6418;
 }
 
 .token-count {
@@ -148,7 +148,7 @@
 }
 
 .mini-prestige {
-  color: #9d2933;
+  color: #7e6418;
   font-weight: 600;
 }
 

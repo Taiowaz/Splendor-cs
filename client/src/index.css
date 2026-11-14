@@ -5,22 +5,22 @@
 }
 
 :root {
-  /* 纸面自象牙白沉向牙色/旧绢，墨分浓淡，朱砂印泥点睛 */
+  /* 纸面自象牙白沉向牙色/旧绢，墨分浓淡，泥金描金点睛 */
   --bg-primary: #f1e8d4;
   --bg-secondary: #e9dec5;
   --bg-card: #e2d5b8;
   --text-primary: #26221c; /* 浓墨 */
   --text-secondary: #6b6152; /* 淡墨 */
-  --accent: #c3272b; /* 赤 · 印泥红 */
-  --accent-hover: #d12920; /* 银朱 */
+  --accent: #c9a227; /* 泥金 · 描金 */
+  --accent-hover: #d9b44a; /* 亮金 */
   --success: #057748; /* 松花绿 */
   --warning: #845a33; /* 赭石 */
   --border: #c6b28c; /* 旧绢边 */
-  /* 瓷青笺底（磁青纸）八层：印泥/石青晕光 + 墨色远山雾 + 四角沉黑 + 纸 grain（SVG 噪点）
-     + 帘纹 + 瓷青渐变。暗底托宣纸卡面，朱印更跳。色值出中国色/国画颜料系：
-     赤 #C3272B、石青 #1685A9、墨色 #50616D。 */
+  /* 瓷青笺底（磁青纸）八层：泥金/石青晕光 + 墨色远山雾 + 四角沉黑 + 纸 grain（SVG 噪点）
+     + 帘纹 + 瓷青渐变。暗底托宣纸卡面，描金更跳。色值出中国色/国画颜料系：
+     泥金 #C9A227、石青 #1685A9、墨色 #50616D。 */
   --silk:
-    radial-gradient(52rem 34rem at 88% -12%, rgba(209, 41, 32, 0.12), transparent 62%),
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.12), transparent 62%),
     radial-gradient(46rem 32rem at 6% 108%, rgba(22, 133, 169, 0.1), transparent 60%),
     radial-gradient(64rem 20rem at 16% 104%, rgba(80, 97, 109, 0.18), transparent 70%),
     radial-gradient(72rem 22rem at 84% 108%, rgba(80, 97, 109, 0.14), transparent 70%),
@@ -28,7 +28,7 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.06'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
     repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.03) 0 1px, transparent 1px 6px),
     linear-gradient(168deg, #1e2733 0%, #18202b 48%, #0d1218 100%);
-  --cinnabar: #c3272b; /* 赤 · 印泥 */
+  --gold: #c9a227; /* 泥金 */
   --lapis: #003472; /* 花青（石青系） */
   --jade: #057748; /* 松花绿（石绿系） */
   --amber: #845a33; /* 赭石 */
@@ -51,18 +51,18 @@ html:has(.gb-playing) body {
   overflow: hidden;
 }
 
-/* 整页滚动条跟牌桌同一套瓷青朱印皮：青黑轨、朱砂 thumb、hover 提亮 */
+/* 整页滚动条跟牌桌同一套瓷青描金皮：青黑轨、泥金 thumb、hover 提亮 */
 html::-webkit-scrollbar { width: 10px; height: 10px; }
 html::-webkit-scrollbar-track { background: rgba(13, 18, 24, 0.9); }
 html::-webkit-scrollbar-thumb {
-  background: rgba(209, 41, 32, 0.6);
+  background: rgba(217, 180, 74, 0.6);
   border-radius: 5px;
   border: 2px solid rgba(13, 18, 24, 0.9);
 }
-html::-webkit-scrollbar-thumb:hover { background: rgba(239, 106, 90, 0.85); }
+html::-webkit-scrollbar-thumb:hover { background: rgba(230, 200, 120, 0.85); }
 html::-webkit-scrollbar-corner { background: rgba(13, 18, 24, 0.9); }
 @supports not (selector(::-webkit-scrollbar)) {
-  html { scrollbar-color: rgba(209, 41, 32, 0.65) rgba(13, 18, 24, 0.9); scrollbar-width: thin; }
+  html { scrollbar-color: rgba(217, 180, 74, 0.65) rgba(13, 18, 24, 0.9); scrollbar-width: thin; }
 }
 
 button {
@@ -85,7 +85,7 @@ input {
 
 .btn-primary {
   background: var(--accent);
-  color: white;
+  color: #26221c;
 }
 
 .btn-primary:hover:not(:disabled) {

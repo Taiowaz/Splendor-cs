@@ -13,7 +13,7 @@
     --gold: rgb(245, 204, 101);
     --gold-deep: rgb(110, 81, 7);
     --frame: rgba(212, 175, 55, 0.55);
-    --tierA: #9d2933;   /* 金 · 顶会 CCF-A */
+    --tierA: #8a6d1f;   /* 金 · 顶会 CCF-A */
     --tierB: #3b4a8c;   /* 蓝 · CCF-B */
     --tierC: #4a7c43;   /* 绿 · CCF-C */
     --data: #efe9dc; --compute: #2f6fb0; --citation: #3f8f52;
@@ -78,8 +78,8 @@
     position: absolute; top: .385rem; left: .55rem; z-index: 3;
     width: 2.55em; height: 2.55em; border-radius: 50%;
     display: grid; place-items: center;
-    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c3272b 62%, #9c7010);
-    border: .14em solid #6e1717;
+    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c9a227 62%, #8a6d1f);
+    border: .14em solid #6b5616;
     box-shadow: rgba(0,0,0,.45) 0 2.2px 5.5px, inset 0 0 6.6px rgba(120,80,10,.5);
   }
   .prestige span { font-family: var(--num); font-size: 1.65rem; color: #6b4d0a; text-shadow: 0 1px 0 #fff2c2; }
@@ -97,7 +97,7 @@
   .card-art .art-wm .m { font: 800 24px/1 'Judson', serif; letter-spacing: .06em; }
   .card-art .art-wm .s { font: 400 8.8px/1.3 'Judson', serif; letter-spacing: .18em; text-transform: uppercase; color: #6a5326; }
   .card-art .art-wm.wm-serif-blue .m { color: #2a3568; }
-  .card-art .art-wm.wm-serif-gold .m { color: #6e1717; letter-spacing: .18em; }
+  .card-art .art-wm.wm-serif-gold .m { color: #6b5616; letter-spacing: .18em; }
   .card-art .art-wm.wm-serif-green .m { color: #2c552a; }
   .card-art .art-wm.wm-serif-red .m { color: #8a2a25; }
   .card-art .art-wm.wm-serif-purple .m { color: #5a2a7a; }
@@ -159,7 +159,7 @@
     text-transform: uppercase; color: #6a5326; max-width: 170px; line-height: 1.25; }
   .wm-a { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 2px #2a3568; }
   .wm-a .wm-main { font: 800 32px/1 'Judson', serif; color: #2a3568; letter-spacing: .01em; }
-  .wm-b { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 1.5px #6e1717, inset 0 0 0 3px #d9c07a; }
+  .wm-b { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 1.5px #6b5616, inset 0 0 0 3px #d9c07a; }
   .wm-b .wm-main { font: 700 28px/1 'Noto Serif SC', serif; color: #6b4d0a; letter-spacing: .26em; }
   .wm-c { box-shadow: rgba(0,0,0,.4) 0 4px 10px, inset 0 0 0 2px #2c552a; }
   .wm-c .wm-main { font: 800 26px/1 'Judson', serif; color: #2c552a; letter-spacing: .18em; }
@@ -215,7 +215,7 @@
     background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
     filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
   }
-  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #9d2933); }
+  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #8a6d1f); }
   .nobles-preview .noble-flag.bench { opacity: .5; filter: grayscale(.35) drop-shadow(-3px 2px 6px rgba(0,0,0,.85)); }
   .nobles-preview .noble-tile {
     font-size: calc(var(--flag-font-ref) / 7.375);
@@ -235,8 +235,8 @@
     position: absolute; left: calc(100% - var(--flag-d) * 0.62); top: 50%;
     transform: translate(-50%, -50%); width: var(--badge); height: var(--badge);
     border-radius: 50%; display: grid; place-items: center;
-    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c3272b 62%, #9c7010);
-    border: 0.12em solid #6e1717; box-shadow: 0 0.1em 0.25em rgba(0,0,0,.45), inset 0 0 0.3em rgba(120,80,10,.5);
+    background: radial-gradient(circle at 38% 32%, #ffe9a8, #c9a227 62%, #8a6d1f);
+    border: 0.12em solid #6b5616; box-shadow: 0 0.1em 0.25em rgba(0,0,0,.45), inset 0 0 0.3em rgba(120,80,10,.5);
     pointer-events: none;
   }
   .nobles-preview .noble-prestige span {
@@ -364,7 +364,7 @@
     const { NOBLES } = await import('/shared/nobles.js');
     const wmColor = {
       'wm-serif-blue':   '#2a3568',
-      'wm-serif-gold':   '#6e1717',
+      'wm-serif-gold':   '#6b5616',
       'wm-serif-green':  '#2c552a',
       'wm-serif-red':    '#8a2a25',
       'wm-serif-purple': '#5a2a7a',

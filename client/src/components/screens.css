@@ -1,6 +1,6 @@
 /* ===== 入口 / 大厅 / 等待室 =====
    和牌桌（GameBoard.css 的 .gb-root）同一套皮：同一张瓷青笺暗底、同一个 Judson 衬线、
-   同一种朱砂印色；面板与卡面仍是宣纸，暗底托纸、朱印点睛。 */
+   同一种泥金描金；面板与卡面仍是宣纸，暗底托纸、金印点睛。 */
 
 .sc {
   min-height: 100vh;
@@ -21,13 +21,13 @@
   background-attachment: fixed;
 }
 
-/* 朱丝栏：古籍版框的双道朱线，暗底上如朱漆描边 */
+/* 金栏：古籍版框的双道金线，暗底上如描金勾边 */
 .sc::before {
   content: '';
   position: fixed;
   inset: 0.55rem;
-  border: 1px solid rgba(209, 41, 32, 0.55);
-  outline: 1px solid rgba(209, 41, 32, 0.32);
+  border: 1px solid rgba(217, 180, 74, 0.55);
+  outline: 1px solid rgba(217, 180, 74, 0.32);
   outline-offset: 3px;
   pointer-events: none;
 }
@@ -53,7 +53,7 @@
   aspect-ratio: 6 / 9;
   border-radius: 0.5rem;
   object-fit: cover;
-  border: 2px solid rgba(195, 39, 43, 0.75);
+  border: 2px solid rgba(201, 162, 39, 0.75);
   box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.6);
   transform-origin: 50% 100%;
 }
@@ -68,11 +68,11 @@
   font-weight: 700;
   letter-spacing: 0.18em;
   color: #f6f0e0;
-  -webkit-text-stroke: 0.03rem rgba(195, 39, 43, 0.9);
-  text-shadow: 0 0.3rem 1.2rem rgba(209, 41, 32, 0.4);
+  -webkit-text-stroke: 0.03rem rgba(201, 162, 39, 0.9);
+  text-shadow: 0 0.3rem 1.2rem rgba(217, 180, 74, 0.4);
 }
 
-/* 落款朱印：标题末尾一方小印，白文「学」字，宣纸朱印主题的点睛 */
+/* 落款金印：标题末尾一方小印，墨文「学」字，瓷青描金主题的点睛 */
 .sc-logo::after {
   content: '学';
   display: inline-flex;
@@ -83,13 +83,13 @@
   margin-left: 0.15em;
   font-size: 0.42em;
   letter-spacing: 0;
-  color: #f7f1e3;
-  background: linear-gradient(160deg, #d12920, #95302e);
+  color: #26221c;
+  background: linear-gradient(160deg, #e6c878, #c9a227);
   border-radius: 0.18em;
   box-shadow:
-    inset 0 0 0 0.07em rgba(247, 241, 227, 0.9),
-    inset 0 0 0 0.13em #95302e,
-    0 0.18em 0.6em rgba(157, 41, 51, 0.35);
+    inset 0 0 0 0.07em rgba(38, 34, 28, 0.55),
+    inset 0 0 0 0.13em #8a6d1f,
+    0 0.18em 0.6em rgba(201, 162, 39, 0.4);
   transform: rotate(6deg) translateY(0.12em);
   -webkit-text-stroke: 0;
   text-shadow: none;
@@ -108,7 +108,7 @@
   padding: 1.5rem 1.6rem;
   border-radius: 1rem;
   background: rgba(246, 240, 224, 0.9);
-  border: 2px solid rgba(195, 39, 43, 0.6);
+  border: 2px solid rgba(201, 162, 39, 0.6);
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.55);
   color: #26221c; /* 面板仍是宣纸：墨字 */
   display: flex;
@@ -122,7 +122,7 @@
 
 .sc-panel h2 {
   font-size: 1.5rem;
-  color: #9d2933;
+  color: #7e6418;
   letter-spacing: 0.06em;
 }
 
@@ -147,7 +147,7 @@
   width: 100%;
   padding: 0.65rem 0.8rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(195, 39, 43, 0.35);
+  border: 1px solid rgba(201, 162, 39, 0.35);
   background: rgba(226, 213, 184, 0.75);
   color: #26221c;
   font-size: 1.05rem;
@@ -158,7 +158,7 @@
 .sc-field input:focus,
 .sc-search:focus,
 .sc-lobby input:focus {
-  border-color: rgba(195, 39, 43, 0.85);
+  border-color: rgba(201, 162, 39, 0.85);
 }
 
 /* 账号名的只读回显：和输入框同一个盒子，但一眼看得出改不了 */
@@ -168,9 +168,9 @@
   gap: 0.45rem;
   padding: 0.65rem 0.8rem;
   border-radius: 0.5rem;
-  border: 1px dashed rgba(195, 39, 43, 0.35);
+  border: 1px dashed rgba(201, 162, 39, 0.35);
   background: rgba(226, 213, 184, 0.5);
-  color: #9d2933;
+  color: #7e6418;
   font-size: 1.05rem;
 }
 
@@ -188,7 +188,7 @@
   padding: 0.25rem;
   border-radius: 0.6rem;
   background: rgba(226, 213, 184, 0.7);
-  border: 1px solid rgba(195, 39, 43, 0.3);
+  border: 1px solid rgba(201, 162, 39, 0.3);
 }
 
 .sc-tabs button {
@@ -204,12 +204,12 @@
 }
 
 .sc-tabs button:hover {
-  color: #9d2933;
+  color: #7e6418;
 }
 
 .sc-tabs button.on {
-  background: linear-gradient(180deg, #d12920, #c3272b);
-  color: #f7f1e3;
+  background: linear-gradient(180deg, #d9b44a, #c9a227);
+  color: #26221c;
   font-weight: 700;
 }
 
@@ -222,9 +222,9 @@
 .sc-auth-err {
   padding: 0.45rem 0.6rem;
   border-radius: 0.4rem;
-  background: rgba(195, 39, 43, 0.14);
-  border: 1px solid rgba(195, 39, 43, 0.5);
-  color: #95302e;
+  background: rgba(201, 162, 39, 0.14);
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  color: #7e6418;
   font-size: 0.9rem;
   line-height: 1.4;
 }
@@ -235,8 +235,8 @@
   gap: 0.5rem;
   padding: 0.6rem 0.8rem;
   border-radius: 0.6rem;
-  background: rgba(195, 39, 43, 0.12);
-  border: 1px solid rgba(195, 39, 43, 0.5);
+  background: rgba(201, 162, 39, 0.12);
+  border: 1px solid rgba(201, 162, 39, 0.5);
 }
 
 .sc-idavatar {
@@ -246,7 +246,7 @@
 .sc-idname {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #9d2933;
+  color: #7e6418;
   letter-spacing: 0.04em;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -281,7 +281,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(195, 39, 43, 0.55), transparent);
+  background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.55), transparent);
 }
 
 /* ---- 按钮 ---- */
@@ -294,7 +294,7 @@
   letter-spacing: 0.04em;
   color: #26221c;
   background: rgba(226, 213, 184, 0.85);
-  border: 1px solid rgba(195, 39, 43, 0.45);
+  border: 1px solid rgba(201, 162, 39, 0.45);
   transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
   display: flex;
   align-items: center;
@@ -304,7 +304,7 @@
 
 .sc-btn:hover:not(:disabled) {
   background: rgba(201, 189, 159, 0.95);
-  border-color: rgba(157, 41, 51, 0.9);
+  border-color: rgba(201, 162, 39, 0.9);
   transform: translateY(-1px);
 }
 
@@ -314,18 +314,18 @@
 }
 
 .sc-btn.primary {
-  background: linear-gradient(180deg, #d12920, #95302e);
-  border-color: rgba(246, 240, 224, 0.7);
-  color: #f7f1e3;
+  background: linear-gradient(180deg, #d9b44a, #b8912a);
+  border-color: rgba(126, 100, 24, 0.55);
+  color: #26221c;
 }
 
 .sc-btn.primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #e0492f, #95302e);
+  background: linear-gradient(180deg, #e6c878, #c9a227);
 }
 
 .sc-btn.danger {
-  background: rgba(96, 32, 42, 0.85);
-  border-color: rgba(195, 39, 43, 0.55);
+  background: rgba(92, 74, 18, 0.9);
+  border-color: rgba(201, 162, 39, 0.55);
   color: #f7f1e3;
 }
 
@@ -336,13 +336,13 @@
 
 /* 「回到牌桌」：回自己那局是这行唯一要做的事，用金色主按钮的份量，别混在普通「加入」里 */
 .sc-btn.small.rejoin {
-  background: linear-gradient(180deg, #95302e, #6e1717);
-  border-color: rgba(246, 240, 224, 0.7);
+  background: linear-gradient(180deg, #7e6418, #5c4a12);
+  border-color: rgba(201, 162, 39, 0.6);
   color: #f6f0e0;
 }
 
 .sc-btn.small.rejoin:hover:not(:disabled) {
-  background: linear-gradient(180deg, #95302e, #7a1a1a);
+  background: linear-gradient(180deg, #8a6d1f, #6b5616);
 }
 
 /* 按钮下面那行说明：负 margin 把它往按钮上收，和下一个按钮之间留出组间距，
@@ -368,7 +368,7 @@
 
 .sc-icon-btn:hover,
 .sc-back:hover {
-  color: #ef6a5a;
+  color: #e6c878;
 }
 
 /* mini-btn 只出现在纸面板里：保持墨字 */
@@ -383,7 +383,7 @@
 }
 
 .sc-mini-btn:hover {
-  color: #9d2933;
+  color: #7e6418;
 }
 
 .sc-status {
@@ -407,7 +407,7 @@
 }
 
 .sc-dot.off {
-  background: #c3272b;
+  background: #845a33;
 }
 
 /* ---- 大厅 ---- */
@@ -427,7 +427,7 @@
 .sc-head h2 {
   font-size: 1.6rem;
   text-align: center;
-  color: #e0492f;
+  color: #e6c878;
   letter-spacing: 0.08em;
 }
 
@@ -442,7 +442,7 @@
   font-weight: 400;
   color: #6b6152;
   padding: 0.3rem 0.4rem;
-  border-bottom: 1px solid rgba(195, 39, 43, 0.3);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.3);
 }
 
 .sc-table td {
@@ -454,7 +454,7 @@
 .sc-table td.room-code {
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #9d2933;
+  color: #7e6418;
 }
 
 .sc-table td.roster {
@@ -486,7 +486,7 @@
   padding: 0.7rem 0.9rem;
   border-radius: 0.6rem;
   background: rgba(226, 213, 184, 0.7);
-  border: 1px dashed rgba(195, 39, 43, 0.5);
+  border: 1px dashed rgba(201, 162, 39, 0.5);
 }
 
 .sc-code .label {
@@ -497,7 +497,7 @@
 .sc-code strong {
   font-size: 1.8rem;
   letter-spacing: 0.24em;
-  color: #9d2933;
+  color: #7e6418;
 }
 
 .sc-hint {
@@ -528,7 +528,7 @@
 }
 
 .sc-seat.me {
-  background: rgba(195, 39, 43, 0.14);
+  background: rgba(201, 162, 39, 0.14);
 }
 
 .sc-seat .avatar {
@@ -546,7 +546,7 @@
 }
 
 .badge.host {
-  background: #95302e;
+  background: #7e6418;
   color: #f6f0e0;
 }
 
@@ -606,14 +606,14 @@
   padding: 1.6rem 2rem;
   border-radius: 1rem;
   background: rgba(246, 240, 224, 0.95);
-  border: 2px solid rgba(195, 39, 43, 0.7);
+  border: 2px solid rgba(201, 162, 39, 0.7);
   font-family: 'Judson', 'PingFang SC', 'Microsoft YaHei', serif;
   color: #26221c;
 }
 
 .sc-offline-box h3 {
   margin-bottom: 0.5rem;
-  color: #9d2933;
+  color: #7e6418;
 }
 
 .sc-offline-box p {
