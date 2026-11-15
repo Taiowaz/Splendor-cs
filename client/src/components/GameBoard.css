@@ -223,9 +223,9 @@
   height: 2.3em;
 }
 
-/* 宝石圆片 */
+/* 宝石圆片。角标挂在 .inv-gem / .pool-gem 上而不是圆片里：
+   空位压暗只落在圆片上，角标不被连坐 */
 .gem-circle {
-  position: relative; /* 计数徽标贴在圆片上，见 .gem-num */
   width: 2.3em;
   height: 2.3em;
   border-radius: 50%;
@@ -238,7 +238,8 @@
   border: 1px solid rgba(246, 240, 224, 0.3);
 }
 /* 数量：右上角圆形小标。原来印在圆心，正好盖住筹码中间那枚 AR 线稿符号
-   （FC 需求圈是符号居中 + 数字在右下，这里跟它同一套约定）。 */
+   （FC 需求圈是符号居中 + 数字在右下，这里跟它同一套约定）。
+   墨底亮金字 + 纸环：六色圆片都偏亮，纸底白字会糊成一片读不出数。 */
 .gem-num {
   position: absolute;
   top: -0.3em;
@@ -248,16 +249,17 @@
   height: 1.3em;
   padding: 0 0.12em;
   border-radius: 50%;
-  background: rgba(241, 233, 214, 0.92);
-  border: 0.08em solid #fff;
+  background: #26221c;
+  border: 0.08em solid #f1e8d4;
   box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
   font-size: 0.72em;
-  color: #fff;
+  color: #e6c878;
   line-height: 1.3em;
   text-align: center;
 }
-/* 选中数 / 论文加成：让位到右下，右上已经被数量占了 */
+/* 选中数 / 论文加成：让位到右下，右上已经被数量占了。
+   选中是行动态，跟回合标/确认按钮同一套金底墨字 */
 .gem-badge {
   position: absolute;
   bottom: -0.35em;
@@ -266,12 +268,12 @@
   height: 1.2em;
   padding: 0 0.2em;
   border-radius: 50%;
-  background-color: #1e516d;
-  border: 0.09em solid #fff;
+  background-color: #c9a227;
+  border: 0.09em solid #f1e8d4;
   box-shadow: rgba(0, 0, 0, 0.3) 0 2px 5px;
   font-family: 'Lobster', cursive;
   font-size: 0.8em;
-  color: #fff;
+  color: #26221c;
   line-height: 1.2em;
   text-align: center;
 }
@@ -292,9 +294,11 @@
   border: 1px solid rgba(201, 162, 39, 0.6);
   box-shadow: rgba(0, 0, 0, 0.5) -2px 2px 5px -1px;
 }
-/* 0 也占位：6 色筹码 + 6 色论文圈一律常驻，空位照公共筹码那套压暗去色 */
-.inv-gem.empty,
-.vc-mark.empty {
+/* 0 也占位：6 色筹码 + 6 色论文圈一律常驻。空位只压暗圆片/卡背本身，
+   角标保持全对比——0 也是信息，压暗了就读不出 */
+.inv-gem.empty .gem-circle,
+.vc-mark.empty img,
+.pool-gem.empty .gem-circle {
   opacity: 0.35;
   filter: grayscale(0.6);
 }
@@ -307,12 +311,12 @@
   height: 1.3em;
   padding: 0 0.12em;
   border-radius: 50%;
-  background: #7e6418;
+  background: #26221c;
   border: 0.08em solid #f1e8d4;
   box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
   font-size: 0.72em;
-  color: #f1e8d4;
+  color: #e6c878;
   line-height: 1.3em;
   text-align: center;
 }
@@ -397,15 +401,10 @@
 }
 .pool-gem.empty {
   cursor: default;
-  opacity: 0.35;
-  filter: grayscale(0.6);
 }
 .pool-gem .gem-badge {
   bottom: -0.4em;
   right: -0.4em;
-  background-color: #7e6418;
-  color: #f1e8d4;
-  border-color: #f1e8d4;
 }
 
 /* 发展卡行 */
@@ -446,11 +445,11 @@
   min-width: 1.6em;
   padding: 0 0.35em;
   border-radius: 1em;
-  background: #1e516d;
-  border: 1px solid #fff;
+  background: #26221c;
+  border: 1px solid #f1e8d4;
   font-family: 'Lobster', cursive;
   font-size: 0.85em;
-  color: #fff;
+  color: #e6c878;
   text-align: center;
   box-shadow: rgba(0, 0, 0, 0.3) 0 2px 4px;
 }

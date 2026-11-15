@@ -286,9 +286,8 @@ export default function GameBoard({
                     ? `${info.name}｜银行 ${bankCount}｜只能单独拿 1 枚，不与其他色混拿；预留 1 张卡也会送 1 枚`
                     : `${info.name}｜银行 ${bankCount}｜单击选 1，再点一下选 2（只有这一色且银行 ≥4），第三次取消`}
                 >
-                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
-                    <span className="gem-num">{bankCount}</span>
-                  </div>
+                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
+                  <span className="gem-num">{bankCount}</span>
                   {sel > 0 && <span className="gem-badge">{sel}</span>}
                 </div>
               )
@@ -349,9 +348,8 @@ export default function GameBoard({
                           ? `${info.name}｜筹码 ${n}｜论文 ${papers.length} 篇${breakdown ? `（${breakdown}）` : ''}`
                           : `${info.name}｜筹码 ${n}｜万能筹码，没有对应方向的论文`}>
                         <div className={`inv-gem ${n === 0 ? 'empty' : ''}`}>
-                          <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
-                            <span className="gem-num">{n}</span>
-                          </div>
+                          <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
+                          <span className="gem-num">{n}</span>
                         </div>
                         {hasVC && (
                           <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
@@ -420,9 +418,8 @@ export default function GameBoard({
           return (
             <div key={type} className="mc-type">
               <div className={`inv-gem ${tokens === 0 ? 'empty' : ''}`} title={`${info.name}｜筹码 ${tokens}`}>
-                <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }}>
-                  <span className="gem-num">{tokens}</span>
-                </div>
+                <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
+                <span className="gem-num">{tokens}</span>
               </div>
               {hasVC && (
                 <div
