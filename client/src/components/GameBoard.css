@@ -82,10 +82,10 @@
   padding: 0.3rem 0.9rem;
   border-radius: 2rem;
   font-size: 0.95rem;
-  color: #7e6418;
-  background: rgba(241, 233, 214, 0.7);
+  color: #e6c878;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
   border: 1px solid rgba(201, 162, 39, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(230, 200, 120, 0.12);
 }
 .gb-turnpill.mine {
   color: #26221c;
@@ -719,13 +719,13 @@
   width: max-content;
   padding: 0.4rem 0.8rem;
   border-radius: 0.8rem;
-  background: rgba(241, 233, 214, 0.85);
+  background: linear-gradient(180deg, #1c242e, #141b23 55%, #10161d);
   border: 1px solid rgba(201, 162, 39, 0.6);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(230, 200, 120, 0.16);
   z-index: 40;
   white-space: nowrap;
 }
-.action-summary { color: #7e6418; font-weight: 700; font-size: 0.82rem; line-height: 1.15; text-align: center; }
+.action-summary { color: #e6c878; font-weight: 700; font-size: 0.82rem; line-height: 1.15; text-align: center; }
 .action-buttons { display: flex; gap: 0.45rem; }
 .action-buttons .gb-btn { padding: 0.3rem 0.6rem; font-size: 0.9rem; line-height: 1.15; }
 
@@ -916,17 +916,16 @@
   padding: 1.6rem 1.8rem;
   border-radius: 1rem;
   text-align: center;
-  background: rgba(246, 240, 224, 0.95);
-  border: 2px solid rgba(201, 162, 39, 0.7);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(180deg, #202a36, #161d26 55%, #121820);
+  border: 1px solid rgba(201, 162, 39, 0.7);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(230, 200, 120, 0.14);
 }
 .gb-modal h3 {
   font-size: 1.6rem;
-  color: #7e6418;
-  -webkit-text-stroke: 0.02rem rgb(38, 34, 28);
+  color: #e6c878;
   margin-bottom: 0.6rem;
 }
-.gb-modal p { color: #4a443a; margin-bottom: 1.2rem; }
+.gb-modal p { color: #b9ae9c; margin-bottom: 1.2rem; }
 .gb-modal-buttons { display: flex; gap: 0.8rem; justify-content: center; }
 
 /* 预留区弹窗：把几张预留卡按真实卡面摊开，逐张挑着买（参考实现也是在这个
@@ -957,33 +956,33 @@
   padding: 2rem 2.4rem;
   text-align: center;
   border-radius: 1.2rem;
-  background: rgba(246, 240, 224, 0.92);
-  border: 2px solid rgba(201, 162, 39, 0.7);
-  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(180deg, #202a36, #161d26 55%, #121820);
+  border: 1px solid rgba(201, 162, 39, 0.7);
+  box-shadow: 0 12px 44px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(230, 200, 120, 0.14);
 }
 .gb-gameover h1 {
   font-size: 2.4rem;
-  background: linear-gradient(to top, rgb(126, 100, 24), rgb(184, 145, 42), rgb(126, 100, 24));
+  background: linear-gradient(to top, #c9a227, #e6c878, #c9a227);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(2px 2px 6px black);
 }
-.gb-gameover h2 { color: #7e6418; margin: 0.4rem 0 1.2rem; }
+.gb-gameover h2 { color: #e6c878; margin: 0.4rem 0 1.2rem; }
 .gb-standings { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
 .gb-standing {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 0.9rem;
   border-radius: 0.6rem;
-  background: rgba(138, 129, 114, 0.22);
+  background: rgba(16, 22, 29, 0.55);
   border: 1px solid rgba(201, 162, 39, 0.3);
 }
 .gb-standing.winner {
   border-color: rgb(201, 162, 39);
   background: rgba(201, 162, 39, 0.22);
 }
-.standing-score { font-family: 'Lobster', cursive; color: #7e6418; }
+.standing-score { font-family: 'Lobster', cursive; color: #e6c878; }
 
 /* ---- ☰ 菜单：顶栏左侧，规则 / 房号 / 退出 ----
    固定在视口左上角：窄屏横向滚动时菜单不能跟着牌桌滚出屏幕。
@@ -1022,9 +1021,9 @@
   gap: 0.35rem;
   padding: 0.6rem;
   border-radius: 0.7rem;
-  background: rgba(246, 240, 224, 0.96);
+  background: linear-gradient(180deg, #1c242e, #141b23 55%, #10161d);
   border: 1px solid rgba(201, 162, 39, 0.55);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(230, 200, 120, 0.14);
 }
 .gb-menu-pop button {
   text-align: left;
@@ -1053,11 +1052,11 @@
   gap: 0.6rem;
   padding: 0.4rem 0.6rem;
   font-size: 0.9rem;
-  color: #6b6152;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #9b9184;
+  border-top: 1px solid rgba(230, 200, 120, 0.16);
+  border-bottom: 1px solid rgba(230, 200, 120, 0.16);
 }
-.gb-menu-room strong { color: #7e6418; letter-spacing: 0.12em; }
+.gb-menu-room strong { color: #e6c878; letter-spacing: 0.12em; }
 
 /* 规则弹窗：左对齐的三段小抄，内容长所以自己滚 */
 .gb-rules-modal { width: min(92vw, 30rem); text-align: left; }
@@ -1068,8 +1067,14 @@
   gap: 0.8rem;
   max-height: 60vh;
   overflow-y: auto;
+  scrollbar-color: rgba(217, 180, 74, 0.6) rgba(16, 22, 29, 0.8);
+  scrollbar-width: thin;
 }
-.rules-body h4 { color: #7e6418; font-size: 1.05rem; margin-bottom: 0.25rem; }
+.rules-body::-webkit-scrollbar { width: 8px; }
+.rules-body::-webkit-scrollbar-track { background: rgba(16, 22, 29, 0.8); border-radius: 4px; }
+.rules-body::-webkit-scrollbar-thumb { background: rgba(217, 180, 74, 0.55); border-radius: 4px; }
+.rules-body::-webkit-scrollbar-thumb:hover { background: rgba(230, 200, 120, 0.8); }
+.rules-body h4 { color: #e6c878; font-size: 1.05rem; margin-bottom: 0.25rem; }
 .rules-body ul {
   margin: 0;
   padding-left: 1.1rem;
@@ -1078,11 +1083,11 @@
   gap: 0.35rem;
 }
 .rules-body li,
-.rules-body p { color: #4a443a; font-size: 0.98rem; line-height: 1.5; margin: 0; }
-.rules-body b { color: #26221c; }
+.rules-body p { color: #b9ae9c; font-size: 0.98rem; line-height: 1.5; margin: 0; }
+.rules-body b { color: #f6f0e0; }
 .gb-rules-modal .gb-modal-buttons { margin-top: 1rem; }
 
-.gb-restart-hint { color: #50616d; margin-bottom: 0.6rem; }
+.gb-restart-hint { color: #b9ae9c; margin-bottom: 0.6rem; }
 
 /* 窗口小于牌桌保底尺寸时的提示。牌桌不缩水也不滚动，所以这里必须盖住整屏说清楚
    「差多少」，否则用户只看到被裁掉的一角，以为是布局坏了。z 压过断线遮罩(900)
@@ -1095,7 +1100,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(226, 213, 184, 0.82);
+  background: rgba(5, 8, 12, 0.82);
   backdrop-filter: blur(6px);
 }
 .gb-toosmall-card {
@@ -1103,9 +1108,9 @@
   padding: 1.7rem 1.9rem 1.5rem;
   border-radius: 1rem;
   text-align: center;
-  background: linear-gradient(160deg, rgba(226, 213, 184, 0.98), rgba(241, 233, 214, 0.98));
-  border: 2px solid rgba(201, 162, 39, 0.7);
-  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.65), inset 0 0 2.5rem rgba(201, 162, 39, 0.08);
+  background: linear-gradient(180deg, #202a36, #161d26 55%, #121820);
+  border: 1px solid rgba(201, 162, 39, 0.7);
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(230, 200, 120, 0.14);
   animation: toosmall-in 0.26s ease-out;
 }
 @keyframes toosmall-in {
@@ -1115,13 +1120,12 @@
 .gb-toosmall-card .ts-icon {
   font-size: 2rem;
   line-height: 1;
-  color: #7e6418;
+  color: #e6c878;
   margin-bottom: 0.5rem;
 }
 .gb-toosmall-card h3 {
   font-size: 1.45rem;
-  color: #7e6418;
-  -webkit-text-stroke: 0.02rem rgb(38, 34, 28);
+  color: #e6c878;
   margin-bottom: 1rem;
 }
 .ts-sizes {
@@ -1134,25 +1138,25 @@
   flex: 1;
   padding: 0.55rem 0.4rem;
   border-radius: 0.6rem;
-  background: rgba(226, 213, 184, 0.75);
-  border: 1px solid rgba(201, 162, 39, 0.28);
+  background: rgba(16, 22, 29, 0.6);
+  border: 1px solid rgba(201, 162, 39, 0.35);
 }
 .ts-sizes span {
   display: block;
   font-size: 0.78rem;
   letter-spacing: 0.14em;
-  color: #6b6152;
+  color: #9b9184;
   margin-bottom: 0.2rem;
 }
 .ts-sizes strong {
   font-size: 1.12rem;
   letter-spacing: 0.04em;
-  color: #26221c;
+  color: #f6f0e0;
   font-variant-numeric: tabular-nums;
 }
-.ts-sizes strong.short { color: #7e6418; }
+.ts-sizes strong.short { color: #e6c878; }
 .gb-toosmall-card .ts-hint {
-  color: #50616d;
+  color: #b9ae9c;
   font-size: 0.92rem;
   line-height: 1.5;
 }
@@ -1160,7 +1164,7 @@
   font-family: inherit;
   padding: 0.05rem 0.35rem;
   border-radius: 0.3rem;
-  color: #7e6418;
-  background: rgba(226, 213, 184, 0.8);
+  color: #e6c878;
+  background: #10161d;
   border: 1px solid rgba(201, 162, 39, 0.45);
 }
