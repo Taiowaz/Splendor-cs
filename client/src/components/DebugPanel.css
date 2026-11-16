@@ -49,6 +49,46 @@
 .dbg-head b { color: #e6c878; font-size: 12px; }
 .dbg-head span { color: #9c9480; font-size: 11px; }
 
+/* 底色切换排：小色块 + 名字，选中描金边。色块用各主题的中间档底色。 */
+.dbg-grounds {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 9px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid rgba(230, 200, 120, 0.14);
+}
+.dbg-ground-label { color: #9c9480; font-size: 11px; margin-right: 2px; }
+.dbg-ground {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 6px;
+  background: #14110a;
+  color: #b9ae9c;
+  font-size: 11px;
+  cursor: pointer;
+}
+.dbg-ground i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--swatch);
+  border: 1px solid rgba(246, 240, 224, 0.28);
+}
+.dbg-ground:hover { border-color: rgba(230, 200, 120, 0.7); color: #e6c878; }
+.dbg-ground.on {
+  border-color: #c9a227;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    #14110a;
+  color: #e6c878;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(201, 162, 39, 0.35);
+}
+
 .dbg-row {
   display: flex;
   align-items: center;

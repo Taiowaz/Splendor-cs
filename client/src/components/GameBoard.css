@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(to bottom, rgba(5, 8, 12, 0.85), rgba(5, 8, 12, 0));
+  background: linear-gradient(to bottom, rgba(var(--ground-rgb), 0.85), rgba(var(--ground-rgb), 0));
   border-bottom: 1px solid rgba(217, 180, 74, 0.4);
   box-shadow: 0 0.4rem 1.4rem rgba(0, 0, 0, 0.5);
   z-index: 5;
@@ -96,7 +96,7 @@
 /* 当前回合的人掉线了：琥珀色 + 慢呼吸，说明牌桌不是在卡，是在等人回来 */
 .gb-turnpill.waiting {
   color: #ffcf87;
-  background: rgba(5, 8, 12, 0.72);
+  background: rgba(var(--ground-rgb), 0.72);
   border-color: rgba(132, 90, 51, 0.75);
   animation: turnpill-wait 1.8s ease-in-out infinite;
 }
@@ -1100,7 +1100,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: rgba(5, 8, 12, 0.82);
+  background: rgba(var(--ground-rgb), 0.82);
   backdrop-filter: blur(6px);
 }
 .gb-toosmall-card {

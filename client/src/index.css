@@ -28,6 +28,10 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
     repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
     linear-gradient(168deg, #0e141d 0%, #0a0f16 48%, #05080c 100%);
+  /* 底色三件套：--silk 八层纹理、--ground 纯色兜底、--ground-rgb 给 fades/滚动条/遮罩
+     调透明度用。换底只改这三个变量（见下面 data-ground 主题块）。 */
+  --ground: #05080c;
+  --ground-rgb: 5, 8, 12;
   --gold: #c9a227; /* 泥金 */
   --lapis: #003472; /* 花青（石青系） */
   --jade: #057748; /* 松花绿（石绿系） */
@@ -38,7 +42,7 @@
 
 body {
   font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #05080c;
+  background: var(--ground);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -53,16 +57,91 @@ html:has(.gb-playing) body {
 
 /* 整页滚动条跟牌桌同一套瓷青描金皮：青黑轨、泥金 thumb、hover 提亮 */
 html::-webkit-scrollbar { width: 10px; height: 10px; }
-html::-webkit-scrollbar-track { background: rgba(5, 8, 12, 0.9); }
+html::-webkit-scrollbar-track { background: rgba(var(--ground-rgb), 0.9); }
 html::-webkit-scrollbar-thumb {
   background: rgba(217, 180, 74, 0.6);
   border-radius: 5px;
-  border: 2px solid rgba(5, 8, 12, 0.9);
+  border: 2px solid rgba(var(--ground-rgb), 0.9);
 }
 html::-webkit-scrollbar-thumb:hover { background: rgba(230, 200, 120, 0.85); }
-html::-webkit-scrollbar-corner { background: rgba(5, 8, 12, 0.9); }
+html::-webkit-scrollbar-corner { background: rgba(var(--ground-rgb), 0.9); }
 @supports not (selector(::-webkit-scrollbar)) {
-  html { scrollbar-color: rgba(217, 180, 74, 0.65) rgba(5, 8, 12, 0.9); scrollbar-width: thin; }
+  html { scrollbar-color: rgba(217, 180, 74, 0.65) rgba(var(--ground-rgb), 0.9); scrollbar-width: thin; }
+}
+
+/* ---- 深色底候选 ----
+   同一张八层笺纸换染料：泥金晕光不变，第二道晕光与远山雾跟底色同族，
+   底渐变三档都压到近黑，保证金字/纸卡在其上对比度不变。
+   测试面板「底色」排实时切换，选择存 localStorage。 */
+:root[data-ground='xuanmo'] {
+  /* 玄墨：暖黑无蓝味，松烟墨锭研出来的那种黑，泥金最跳 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.1), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(132, 90, 51, 0.07), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(120, 105, 80, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(120, 105, 80, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #1a1613 0%, #120e0b 48%, #0a0806 100%);
+  --ground: #0a0806;
+  --ground-rgb: 10, 8, 6;
+}
+:root[data-ground='daiqing'] {
+  /* 黛青：深湖石青，青绿山水里远水那一档，比瓷青更饱和更冷 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.08), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(22, 133, 169, 0.1), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(80, 97, 109, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(80, 97, 109, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #08242e 0%, #051820 48%, #020e13 100%);
+  --ground: #020e13;
+  --ground-rgb: 2, 14, 19;
+}
+:root[data-ground='songyan'] {
+  /* 松烟：深松绿，墨里掺松烟那档绿黑，和松花绿筹码同族 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.08), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(5, 119, 72, 0.09), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(96, 116, 96, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(96, 116, 96, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #0d2117 0%, #08160e 48%, #040d08 100%);
+  --ground: #040d08;
+  --ground-rgb: 4, 13, 8;
+}
+:root[data-ground='zheqi'] {
+  /* 赭漆：深棕大漆，漆器底胎那档暖黑，描金像漆器上的泥金画 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.12), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(132, 90, 51, 0.1), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(140, 110, 70, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(140, 110, 70, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #241608 0%, #180e05 48%, #0f0903 100%);
+  --ground: #0f0903;
+  --ground-rgb: 15, 9, 3;
+}
+:root[data-ground='qingdai'] {
+  /* 青黛：靛蓝染缸底那档蓝黑，比瓷青偏紫蓝、更沉 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.08), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(64, 86, 178, 0.09), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(80, 97, 109, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(80, 97, 109, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #141b36 0%, #0d1226 48%, #070b16 100%);
+  --ground: #070b16;
+  --ground-rgb: 7, 11, 22;
 }
 
 button {

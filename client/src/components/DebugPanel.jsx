@@ -12,8 +12,24 @@ const TYPES = [
   ['coffee', '咖啡', '/images/tokens/GoldToken.png']
 ]
 
+const GROUNDS = [
+  ['ciqing', '瓷青', '#0a0f16'],
+  ['xuanmo', '玄墨', '#120e0b'],
+  ['daiqing', '黛青', '#051820'],
+  ['songyan', '松烟', '#08160e'],
+  ['zheqi', '赭漆', '#180e05'],
+  ['qingdai', '青黛', '#0d1226']
+]
+
+export const GROUND_KEY = 'splendor-ground'
+
+export function applyGround(key) {
+  document.documentElement.dataset.ground = key
+}
+
 export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetReserved }) {
   const [open, setOpen] = useState(false)
+  const [ground, setGround] = useState(() => localStorage.getItem(GROUND_KEY) || 'ciqing')
   // 敲进去的数在等服务端回包的那几十毫秒里得留在框里，否则状态一广播就把没敲完的
   // 值顶回旧数（想敲 12，敲完「1」就被顶回 1）
   const [draft, setDraft] = useState({})
@@ -44,6 +60,23 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
           <div className="dbg-head">
             <b>测试：设置各玩家资源</b>
             <span>每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预留卡从牌桌明面发/收</span>
+          </div>
+          <div className="dbg-grounds" title="换整张牌桌的底色，立即生效并记住选择（入口/大厅同样换）">
+            <span className="dbg-ground-label">底色</span>
+            {GROUNDS.map(([key, name, swatch]) => (
+              <button
+                key={key}
+                className={`dbg-ground ${ground === key ? 'on' : ''}`}
+                style={{ '--swatch': swatch }}
+                onClick={() => {
+                  setGround(key)
+                  localStorage.setItem(GROUND_KEY, key)
+                  applyGround(key)
+                }}
+              >
+                <i />{name}
+              </button>
+            ))}
           </div>
           {gameState.players.map(p => {
             const isMe = p.id === myPlayerId
