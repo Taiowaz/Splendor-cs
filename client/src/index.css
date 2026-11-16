@@ -32,6 +32,14 @@
      调透明度用。换底只改这三个变量（见下面 data-ground 主题块）。 */
   --ground: #05080c;
   --ground-rgb: 5, 8, 12;
+  /* FC 匾额漆面两档（会士 / 三色院士）：跟底色走，默认蓝灰漆；
+     点翠底换翠釉面，见 data-ground 主题块 */
+  --fc-a: #26303c;
+  --fc-b: #1a222c;
+  --fc-c: #151c25;
+  --fc-ta: #2a3440;
+  --fc-tb: #1c242e;
+  --fc-tc: #171e27;
   --gold: #c9a227; /* 泥金 */
   --lapis: #003472; /* 花青（石青系） */
   --jade: #057748; /* 松花绿（石绿系） */
@@ -198,6 +206,14 @@ html::-webkit-scrollbar-corner { background: rgba(var(--ground-rgb), 0.9); }
     linear-gradient(168deg, #0a2740 0%, #061a2c 48%, #030f1a 100%);
   --ground: #030f1a;
   --ground-rgb: 3, 15, 26;
+  /* 翠釉面：比底色亮一档、饱和一档的同族翠蓝，泥金晕光 + 金边＝点翠镶金；
+     蓝灰漆压在这档饱和蓝上会发灰 */
+  --fc-a: #0f3a50;
+  --fc-b: #0a2a3c;
+  --fc-c: #07202e;
+  --fc-ta: #124258;
+  --fc-tb: #0c3043;
+  --fc-tc: #082534;
 }
 :root[data-ground='xiekeqing'] {
   /* 蟹壳青：蟹壳那档灰绿，绿里掺灰，比松烟哑、比苍苔冷 */

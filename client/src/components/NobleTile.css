@@ -61,13 +61,13 @@
      跟底栏托盘同族；纸面只留给 VC 论文卡 */
   background:
     radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.1), transparent 55%),
-    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+    linear-gradient(180deg, var(--fc-a), var(--fc-b) 55%, var(--fc-c));
 }
 
 .noble-flag[data-tier='triple'] .noble-tile {
   background:
     radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.16), transparent 55%),
-    linear-gradient(180deg, #2a3440, #1c242e 55%, #171e27);
+    linear-gradient(180deg, var(--fc-ta), var(--fc-tb) 55%, var(--fc-tc));
 }
 
 /* 声誉筹码：和 VC 卡（论文卡）左上角那枚声誉章同一套配色 ——
