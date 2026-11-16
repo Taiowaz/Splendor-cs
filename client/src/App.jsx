@@ -3,6 +3,7 @@ import TitleScreen from './components/TitleScreen.jsx'
 import Lobby from './components/Lobby.jsx'
 import WaitingRoom from './components/WaitingRoom.jsx'
 import GameBoard from './components/GameBoard.jsx'
+import DebugPanel from './components/DebugPanel.jsx'
 import useWebSocket from './hooks/useWebSocket.js'
 import { NAME_KEY, saveToken, clearToken } from './session.js'
 import './App.css'
@@ -318,18 +319,21 @@ function App() {
           onLeave={handleLeaveRoom}
         />
       ) : screen === 'lobby' ? (
-        <Lobby
-          playerName={playerName}
-          account={account}
-          connected={connected}
-          rooms={roomList}
-          maxPlayers={MAX_PLAYERS}
-          onNameChange={saveName}
-          onCreateRoom={handleCreateRoom}
-          onJoinRoom={handleJoinRoom}
-          onRefresh={requestRooms}
-          onBackToTitle={() => setScreen('title')}
-        />
+        <>
+          <Lobby
+            playerName={playerName}
+            account={account}
+            connected={connected}
+            rooms={roomList}
+            maxPlayers={MAX_PLAYERS}
+            onNameChange={saveName}
+            onCreateRoom={handleCreateRoom}
+            onJoinRoom={handleJoinRoom}
+            onRefresh={requestRooms}
+            onBackToTitle={() => setScreen('title')}
+          />
+          <DebugPanel />
+        </>
       ) : (
         <TitleScreen
           playerName={playerName}

@@ -40,9 +40,10 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
   // 值顶回旧数（想敲 12，敲完「1」就被顶回 1）
   const [draft, setDraft] = useState({})
 
-  if (!gameState?.players) return null
+  // 大厅里也挂这份开关：没有对局时只开放底色排，筹码编辑进桌后才出现
+  const players = gameState?.players || null
 
-  const bank = gameState.bank?.tokens || {}
+  const bank = gameState?.bank?.tokens || {}
 
   const commit = (player, type, raw) => {
     const key = `${player.id}:${type}`
@@ -64,8 +65,12 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
       {open && (
         <div className="dbg-panel">
           <div className="dbg-head">
-            <b>测试：设置各玩家资源</b>
-            <span>每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预留卡从牌桌明面发/收</span>
+            <b>{players ? '测试：设置各玩家资源' : '测试：底色与资源'}</b>
+            <span>
+              {players
+                ? '每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预留卡从牌桌明面发/收'
+                : '底色随时可换并记住；筹码与预留卡编辑进牌桌后开放'}
+            </span>
           </div>
           <div className="dbg-grounds" title="换整张牌桌的底色，立即生效并记住选择（入口/大厅同样换）">
             <span className="dbg-ground-label">底色</span>
@@ -84,7 +89,7 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
               </button>
             ))}
           </div>
-          {gameState.players.map(p => {
+          {players && players.map(p => {
             const isMe = p.id === myPlayerId
             const reserved = p.reservedCards?.length || 0
             return (
@@ -127,6 +132,9 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
               </div>
             )
           })}
+          {!players && (
+            <div className="dbg-note">进牌桌后，这里会展开成逐个玩家的筹码 / 预留卡编辑行</div>
+          )}
         </div>
       )}
       <button

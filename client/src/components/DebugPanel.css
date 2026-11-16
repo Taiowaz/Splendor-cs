@@ -96,6 +96,12 @@
   box-shadow: 0 0 8px rgba(201, 162, 39, 0.35);
 }
 
+.dbg-note {
+  color: #9c9480;
+  font-size: 11px;
+  padding: 2px 0 1px;
+}
+
 .dbg-row {
   display: flex;
   align-items: center;
