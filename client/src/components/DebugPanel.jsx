@@ -33,9 +33,26 @@ export function applyGround(key) {
   document.documentElement.dataset.ground = key
 }
 
+// FC 面候选：auto 跟底色走，其余五档取传统点翠配材（绒胎/翠羽/松石/青金/鎏金）
+const FCS = [
+  ['auto', '随底', '#1a222c', '跟底色走：点翠底自动翠釉，其余底蓝灰漆'],
+  ['xuanqi', '玄绒', '#171310', '黑丝绒帽胎：暖黑托底，金边最跳'],
+  ['cuiyou', '翠羽', '#0a2a3c', '翠鸟背羽：同族翠蓝釉镶金'],
+  ['songshi', '松石', '#0a2f26', '嵌松绿石：蓝底绿釉经典配'],
+  ['qingjin', '青金', '#17244a', '嵌青金石：深蓝釉带金星'],
+  ['zhejin', '鎏金', '#33280c', '铜镀金托：赭金漆互补暖面']
+]
+
+export const FC_KEY = 'splendor-fc'
+
+export function applyFc(key) {
+  document.documentElement.dataset.fc = key
+}
+
 export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetReserved }) {
   const [open, setOpen] = useState(false)
   const [ground, setGround] = useState(() => localStorage.getItem(GROUND_KEY) || 'ciqing')
+  const [fc, setFc] = useState(() => localStorage.getItem(FC_KEY) || 'auto')
   // 敲进去的数在等服务端回包的那几十毫秒里得留在框里，否则状态一广播就把没敲完的
   // 值顶回旧数（想敲 12，敲完「1」就被顶回 1）
   const [draft, setDraft] = useState({})
@@ -83,6 +100,24 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
                   setGround(key)
                   localStorage.setItem(GROUND_KEY, key)
                   applyGround(key)
+                }}
+              >
+                <i />{name}
+              </button>
+            ))}
+          </div>
+          <div className="dbg-fcs" title="换 FC（会士/院士旗卡）的匾额面，立即生效并记住；随底＝跟底色自动配">
+            <span className="dbg-fc-label">FC面</span>
+            {FCS.map(([key, name, swatch, note]) => (
+              <button
+                key={key}
+                className={`dbg-ground ${fc === key ? 'on' : ''}`}
+                style={{ '--swatch': swatch }}
+                title={note}
+                onClick={() => {
+                  setFc(key)
+                  localStorage.setItem(FC_KEY, key)
+                  applyFc(key)
                 }}
               >
                 <i />{name}
