@@ -215,20 +215,24 @@
     background: linear-gradient(180deg, rgba(226, 188, 66, 0.9), rgba(146, 112, 24, 0.85));
     filter: drop-shadow(-3px 2px 6px rgba(0, 0, 0, 0.85));
   }
-  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #ffe6a0, #8a6d1f); }
+  .nobles-preview .noble-flag[data-tier='triple'] { background: linear-gradient(180deg, #e6c878, #8a6d1f); }
   .nobles-preview .noble-flag.bench { opacity: .5; filter: grayscale(.35) drop-shadow(-3px 2px 6px rgba(0,0,0,.85)); }
   .nobles-preview .noble-tile {
     font-size: calc(var(--flag-font-ref) / 7.375);
     position: relative; width: calc(var(--rect-w) + var(--flag-d)); height: var(--flag-h);
     display: flex; flex-direction: column; justify-content: center; gap: 0.8em;
     padding: 0.35em calc(var(--flag-d) + 0.7em) 0.95em 0.7em; clip-path: var(--flag-shape);
-    color: #26221c;
+    color: #f6f0e0;
     /* 不写 font-family，和 client/src/components/NobleTile.css 一样继承页面基准，
        否则 FC 的中文会掉到黑体、和羊皮纸卡的宋体不一致 */
-    background: linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
+    background:
+      radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.1), transparent 55%),
+      linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
   }
   .nobles-preview .noble-flag[data-tier='triple'] .noble-tile {
-    background: linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
+    background:
+      radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.16), transparent 55%),
+      linear-gradient(180deg, #2a3440, #1c242e 55%, #171e27);
   }
   .nobles-preview .noble-prestige {
     --badge: calc(var(--flag-h) * 0.28);
@@ -241,7 +245,7 @@
   }
   .nobles-preview .noble-prestige span {
     font-family: 'Lobster', cursive; font-size: calc(var(--badge) * 0.55); line-height: 1;
-    color: #6b4d0a; text-shadow: 0 1px 0 rgba(246, 240, 224, 0.75);
+    color: #4a3a10; text-shadow: 0 1px 0 rgba(246, 240, 224, 0.75);
   }
   .nobles-preview .noble-head { display: flex; align-items: center; gap: 0.3em; min-width: 0; }
   .nobles-preview .noble-text { min-width: 0; }
@@ -249,8 +253,8 @@
     flex-shrink: 0; width: 1.75em; height: 1.75em; object-fit: contain;
     filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.45));
   }
-  .nobles-preview .noble-name { flex-shrink: 0; font-size: 0.95em; font-weight: 700; line-height: 1.15; color: #f2d675; white-space: nowrap; }
-  .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: rgba(38, 34, 28, 0.62); white-space: nowrap; }
+  .nobles-preview .noble-name { flex-shrink: 0; font-size: 0.95em; font-weight: 700; line-height: 1.15; color: #e6c878; white-space: nowrap; }
+  .nobles-preview .noble-sub { font-size: 0.72em; line-height: 1.25; color: #b9ae9c; white-space: nowrap; }
   .nobles-preview .noble-requirements { display: flex; gap: 0.4em; flex-wrap: wrap; margin-top: 0.1em; }
   .nobles-preview .requirement-item { position: relative; width: min(2.4em, 29%); aspect-ratio: 1; }
   /* 需求筹码直接用牌桌那枚筹码图，数量改成右下角角标（符号已烧在图里，圈内没地方再放数字） */
@@ -261,7 +265,7 @@
   .nobles-preview .requirement-count {
     position: absolute; right: -0.12em; bottom: -0.1em;
     font-family: 'Lobster', cursive; font-size: 0.72em; line-height: 1.35; min-width: 1.35em;
-    text-align: center; color: #4a3410; background: #f4ead0; border: 0.09em solid #a8811f;
+    text-align: center; color: #e6c878; background: #26221c; border: 0.09em solid #f1e8d4;
     border-radius: 50%; box-shadow: 0 0.06em 0.14em rgba(0, 0, 0, 0.45);
   }
 </style>

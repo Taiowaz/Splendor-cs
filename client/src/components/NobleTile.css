@@ -35,7 +35,7 @@
 
 /* 三色院士牌：金边更亮，压住双色会士牌 */
 .noble-flag[data-tier='triple'] {
-  background: linear-gradient(180deg, #f7f1e3, #8a6d1f);
+  background: linear-gradient(180deg, #e6c878, #8a6d1f);
 }
 
 .noble-tile {
@@ -56,14 +56,18 @@
      ——只把文字提上去、把它和筹码之间的距离拉开，不改动筹码的落位。 */
   padding: 0.35em calc(var(--flag-d) + 0.7em) 0.95em 0.7em;
   clip-path: var(--flag-shape);
-  color: #26221c;
+  color: #f6f0e0;
+  /* 深漆匾额：漆面渐变 + 顶上一道泥金晕光，米色机构章和亮金题名浮在漆上，
+     跟底栏托盘同族；纸面只留给 VC 论文卡 */
   background:
-    linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
+    radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.1), transparent 55%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
 }
 
 .noble-flag[data-tier='triple'] .noble-tile {
   background:
-    linear-gradient(180deg, rgba(226, 213, 184, 0.96), rgba(241, 233, 214, 0.97));
+    radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.16), transparent 55%),
+    linear-gradient(180deg, #2a3440, #1c242e 55%, #171e27);
 }
 
 /* 声誉筹码：和 VC 卡（论文卡）左上角那枚声誉章同一套配色 ——
@@ -101,14 +105,14 @@
   font-size: 0.95em;
   font-weight: 700;
   line-height: 1.15;
-  color: #7e6418;
+  color: #e6c878;
   white-space: nowrap;
 }
 
 .noble-sub {
   font-size: 0.72em;
   line-height: 1.25;
-  color: rgba(38, 34, 28, 0.62);
+  color: #b9ae9c;
   white-space: nowrap;
 }
 
@@ -147,7 +151,7 @@
 /* 需求筹码：直接用牌桌上那枚筹码图（images/tokens/*Token.png，宝石已换成我们的资源符号），
    圆圈本身就是筹码，不再叠矢量符号；数量改成右下角角标，因为符号已经烧在图里、
    圈内没有位置再放数字。角标跟 gem-num 同一套墨底亮金字 + 纸环：
-   米白底压在 FC 纸面上会和卡面糊掉边界。 */
+   纸环在深漆面上勾出边界，墨底压筹码圆片也读得清。 */
 .requirement-item {
   position: relative;
   width: min(2.4em, 29%);

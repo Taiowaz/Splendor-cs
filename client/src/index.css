@@ -20,14 +20,14 @@
      + 帘纹 + 瓷青渐变。暗底托宣纸卡面，描金更跳。色值出中国色/国画颜料系：
      泥金 #C9A227、石青 #1685A9、墨色 #50616D。 */
   --silk:
-    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.1), transparent 62%),
-    radial-gradient(46rem 32rem at 6% 108%, rgba(22, 133, 169, 0.07), transparent 60%),
-    radial-gradient(64rem 20rem at 16% 104%, rgba(80, 97, 109, 0.1), transparent 70%),
-    radial-gradient(72rem 22rem at 84% 108%, rgba(80, 97, 109, 0.08), transparent 70%),
-    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.62) 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.045'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
-    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.022) 0 1px, transparent 1px 6px),
-    linear-gradient(168deg, #141b26 0%, #0f151d 48%, #080c11 100%);
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.09), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(22, 133, 169, 0.05), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(80, 97, 109, 0.07), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(80, 97, 109, 0.055), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #0e141d 0%, #0a0f16 48%, #05080c 100%);
   --gold: #c9a227; /* 泥金 */
   --lapis: #003472; /* 花青（石青系） */
   --jade: #057748; /* 松花绿（石绿系） */
@@ -38,7 +38,7 @@
 
 body {
   font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #080c11;
+  background: #05080c;
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
@@ -53,16 +53,16 @@ html:has(.gb-playing) body {
 
 /* 整页滚动条跟牌桌同一套瓷青描金皮：青黑轨、泥金 thumb、hover 提亮 */
 html::-webkit-scrollbar { width: 10px; height: 10px; }
-html::-webkit-scrollbar-track { background: rgba(8, 12, 17, 0.9); }
+html::-webkit-scrollbar-track { background: rgba(5, 8, 12, 0.9); }
 html::-webkit-scrollbar-thumb {
   background: rgba(217, 180, 74, 0.6);
   border-radius: 5px;
-  border: 2px solid rgba(8, 12, 17, 0.9);
+  border: 2px solid rgba(5, 8, 12, 0.9);
 }
 html::-webkit-scrollbar-thumb:hover { background: rgba(230, 200, 120, 0.85); }
-html::-webkit-scrollbar-corner { background: rgba(8, 12, 17, 0.9); }
+html::-webkit-scrollbar-corner { background: rgba(5, 8, 12, 0.9); }
 @supports not (selector(::-webkit-scrollbar)) {
-  html { scrollbar-color: rgba(217, 180, 74, 0.65) rgba(8, 12, 17, 0.9); scrollbar-width: thin; }
+  html { scrollbar-color: rgba(217, 180, 74, 0.65) rgba(5, 8, 12, 0.9); scrollbar-width: thin; }
 }
 
 button {
