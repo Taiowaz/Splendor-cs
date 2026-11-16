@@ -150,8 +150,8 @@
 
 /* 需求筹码：直接用牌桌上那枚筹码图（images/tokens/*Token.png，宝石已换成我们的资源符号），
    圆圈本身就是筹码，不再叠矢量符号；数量改成右下角角标，因为符号已经烧在图里、
-   圈内没有位置再放数字。角标跟 gem-num 同一套墨底亮金字 + 纸环：
-   纸环在深漆面上勾出边界，墨底压筹码圆片也读得清。 */
+   圈内没有位置再放数字。角标跟 gem-num 同一套绿漆底亮金字 + 纸环：
+   纸环在深漆面上勾出边界，绿漆底与预留按钮同族、压筹码圆片也读得清。 */
 .requirement-item {
   position: relative;
   width: min(2.4em, 29%);
@@ -178,7 +178,7 @@
   min-width: 1.35em;
   text-align: center;
   color: #e6c878;
-  background: #26221c;
+  background: #1d5238;
   border: 0.09em solid #f1e8d4;
   border-radius: 50%;
   box-shadow: 0 0.06em 0.14em rgba(0, 0, 0, 0.45);

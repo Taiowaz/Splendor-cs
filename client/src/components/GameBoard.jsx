@@ -461,7 +461,7 @@ export default function GameBoard({
             <h3>确认预留？</h3>
             <p>预留卡牌将获得 1 杯咖啡（万能资源）</p>
             <div className="gb-modal-buttons">
-              <button className="gb-btn gb-btn-gold" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>确认预留</button>
+              <button className="gb-btn gb-btn-green" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>确认预留</button>
               <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserve(false)}>取消</button>
             </div>
           </div>

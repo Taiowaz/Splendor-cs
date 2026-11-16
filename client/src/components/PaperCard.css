@@ -253,7 +253,8 @@
   gap: 0.3em;
 }
 
-/* 卡面按钮也是深漆描金：纸卡上嵌漆片，和牌桌 HUD 同一套；buy 是主按钮档 */
+/* 卡面按钮：预留＝绿漆纸字（次行动，和计数章同族绿）；buy＝深漆描金主档。
+   纸卡上嵌漆片，和牌桌 HUD 同一套工艺，只是行动色分档 */
 .paper-card .btn {
   flex: 1;
   text-align: center;
@@ -261,16 +262,16 @@
   font-size: 0.85em;
   padding: 0.25em;
   border-radius: 0.375em;
-  border: 1px solid rgba(201, 162, 39, 0.5);
-  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
-  color: #e6c878;
+  border: 1px solid rgba(158, 220, 178, 0.55);
+  background: linear-gradient(180deg, #2f7a52, #235c3e 55%, #1a4a31);
+  color: #f6f0e0;
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .paper-card .btn:hover {
-  border-color: rgba(230, 200, 120, 0.85);
-  box-shadow: 0 0 0.5em rgba(201, 162, 39, 0.3);
+  border-color: rgba(190, 240, 205, 0.9);
+  box-shadow: 0 0 0.5em rgba(64, 145, 90, 0.4);
 }
 
 .paper-card .btn.buy {
@@ -280,6 +281,11 @@
   color: #e6c878;
   font-weight: 700;
   border-color: #c9a227;
+}
+
+.paper-card .btn.buy:hover {
+  border-color: rgba(230, 200, 120, 0.85);
+  box-shadow: 0 0 0.5em rgba(201, 162, 39, 0.3);
 }
 
 /* CCF-B / CCF-C：缎带和产出角标跟着换档色 */

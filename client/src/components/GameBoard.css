@@ -238,7 +238,8 @@
 }
 /* 数量：右上角圆形小标。原来印在圆心，正好盖住筹码中间那枚 AR 线稿符号
    （FC 需求圈是符号居中 + 数字在右下，这里跟它同一套约定）。
-   墨底亮金字 + 纸环：六色圆片都偏亮，纸底白字会糊成一片读不出数。 */
+   绿漆底亮金字 + 纸环：墨底会沉进深漆底栏、只剩纸环看得见，绿漆底（与预留
+   按钮同族）把章从 bar 面上托起来；六色圆片都偏亮，纸底白字会糊成一片读不出数。 */
 .gem-num {
   position: absolute;
   top: -0.3em;
@@ -248,7 +249,7 @@
   height: 1.3em;
   padding: 0 0.12em;
   border-radius: 50%;
-  background: #26221c;
+  background: #1d5238;
   border: 0.08em solid #f1e8d4;
   box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
@@ -310,7 +311,7 @@
   height: 1.3em;
   padding: 0 0.12em;
   border-radius: 50%;
-  background: #26221c;
+  background: #1d5238;
   border: 0.08em solid #f1e8d4;
   box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
   font-family: 'Lobster', cursive;
@@ -444,7 +445,7 @@
   min-width: 1.6em;
   padding: 0 0.35em;
   border-radius: 1em;
-  background: #26221c;
+  background: #1d5238;
   border: 1px solid #f1e8d4;
   font-family: 'Lobster', cursive;
   font-size: 0.85em;
@@ -900,6 +901,20 @@
   border-color: rgba(201, 162, 39, 0.3);
 }
 .gb-btn-ghost:hover { color: #e6c878; }
+/* 预留行动档：绿漆纸字，和纸卡预留钮/计数章同族；主确认（拿取/购买）仍走金档 */
+.gb-btn-green {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(190, 240, 205, 0.14), transparent 60%),
+    linear-gradient(180deg, #2f7a52, #235c3e 55%, #1a4a31);
+  color: #f6f0e0;
+  font-weight: 700;
+  border-color: rgba(158, 220, 178, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(190, 240, 205, 0.18), 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+.gb-btn-green:hover {
+  border-color: rgba(190, 240, 205, 0.9);
+  box-shadow: inset 0 0 0 1px rgba(190, 240, 205, 0.26), 0 0 12px rgba(64, 145, 90, 0.35), 0 2px 6px rgba(0, 0, 0, 0.45);
+}
 
 /* ---- 弹窗 ---- */
 .gb-modal-overlay {
