@@ -67,8 +67,9 @@
 }
 
 /* 声誉筹码：和 VC 卡（论文卡）左上角那枚声誉章同一套配色 ——
-   金底 radial #f7f1e3 → #c9a227 → #8a6d1f、深金描边 #6b5616、深棕数字 #4a3a10，
-   这样牌桌上两种牌的声誉值看起来是同一类东西。
+   金币 radial #e6c878 → #c9a227 → #8a6d1f、深金描边 #6b5616、深棕数字 #4a3a10，
+   这样牌桌上两种牌的声誉值看起来是同一类东西。中心不能用近白：
+   压在 FC 纸面上会糊成一团浅斑，亮金中心才读得出是枚金币。
    圆心从三角深度 0.5d 推到 0.62d（往牌身方向挪），斜边余量反而从 0.054d 涨到 0.138d。 */
 .noble-prestige {
   --badge: calc(var(--flag-h) * 0.28);
@@ -81,7 +82,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c9a227 62%, #8a6d1f);
+  background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
   border: 0.12em solid #6b5616;
   box-shadow: 0 0.1em 0.25em rgba(0, 0, 0, 0.45), inset 0 0 0.3em rgba(201, 162, 39, 0.5);
   pointer-events: none;
@@ -145,7 +146,8 @@
 
 /* 需求筹码：直接用牌桌上那枚筹码图（images/tokens/*Token.png，宝石已换成我们的资源符号），
    圆圈本身就是筹码，不再叠矢量符号；数量改成右下角角标，因为符号已经烧在图里、
-   圈内没有位置再放数字。角标底色用米白，压在羊皮纸面和 navy 卡面上都读得清。 */
+   圈内没有位置再放数字。角标跟 gem-num 同一套墨底亮金字 + 纸环：
+   米白底压在 FC 纸面上会和卡面糊掉边界。 */
 .requirement-item {
   position: relative;
   width: min(2.4em, 29%);
@@ -171,9 +173,9 @@
   line-height: 1.35;
   min-width: 1.35em;
   text-align: center;
-  color: #38221c;
-  background: #f4ead0;
-  border: 0.09em solid #a8811f;
+  color: #e6c878;
+  background: #26221c;
+  border: 0.09em solid #f1e8d4;
   border-radius: 50%;
   box-shadow: 0 0.06em 0.14em rgba(0, 0, 0, 0.45);
 }

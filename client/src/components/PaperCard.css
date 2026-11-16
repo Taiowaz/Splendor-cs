@@ -74,7 +74,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: radial-gradient(circle at 38% 32%, #f7f1e3, #c9a227 62%, #8a6d1f);
+  background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
   border: 0.14em solid #6b5616;
   box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(201, 162, 39, 0.5);
   pointer-events: none;
