@@ -319,21 +319,18 @@ function App() {
           onLeave={handleLeaveRoom}
         />
       ) : screen === 'lobby' ? (
-        <>
-          <Lobby
-            playerName={playerName}
-            account={account}
-            connected={connected}
-            rooms={roomList}
-            maxPlayers={MAX_PLAYERS}
-            onNameChange={saveName}
-            onCreateRoom={handleCreateRoom}
-            onJoinRoom={handleJoinRoom}
-            onRefresh={requestRooms}
-            onBackToTitle={() => setScreen('title')}
-          />
-          <DebugPanel />
-        </>
+        <Lobby
+          playerName={playerName}
+          account={account}
+          connected={connected}
+          rooms={roomList}
+          maxPlayers={MAX_PLAYERS}
+          onNameChange={saveName}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+          onRefresh={requestRooms}
+          onBackToTitle={() => setScreen('title')}
+        />
       ) : (
         <TitleScreen
           playerName={playerName}
@@ -348,6 +345,10 @@ function App() {
           onEnterLobby={() => setScreen('lobby')}
         />
       )}
+
+      {/* 入口/大厅/等待室都挂测试开关（牌桌里那份在 GameBoard 内，层叠关系不动）；
+          没有对局时面板只开放底色排 */}
+      {screen !== 'game' && <DebugPanel />}
 
       {elsewhere && (
         <div className="sc-offline">
