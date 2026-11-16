@@ -156,13 +156,15 @@
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 10px;
-  background: var(--success);
-  color: white;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  color: #e6c878;
   transition: all 0.2s;
 }
 
 .btn-buy-mini:hover:not(:disabled) {
-  background: #06875a;
+  border-color: rgba(230, 200, 120, 0.85);
+  box-shadow: 0 0 6px rgba(201, 162, 39, 0.3);
 }
 
 .btn-buy-mini:disabled {

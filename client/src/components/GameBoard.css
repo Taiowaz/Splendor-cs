@@ -866,28 +866,40 @@
 }
 
 /* ---- 按钮 ---- */
+/* 按钮统一深漆描金：漆底 + 金边 + 亮金字；gold 是主按钮（泥金实边 + 顶部晕光），
+   ghost 是次按钮（弱边 + 暖灰字），hover 提边加晕光而不是整块刷金。 */
 .gb-btn {
   font-family: 'Judson', serif;
   font-size: 1rem;
   padding: 0.45rem 1.1rem;
   border-radius: 0.6rem;
+  color: #e6c878;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
   border: 1px solid rgba(201, 162, 39, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.12), 0 2px 6px rgba(0, 0, 0, 0.45);
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.1s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
-.gb-btn:hover { filter: brightness(1.12); }
+.gb-btn:hover {
+  border-color: rgba(230, 200, 120, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.2), 0 0 12px rgba(201, 162, 39, 0.3), 0 2px 6px rgba(0, 0, 0, 0.45);
+}
 .gb-btn:active { transform: translateY(1px); }
 .gb-btn-gold {
-  background: linear-gradient(to top, #b8912a, #c9a227, #d9b44a);
-  color: #26221c;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  color: #e6c878;
   font-weight: 700;
-  border-color: #8a6d1f;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  border-color: #c9a227;
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.22), 0 2px 6px rgba(0, 0, 0, 0.45);
 }
 .gb-btn-ghost {
-  background: rgba(138, 129, 114, 0.25);
-  color: #26221c;
+  background: linear-gradient(180deg, #1c242e, #141b23);
+  color: #b9ae9c;
+  border-color: rgba(201, 162, 39, 0.3);
 }
+.gb-btn-ghost:hover { color: #e6c878; }
 
 /* ---- 弹窗 ---- */
 .gb-modal-overlay {
@@ -988,15 +1000,17 @@
   height: 2.1rem;
   border-radius: 0.5rem;
   font-size: 1.1rem;
-  color: #7e6418;
-  background: rgba(241, 233, 214, 0.7);
-  border: 1px solid rgba(201, 162, 39, 0.5);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  color: #e6c878;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.12), 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 .gb-menu-btn:hover,
 .gb-menu-btn.active {
-  background: rgba(226, 213, 184, 0.95);
-  border-color: rgb(201, 162, 39);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: #e6c878;
 }
 .gb-menu-pop {
   position: absolute;
@@ -1018,15 +1032,21 @@
   border-radius: 0.45rem;
   font-family: inherit;
   font-size: 1rem;
-  color: #26221c;
-  background: rgba(138, 129, 114, 0.2);
-  border: 1px solid transparent;
+  color: #e6c878;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border: 1px solid rgba(201, 162, 39, 0.4);
 }
 .gb-menu-pop button:hover {
-  background: rgba(138, 129, 114, 0.45);
-  border-color: rgba(201, 162, 39, 0.5);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.14), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: rgba(230, 200, 120, 0.85);
 }
-.gb-menu-pop button.danger { color: #7e6418; }
+.gb-menu-pop button.danger {
+  background: linear-gradient(180deg, #4a3a10, #33280c);
+  border-color: rgba(230, 200, 120, 0.5);
+  color: #f6f0e0;
+}
 .gb-menu-room {
   display: flex;
   justify-content: space-between;

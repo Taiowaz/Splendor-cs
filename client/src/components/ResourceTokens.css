@@ -119,9 +119,9 @@
   width: 24px;
   height: 24px;
   border-radius: 4px;
-  border: 1px solid var(--border);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: linear-gradient(180deg, #1c242e, #141b23);
+  color: #e6c878;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
@@ -132,8 +132,10 @@
 }
 
 .token-controls button:hover:not(:disabled) {
-  background: var(--accent);
-  border-color: var(--accent);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    linear-gradient(180deg, #1c242e, #141b23);
+  border-color: rgba(230, 200, 120, 0.85);
 }
 
 .token-controls button:disabled {

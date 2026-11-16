@@ -15,13 +15,19 @@
   padding: 6px 12px;
   font-size: 12px;
   border-radius: 8px;
-  border: 1px solid #845a33;
-  background: rgba(132, 90, 51, 0.85);
-  color: #f6f0e0;
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  color: #e6c878;
   cursor: pointer;
 }
-.dbg-toggle:hover { filter: brightness(1.1); }
-.dbg-toggle.open { background: rgba(120, 112, 96, 0.9); color: #f2ead6; border-color: #8a8272; }
+.dbg-toggle:hover { border-color: rgba(230, 200, 120, 0.85); }
+.dbg-toggle.open {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  color: #e6c878;
+  border-color: #c9a227;
+}
 
 .dbg-panel {
   width: max-content;
@@ -105,22 +111,22 @@
   height: 18px;
   padding: 0;
   line-height: 16px;
-  border: 1px solid #5a5342;
+  border: 1px solid rgba(201, 162, 39, 0.45);
   border-radius: 4px;
   background: transparent;
   color: #e8e0cc;
   font-size: 12px;
   cursor: pointer;
 }
-.dbg-res button:hover { border-color: #845a33; color: #e6c878; }
+.dbg-res button:hover { border-color: rgba(230, 200, 120, 0.85); color: #e6c878; }
 
 .dbg-clear {
   padding: 2px 6px;
-  border: 1px solid #5a5342;
+  border: 1px solid rgba(201, 162, 39, 0.4);
   border-radius: 4px;
   background: transparent;
   color: #9c9480;
   font-size: 11px;
   cursor: pointer;
 }
-.dbg-clear:hover { border-color: #845a33; color: #e6c878; }
+.dbg-clear:hover { border-color: rgba(230, 200, 120, 0.85); color: #e6c878; }

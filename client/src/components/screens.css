@@ -187,8 +187,8 @@
   gap: 0.25rem;
   padding: 0.25rem;
   border-radius: 0.6rem;
-  background: rgba(226, 213, 184, 0.7);
-  border: 1px solid rgba(201, 162, 39, 0.3);
+  background: #10161d;
+  border: 1px solid rgba(201, 162, 39, 0.35);
 }
 
 .sc-tabs button {
@@ -196,7 +196,7 @@
   border: none;
   border-radius: 0.4rem;
   background: none;
-  color: #6b6152;
+  color: #9b9184;
   font-family: inherit;
   font-size: 0.98rem;
   letter-spacing: 0.04em;
@@ -204,13 +204,14 @@
 }
 
 .sc-tabs button:hover {
-  color: #7e6418;
+  color: #e6c878;
 }
 
 .sc-tabs button.on {
-  background: linear-gradient(180deg, #d9b44a, #c9a227);
-  color: #26221c;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  color: #e6c878;
   font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.3);
 }
 
 .sc-auth {
@@ -284,7 +285,9 @@
   background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.55), transparent);
 }
 
-/* ---- 按钮 ---- */
+/* ---- 按钮 ----
+   统一深漆描金：漆底（#26303c→#1a222c→#151c25）+ 金边 + 亮金字，
+   主按钮泥金实边加顶部晕光，危险按钮深古铜漆配纸色字。 */
 .sc-btn {
   padding: 0.75rem 1.1rem;
   border-radius: 0.55rem;
@@ -292,10 +295,11 @@
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: #26221c;
-  background: rgba(226, 213, 184, 0.85);
-  border: 1px solid rgba(201, 162, 39, 0.45);
-  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+  color: #e6c878;
+  background: linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.12), 0 2px 6px rgba(0, 0, 0, 0.45);
+  transition: transform 0.12s ease, background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -303,8 +307,11 @@
 }
 
 .sc-btn:hover:not(:disabled) {
-  background: rgba(201, 189, 159, 0.95);
-  border-color: rgba(201, 162, 39, 0.9);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.14), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: rgba(230, 200, 120, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.2), 0 0 12px rgba(201, 162, 39, 0.3), 0 2px 6px rgba(0, 0, 0, 0.45);
   transform: translateY(-1px);
 }
 
@@ -314,19 +321,32 @@
 }
 
 .sc-btn.primary {
-  background: linear-gradient(180deg, #d9b44a, #b8912a);
-  border-color: rgba(126, 100, 24, 0.55);
-  color: #26221c;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: #c9a227;
+  color: #e6c878;
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.22), 0 2px 6px rgba(0, 0, 0, 0.45);
 }
 
 .sc-btn.primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #e6c878, #c9a227);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.22), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: #e6c878;
 }
 
 .sc-btn.danger {
-  background: rgba(92, 74, 18, 0.9);
-  border-color: rgba(201, 162, 39, 0.55);
-  color: #f7f1e3;
+  background: linear-gradient(180deg, #4a3a10, #33280c);
+  border-color: rgba(230, 200, 120, 0.5);
+  color: #f6f0e0;
+}
+
+.sc-btn.danger:hover:not(:disabled) {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(246, 240, 224, 0.12), transparent 60%),
+    linear-gradient(180deg, #4a3a10, #33280c);
+  border-color: rgba(230, 200, 120, 0.85);
 }
 
 .sc-btn.small {
@@ -334,15 +354,21 @@
   font-size: 0.92rem;
 }
 
-/* 「回到牌桌」：回自己那局是这行唯一要做的事，用金色主按钮的份量，别混在普通「加入」里 */
+/* 「回到牌桌」：回自己那局是这行唯一要做的事，用主按钮的金边份量，别混在普通「加入」里 */
 .sc-btn.small.rejoin {
-  background: linear-gradient(180deg, #7e6418, #5c4a12);
-  border-color: rgba(201, 162, 39, 0.6);
-  color: #f6f0e0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: #c9a227;
+  color: #e6c878;
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.22), 0 2px 6px rgba(0, 0, 0, 0.45);
 }
 
 .sc-btn.small.rejoin:hover:not(:disabled) {
-  background: linear-gradient(180deg, #8a6d1f, #6b5616);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.22), transparent 60%),
+    linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
+  border-color: #e6c878;
 }
 
 /* 按钮下面那行说明：负 margin 把它往按钮上收，和下一个按钮之间留出组间距，
