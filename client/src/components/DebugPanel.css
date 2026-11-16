@@ -49,16 +49,23 @@
 .dbg-head b { color: #e6c878; font-size: 12px; }
 .dbg-head span { color: #9c9480; font-size: 11px; }
 
-/* 底色切换排：小色块 + 名字，选中描金边。色块用各主题的中间档底色。 */
+/* 底色切换排：小色块 + 名字，选中描金边。色块用各主题的中间档底色。
+   12 套排两行六列，「底色」标签跨两行居左，面板宽度仍由玩家行决定。 */
 .dbg-grounds {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto repeat(6, max-content);
   gap: 5px;
+  align-items: center;
   margin: 0 0 9px;
   padding-bottom: 9px;
   border-bottom: 1px solid rgba(230, 200, 120, 0.14);
 }
-.dbg-ground-label { color: #9c9480; font-size: 11px; margin-right: 2px; }
+.dbg-ground-label {
+  grid-row: 1 / 3;
+  color: #9c9480;
+  font-size: 11px;
+  margin-right: 2px;
+}
 .dbg-ground {
   display: flex;
   align-items: center;

@@ -18,7 +18,13 @@ const GROUNDS = [
   ['daiqing', '黛青', '#051820'],
   ['songyan', '松烟', '#08160e'],
   ['zheqi', '赭漆', '#180e05'],
-  ['qingdai', '青黛', '#0d1226']
+  ['qingdai', '青黛', '#0d1226'],
+  ['zimo', '缁墨', '#0e0e0e'],
+  ['tiehui', '铁灰', '#121518'],
+  ['cangtai', '苍苔', '#13150a'],
+  ['diancui', '点翠', '#061a2c'],
+  ['xiekeqing', '蟹壳青', '#101511'],
+  ['hupo', '琥珀', '#1d1805']
 ]
 
 export const GROUND_KEY = 'splendor-ground'

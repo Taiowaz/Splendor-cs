@@ -143,6 +143,90 @@ html::-webkit-scrollbar-corner { background: rgba(var(--ground-rgb), 0.9); }
   --ground: #070b16;
   --ground-rgb: 7, 11, 22;
 }
+:root[data-ground='zimo'] {
+  /* 缁墨：僧衣缁色那档纯黑，不暖不冷，和玄墨的暖黑对照 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.09), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(96, 96, 100, 0.05), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(118, 118, 118, 0.05), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(118, 118, 118, 0.04), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #141414 0%, #0e0e0e 48%, #070707 100%);
+  --ground: #070707;
+  --ground-rgb: 7, 7, 7;
+}
+:root[data-ground='tiehui'] {
+  /* 铁灰：冷石墨 slate，灰雾比瓷青重、蓝味比瓷青轻 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.08), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(96, 110, 122, 0.07), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(126, 134, 140, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(126, 134, 140, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #191d21 0%, #121518 48%, #0a0c0e 100%);
+  --ground: #0a0c0e;
+  --ground-rgb: 10, 12, 14;
+}
+:root[data-ground='cangtai'] {
+  /* 苍苔：橄榄苔绿，黄味压过绿味，和松烟的松绿对照 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.09), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(112, 116, 44, 0.08), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(120, 120, 86, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(120, 120, 86, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #1c1e10 0%, #13150a 48%, #0b0c05 100%);
+  --ground: #0b0c05;
+  --ground-rgb: 11, 12, 5;
+}
+:root[data-ground='diancui'] {
+  /* 点翠：翠鸟羽那档饱和蓝，比黛青偏纯蓝、比青黛少紫味 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.08), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(22, 110, 169, 0.1), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(80, 105, 125, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(80, 105, 125, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #0a2740 0%, #061a2c 48%, #030f1a 100%);
+  --ground: #030f1a;
+  --ground-rgb: 3, 15, 26;
+}
+:root[data-ground='xiekeqing'] {
+  /* 蟹壳青：蟹壳那档灰绿，绿里掺灰，比松烟哑、比苍苔冷 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.08), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(74, 104, 88, 0.07), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(104, 118, 108, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(104, 118, 108, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #161c18 0%, #101511 48%, #080c09 100%);
+  --ground: #080c09;
+  --ground-rgb: 8, 12, 9;
+}
+:root[data-ground='hupo'] {
+  /* 琥珀：金褐黑，黄味压过赭漆的红味，泥金晕光最浓的一档 */
+  --silk:
+    radial-gradient(52rem 34rem at 88% -12%, rgba(217, 180, 74, 0.12), transparent 62%),
+    radial-gradient(46rem 32rem at 6% 108%, rgba(164, 124, 32, 0.1), transparent 60%),
+    radial-gradient(64rem 20rem at 16% 104%, rgba(146, 120, 70, 0.06), transparent 70%),
+    radial-gradient(72rem 22rem at 84% 108%, rgba(146, 120, 70, 0.05), transparent 70%),
+    radial-gradient(130% 100% at 50% 38%, transparent 48%, rgba(0, 0, 0, 0.68) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='260' height='260' fill='%23f6f0e0' filter='url(%23p)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(0deg, rgba(246, 240, 224, 0.018) 0 1px, transparent 1px 6px),
+    linear-gradient(168deg, #2a2408 0%, #1d1805 48%, #120e03 100%);
+  --ground: #120e03;
+  --ground-rgb: 18, 14, 3;
+}
 
 button {
   cursor: pointer;
