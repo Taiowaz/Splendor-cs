@@ -688,10 +688,11 @@
   justify-content: center;
   padding-left: 0.2em;
   clip-path: polygon(0 0, calc(100% - 0.45em) 0, 100% 50%, calc(100% - 0.45em) 100%, 0 100%);
-  background: linear-gradient(180deg, rgba(201, 162, 39, 0.9), rgba(201, 162, 39, 0.85));
+  /* 机构徽标多为白色：旗面用深铜/深漆托底，金底会把白徽标吃掉 */
+  background: linear-gradient(180deg, #5a4212, #33250a);
 }
 .opp-fc[data-tier='triple'] {
-  background: linear-gradient(180deg, #f7f1e3, #8a6d1f);
+  background: linear-gradient(180deg, #2b3440, #10161d);
 }
 .opp-fc + .opp-fc { margin-left: -1.5em; }
 .opp-fc img {
@@ -1099,6 +1100,70 @@
   .tb-sub, .tb-item span { display: none; }
 }
 
+/* ---- 我的会士旗：本人资源条末尾，和对手框 .opp-fc 同一套旗面 ---- */
+.mc-nobles {
+  display: flex;
+  align-items: center;
+  padding-left: 0.9rem;
+  margin-left: 0.2rem;
+  border-left: 1px solid rgba(201, 162, 39, 0.35);
+}
+.mc-nobles .opp-fc { width: 2.6em; height: 2.2em; }
+.mc-nobles .opp-fc + .opp-fc { margin-left: -1.2em; }
+
+/* ---- 会士来访徽记：盖章动画盖在牌桌上，自动收 / 点一下收 ---- */
+.gb-noble-gain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: radial-gradient(60% 60% at 50% 45%, rgba(201, 162, 39, 0.16), rgba(4, 7, 11, 0.66) 75%);
+  cursor: pointer;
+  animation: ng-fade 0.3s ease-out;
+}
+@keyframes ng-fade { from { opacity: 0; } }
+.ng-rays {
+  position: absolute;
+  inset: -20%;
+  background: repeating-conic-gradient(from 0deg, rgba(230, 200, 120, 0.1) 0deg 6deg, transparent 6deg 24deg);
+  -webkit-mask-image: radial-gradient(45% 45% at 50% 50%, #000 0%, transparent 70%);
+  mask-image: radial-gradient(45% 45% at 50% 50%, #000 0%, transparent 70%);
+  animation: ng-spin 14s linear infinite;
+}
+@keyframes ng-spin { to { transform: rotate(360deg); } }
+.ng-card {
+  position: relative;
+  animation: ng-stamp 0.6s cubic-bezier(0.2, 1.3, 0.4, 1);
+  filter: drop-shadow(0 0 1.4rem rgba(230, 200, 120, 0.45));
+}
+.ng-card .noble-flag { --card-w: 170px; --flag-font-ref: 170px; --flag-h: 156px; --fc-scale: 1; }
+@keyframes ng-stamp {
+  0% { opacity: 0; transform: scale(2.1) rotate(-10deg); }
+  60% { opacity: 1; transform: scale(0.94) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.ng-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  text-align: center;
+  /* 徽记可能落在亮纸卡上，金字直接压纸面读不清：垫一块深漆底板 */
+  padding: 0.55rem 1.1rem 0.6rem;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  border-radius: 0.6rem;
+  background: rgba(14, 20, 27, 0.86);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+  animation: ng-rise 0.5s 0.25s backwards;
+}
+@keyframes ng-rise { from { opacity: 0; transform: translateY(0.8rem); } }
+.ng-text b { color: #e6c878; font-size: 1.25rem; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); }
+.ng-text span { color: rgba(241, 232, 212, 0.8); font-size: 0.85rem; }
 
 /* ---- 终局覆盖层：牌桌原样锁在下面， scrim＋金粉＋盖章结算面板 ----
    主动收起后整桌供回看，.gb-over-reopen 浮动按钮再唤回。 */
@@ -1643,6 +1708,9 @@
   .tb-item b { font-size: 0.8rem; }
   .tb-item img { width: 1.15em; height: 1.15em; }
   .tb-close { width: 1.3rem; height: 1.3rem; font-size: 0.6rem; }
+  .mc-nobles { padding-left: 0.6rem; }
+  .ng-card .noble-flag { --card-w: 132px; --flag-font-ref: 132px; --flag-h: 120px; }
+  .ng-text b { font-size: 1.05rem; }
   .over-panel { padding: 1.1rem 1rem 1rem; max-height: 82vh; }
   .gb-over-reopen { right: 0.6rem; bottom: 5.6rem; }
 }

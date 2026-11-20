@@ -20,6 +20,12 @@ function App() {
   const [roomList, setRoomList] = useState([])
   const [gameState, setGameState] = useState(null)
   const [notification, setNotification] = useState(null)
+  // 本人拿到会士卡的那一刻：{ noble, at }，牌桌上盖盖章徽记；对手拿则走 toast
+  const [nobleGain, setNobleGain] = useState(null)
+  const clearNobleGain = useCallback(() => setNobleGain(null), [])
+  // 消息批处理的闭包拿不到最新 gameState，名字查询走 ref
+  const playersRef = useRef([])
+  playersRef.current = gameState?.players || []
   // 每开一局换一次 key：牌桌那些内部状态（选中筹码、预留弹窗）得跟着新一局清空
   const [gameSeq, setGameSeq] = useState(0)
   // 快速开局＝建房 + 塞 3 个 AI + 直接开始。房号要等 room_created 回来才有，
@@ -160,6 +166,7 @@ function App() {
         case 'game_started':
           setGameState(m.gameState)
           setGameSeq(s => s + 1)
+          setNobleGain(null)
           setScreen('game')
           break
 
@@ -180,7 +187,12 @@ function App() {
           break
 
         case 'noble_visit':
-          showNotification(m.message)
+          if (m.playerId === myPlayerId) {
+            setNobleGain({ noble: m.noble, at: Date.now() })
+          } else {
+            const who = playersRef.current.find(p => p.id === m.playerId)?.name || '有人'
+            showNotification(`${who} 获得会士卡 ${m.noble.cn}（+${m.noble.prestige} 声誉）`)
+          }
           break
 
         case 'game_over':
@@ -307,6 +319,8 @@ function App() {
           onExitRoom={handleLeaveRoom}
           onDebugSetTokens={(playerId, tokens) => sendMessage({ type: 'debug_set_tokens', playerId, tokens })}
           onDebugSetReserved={(playerId, delta) => sendMessage({ type: 'debug_reserved', playerId, delta })}
+          nobleGain={nobleGain}
+          onNobleGainDone={clearNobleGain}
         />
       ) : screen === 'room' && room ? (
         <WaitingRoom

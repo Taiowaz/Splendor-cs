@@ -46,7 +46,9 @@ export default function GameBoard({
   onRestart,
   onExitRoom,
   onDebugSetTokens,
-  onDebugSetReserved
+  onDebugSetReserved,
+  nobleGain,
+  onNobleGainDone
 }) {
   const [selectedTokens, setSelectedTokens] = useState({})
   const [showReserve, setShowReserve] = useState(false)
@@ -119,6 +121,12 @@ export default function GameBoard({
   useEffect(() => {
     if (!gameState.gameOver) setOverDismissed(false)
   }, [gameState.gameOver])
+  // 会士来访徽记：盖 3.4 秒自动收，点一下也收
+  useEffect(() => {
+    if (!nobleGain) return
+    const t = setTimeout(onNobleGainDone, 3400)
+    return () => clearTimeout(t)
+  }, [nobleGain, onNobleGainDone])
 
   // 拿筹码的合法组合只有三种：3 个不同色、2 枚同色（银行该色 ≥4）、单独 1 枚咖啡。
   // 咖啡（万能）不占「3 个不同色」的名额，也不能凑 2 枚 —— 「拿 1 枚咖啡」本身就是
@@ -513,6 +521,19 @@ export default function GameBoard({
             ))}
           </div>
         )}
+
+        {/* 我的会士旗：和对手框里 .opp-fc 同一套旗面，常驻本人资源条末尾，
+            拿到的那一刻另有盖章徽记（.gb-noble-gain） */}
+        {(myPlayer?.nobles || []).length > 0 && (
+          <div className="mc-nobles" title={`我的会士卡 ${myPlayer.nobles.length} 张`}>
+            {myPlayer.nobles.map(n => (
+              <div key={n.id} className="opp-fc" data-tier={n.tier}
+                title={`${n.cn}｜声誉 ${n.prestige}`}>
+                {n.logo ? <img src={n.logo} alt="" /> : <span>{n.name}</span>}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 预留确认弹窗 */}
@@ -677,6 +698,21 @@ export default function GameBoard({
               </div>
             </div>
             <p className="ts-hint">拖大浏览器窗口，或按 <kbd>F11</kbd> 全屏。</p>
+          </div>
+        </div>
+      )}
+
+      {/* 会士来访：盖章徽记盖在牌桌上，3.4 秒自动收 / 点一下收。
+          旗面本体随后常驻本人资源条（.mc-nobles） */}
+      {nobleGain && (
+        <div className="gb-noble-gain" onClick={onNobleGainDone} title="点一下收起">
+          <div className="ng-rays" />
+          <div className="ng-card">
+            <NobleTile noble={nobleGain.noble} />
+          </div>
+          <div className="ng-text">
+            <b>{nobleGain.noble.cn} 认可了你的学术成就！</b>
+            <span>+{nobleGain.noble.prestige} 声誉 · 会士旗已挂进你的资源条</span>
           </div>
         </div>
       )}
