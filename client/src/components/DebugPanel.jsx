@@ -49,7 +49,7 @@ export function applyFc(key) {
   document.documentElement.dataset.fc = key
 }
 
-export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetReserved }) {
+export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetReserved, onSetVc }) {
   const [open, setOpen] = useState(false)
   const [ground, setGround] = useState(() => localStorage.getItem(GROUND_KEY) || 'ciqing')
   const [fc, setFc] = useState(() => localStorage.getItem(FC_KEY) || 'auto')
@@ -61,6 +61,8 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
   const players = gameState?.players || null
 
   const bank = gameState?.bank?.tokens || {}
+  const drawTotal = ['draw1Count', 'draw2Count', 'draw3Count']
+    .reduce((s, k) => s + (gameState?.bank?.[k] || 0), 0)
 
   const commit = (player, type, raw) => {
     const key = `${player.id}:${type}`
@@ -74,6 +76,18 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
     onSetTokens(player.id, { [type]: n })
   }
 
+  const commitVc = (player, type, raw) => {
+    const key = `${player.id}:vc:${type}`
+    const n = parseInt(raw, 10)
+    setDraft(prev => {
+      const rest = { ...prev }
+      delete rest[key]
+      return rest
+    })
+    if (!Number.isInteger(n) || n < 0) return
+    onSetVc(player.id, type, n)
+  }
+
   const clearRow = player =>
     onSetTokens(player.id, Object.fromEntries(TYPES.map(([type]) => [type, 0])))
 
@@ -85,7 +99,7 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
             <b>{players ? '测试：设置各玩家资源' : '测试：底色与资源'}</b>
             <span>
               {players
-                ? '每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预留卡从牌桌明面发/收'
+                ? '每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预留卡从牌桌明面发/收；VC 按产出设张数（发真卡、立即判 FC）'
                 : '底色随时可换并记住；筹码与预留卡编辑进牌桌后开放'}
             </span>
           </div>
@@ -176,6 +190,39 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
                       >＋</button>
                     </div>
                     <button className="dbg-clear" onClick={() => clearRow(p)}>清零</button>
+                  </div>
+                  <div
+                    className="dbg-vc"
+                    title="VC（已发表论文）产出：FC 只认这个口径，筹码凑不出来。设到几就发/收几张该产出的真卡，每发一张立即判 FC；已来的 FC 不收回"
+                  >
+                    <span className="dbg-tag">VC</span>
+                    <div className="dbg-cells">
+                      {TYPES.slice(0, 5).map(([type, label, gem]) => {
+                        const key = `${p.id}:vc:${type}`
+                        const has = p.bonus?.[type] ?? 0
+                        const face = [1, 2, 3].reduce((s, t) => s + (gameState.bank[`tier${t}`] || []).filter(c => c.bonus === type).length, 0)
+                        // 上限只是粗界：抽牌堆只下发总数、不下发按色明细，真发完会弹带名提示
+                        const max = face + has + drawTotal
+                        return (
+                          <label
+                            key={type}
+                            className="dbg-cell"
+                            title={`${label}产出｜已有 ${has}｜明面 ${face}｜最多能设到 ${max}（牌堆该色发完会弹提示）`}
+                          >
+                            <img src={gem} alt="" />
+                            <input
+                              type="number"
+                              min="0"
+                              max={max}
+                              value={draft[key] ?? has}
+                              onChange={e => setDraft(prev => ({ ...prev, [key]: e.target.value }))}
+                              onBlur={e => commitVc(p, type, e.target.value)}
+                              onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
+                            />
+                          </label>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>

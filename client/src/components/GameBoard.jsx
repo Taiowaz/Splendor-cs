@@ -47,6 +47,7 @@ export default function GameBoard({
   onExitRoom,
   onDebugSetTokens,
   onDebugSetReserved,
+  onDebugSetVc,
   nobleGain,
   onNobleGainDone
 }) {
@@ -680,6 +681,7 @@ export default function GameBoard({
         myPlayerId={myPlayerId}
         onSetTokens={onDebugSetTokens}
         onSetReserved={onDebugSetReserved}
+        onSetVc={onDebugSetVc}
       />
 
       {tooSmall && (

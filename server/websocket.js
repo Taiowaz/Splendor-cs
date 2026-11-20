@@ -145,6 +145,9 @@ export function setupWebSocket(server) {
           case 'debug_reserved':
             handleDebugReserved(message);
             break;
+          case 'debug_vc':
+            handleDebugVc(message);
+            break;
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
         }
@@ -722,6 +725,94 @@ export function setupWebSocket(server) {
         else game.bank[`draw${card.tier}`].push(card);
       } else {
         return;
+      }
+
+      broadcastToRoomWithPlayerState(conn.roomId, {
+        type: 'debug_update'
+      }, game);
+    }
+
+    // 测试面板设 VC（已发表论文）张数：FC 判分只认 player.bonus（VC 产出累计），
+    // 光设筹码凑不出会士卡，所以这里按产出逐色设到目标张数：差额从明面/抽牌堆取该
+    // 产出的真卡进 player.cards（bonus/prestige 照买卡口径累加），每发一张立即判一次
+    // FC（来访动画与买卡同一条 noble_visit 广播）；调小则退最后一张同产出卡回牌桌。
+    // 已来的 FC 不收回。
+    const VC_CN = { data: '数据', compute: '算力', citation: '引用', collaborator: '合作者', funding: '经费' };
+    function vcGrant(game, player, type) {
+      let tier = 0, idx = -1, fromDraw = false;
+      for (const t of [1, 2, 3]) {
+        const i = game.bank[`tier${t}`].findIndex(c => c.bonus === type);
+        if (i !== -1) { tier = t; idx = i; break; }
+      }
+      if (idx === -1) {
+        for (const t of [1, 2, 3]) {
+          const i = game.bank[`draw${t}`].findIndex(c => c.bonus === type);
+          if (i !== -1) { tier = t; idx = i; fromDraw = true; break; }
+        }
+      }
+      if (idx === -1) return null;
+      const row = fromDraw ? game.bank[`draw${tier}`] : game.bank[`tier${tier}`];
+      const card = row.splice(idx, 1)[0];
+      if (!fromDraw) refillTier(game, tier);
+      player.cards.push(card);
+      player.bonus[type]++;
+      player.prestige += card.prestige;
+      const noble = checkNobleVisit(player, game.bank.nobles);
+      if (noble) {
+        player.prestige += noble.prestige;
+        player.nobles.push(noble);
+        game.bank.nobles = game.bank.nobles.filter(n => n.id !== noble.id);
+      }
+      return { card, noble };
+    }
+    function vcRevoke(game, player, type) {
+      let idx = -1;
+      for (let i = player.cards.length - 1; i >= 0; i--) {
+        if (player.cards[i].bonus === type) { idx = i; break; }
+      }
+      if (idx === -1) return null;
+      const card = player.cards.splice(idx, 1)[0];
+      player.bonus[type]--;
+      player.prestige -= card.prestige;
+      const row = game.bank[`tier${card.tier}`];
+      if (row.length < FACE_UP) row.push(card);
+      else game.bank[`draw${card.tier}`].push(card);
+      return card;
+    }
+    function handleDebugVc(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!game.players.some(p => p.id === conn.playerId)) return;
+      const player = game.players.find(p => p.id === message.playerId);
+      if (!player) {
+        ws.send(JSON.stringify({ type: 'error', message: '找不到该玩家（牌桌可能已重开）' }));
+        return;
+      }
+      const type = message.resource;
+      const count = message.count;
+      if (!VC_CN[type] || !Number.isInteger(count) || count < 0) return;
+
+      let exhausted = false;
+      while (player.bonus[type] < count) {
+        const r = vcGrant(game, player, type);
+        if (!r) { exhausted = true; break; }
+        if (r.noble) {
+          broadcastToRoom(conn.roomId, {
+            type: 'noble_visit',
+            playerId: player.id,
+            noble: r.noble,
+            message: `${r.noble.cn} 认可了 ${player.name} 的学术成就！+${r.noble.prestige} 声誉`
+          });
+        }
+      }
+      while (player.bonus[type] > count) vcRevoke(game, player, type);
+      if (exhausted) {
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: `牌库里「${VC_CN[type]}」产出的 VC 不够，${player.name} 只设到 ${player.bonus[type]} 张`
+        }));
       }
 
       broadcastToRoomWithPlayerState(conn.roomId, {

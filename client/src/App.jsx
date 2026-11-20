@@ -319,6 +319,7 @@ function App() {
           onExitRoom={handleLeaveRoom}
           onDebugSetTokens={(playerId, tokens) => sendMessage({ type: 'debug_set_tokens', playerId, tokens })}
           onDebugSetReserved={(playerId, delta) => sendMessage({ type: 'debug_reserved', playerId, delta })}
+          onDebugSetVc={(playerId, resource, count) => sendMessage({ type: 'debug_vc', playerId, resource, count })}
           nobleGain={nobleGain}
           onNobleGainDone={clearNobleGain}
         />

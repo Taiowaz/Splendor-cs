@@ -224,6 +224,14 @@
 /* 到界只锁本行：满 3 张锁＋、空锁−，别让人误以为整面板发不了 */
 .dbg-res button:disabled { opacity: 0.35; cursor: not-allowed; }
 .dbg-res button:disabled:hover { border-color: rgba(201, 162, 39, 0.45); color: #e8e0cc; }
+
+/* VC 产出行：跟 AR 排同款格子同款间距，FC 只认 VC 产出，
+   所以这排跟筹码排分开画，避免误以为设筹码就能凑会士卡。 */
+.dbg-vc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .dbg-pre {
   color: #e6c878;
   font-size: 11px;
