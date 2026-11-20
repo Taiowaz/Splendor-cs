@@ -712,3 +712,22 @@
   .sc-title .sc-btn-note { margin: -0.25rem 0 0; font-size: 0.76rem; }
   .sc-title .sc-status { font-size: 0.8rem; }
 }
+
+/* ---- 窄屏手机（入口 / 大厅 / 等待室）----
+   面板本来就 min(92vw,…) 自适应，这里只把标题扇面和表格字号收一档，
+   免得 390 宽下 logo 顶到金栏、大厅表格挤成两行。 */
+@media (max-width: 600px) {
+  .sc { padding: 1.4rem 0.9rem; gap: 0.9rem; }
+  .sc::before { inset: 0.35rem; }
+  .sc-logo { font-size: 2.6rem; letter-spacing: 0.1em; }
+  .sc-decks { height: 6rem; width: 12rem; margin-bottom: 1rem; }
+  .sc-deck { width: 4.6rem; }
+  .sc-deck.c { transform: translateX(-50%) rotate(-13deg) translateX(-2.6rem); }
+  .sc-deck.b { transform: translateX(-50%) rotate(13deg) translateX(2.6rem); }
+  .sc-tagline { font-size: 0.92rem; }
+  .sc-panel { padding: 1.2rem 1.1rem; }
+  .sc-head h2 { font-size: 1.3rem; }
+  .sc-table { font-size: 0.88rem; }
+  .sc-table td.room-code { letter-spacing: 0.06em; }
+  .sc-code strong { font-size: 1.4rem; letter-spacing: 0.16em; }
+}

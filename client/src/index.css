@@ -63,6 +63,16 @@ html:has(.gb-playing) body {
   overflow: hidden;
 }
 
+/* 手机端牌桌改成可竖滚的响应式布局（见 GameBoard.css 的移动端断点），
+   不再锁死整页：横向仍裁掉（牌桌不横滚），纵向放开让内容滚。 */
+@media (max-width: 900px) {
+  html:has(.gb-playing),
+  html:has(.gb-playing) body {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 /* 整页滚动条跟牌桌同一套瓷青描金皮：青黑轨、泥金 thumb、hover 提亮 */
 html::-webkit-scrollbar { width: 10px; height: 10px; }
 html::-webkit-scrollbar-track { background: rgba(var(--ground-rgb), 0.9); }

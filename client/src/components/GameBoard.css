@@ -1217,3 +1217,234 @@
   background: #10161d;
   border: 1px solid rgba(201, 162, 39, 0.45);
 }
+
+/* 点按看大图的弹窗（移动端）：卡面放大到能读，行动钮收在卡下面 */
+.paper-card.tappable { cursor: pointer; }
+.gb-inspect-modal { width: min(94vw, 320px); }
+.inspect-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  max-height: 62vh;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  scrollbar-color: rgba(217, 180, 74, 0.6) rgba(16, 22, 29, 0.8);
+  scrollbar-width: thin;
+}
+.inspect-list .paper-card { --vc-w: min(64vw, 240px); }
+.gb-inspect-modal .gb-modal-buttons + .gb-modal-buttons { margin-top: 0.6rem; }
+
+/* ===== 手机端（≤900px）=====
+   桌面是 1280×768 保底＋禁滚动＋「窗口太小」遮罩；手机改成可滚的响应式牌桌：
+   竖屏单列从上往下滚，横屏把对手条和会士列并排顶栏、卡行整宽，少滚一点。
+   hover 在触屏上不存在：牌桌小卡 / 对手预留摞点按进 .gb-inspect-modal 看大图，
+   本人预留摞点按进既有 .gb-reserved-modal。卡行/对手条/会士列横向滚动，
+   滚动条全用描金那套皮。桌面（>900px）一条都不进。 */
+@media (max-width: 900px) {
+  :root {
+    --vc-w: clamp(118px, 33vw, 160px);
+    --vc-col: calc(4.5 * var(--vc-w) + 1.4rem);
+    --main-pad-l: 0.8rem;
+    --board-min-w: 0px;
+    --board-min-h: 0px;
+  }
+
+  .gb-root {
+    overflow: visible;
+    /*  fixed 底在 iOS  Safari 上会随滚动跳，改 scroll 让八层笺纸跟着内容走 */
+    background-attachment: scroll;
+  }
+  .gb-playing {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+  }
+  .gb-toosmall { display: none; }
+
+  /* 顶栏吸顶：标题＋回合标两行，滚动时回合提示始终可见 */
+  .gb-topbar {
+    position: sticky;
+    top: 0;
+    height: auto;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.5rem 3rem 0.55rem;
+  }
+  .gb-title { font-size: 1.5rem; }
+  .gb-turnpill { position: static; font-size: 0.85rem; padding: 0.25rem 0.8rem; }
+  .gb-menu { top: 0.5rem; left: 0.6rem; }
+
+  /* 主体单列：对手条 → 会士 → 卡行 → 筹码池，底栏固定让出 6.5rem */
+  .gb-main {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.9rem;
+    padding: 0.8rem 0.8rem 6.5rem;
+    overflow: visible;
+  }
+  .gb-players { order: 1; }
+  .gb-nobles { order: 2; }
+  .gb-cards { order: 3; }
+  .gb-tokenpool { order: 4; }
+
+  /* 对手：横向滚动条，一框一卡宽，6 格改 3 列 2 行更矮 */
+  .gb-players {
+    --opp-em: 0.8rem;
+    grid-area: auto;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    width: 100%;
+    height: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.6rem;
+    padding-bottom: 0.4rem;
+    scrollbar-color: rgba(217, 180, 74, 0.55) rgba(var(--ground-rgb), 0.6);
+    scrollbar-width: thin;
+  }
+  .opp-reserved-slot { --vc-w: 22px; }
+  /* 触屏没有 hover，摞不摊开也不放大，点按进弹窗看 */
+  .opp-reserved:hover .opp-reserved-slot + .opp-reserved-slot { margin-left: calc(var(--vc-w) * -0.6); }
+  .opp-reserved-slot:hover .paper-card { transform: none; }
+
+  /* 会士：横向滚动一排，旗面收到能读又不至于占满屏 */
+  .gb-nobles {
+    grid-area: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    align-self: stretch;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.3rem;
+    scrollbar-color: rgba(217, 180, 74, 0.55) rgba(var(--ground-rgb), 0.6);
+    scrollbar-width: thin;
+  }
+  .noble-flag {
+    --card-w: 104px;
+    --flag-font-ref: var(--card-w);
+    --flag-h: 96px;
+    --fc-scale: 0.82;
+  }
+
+  /* 卡行：每档横向滚动，牌桌小卡上的行动钮隐掉（收进点按弹窗） */
+  .gb-cards { grid-area: auto; gap: 0.8rem; }
+  .gb-tier-row { gap: 0.6rem; align-items: stretch; }
+  .gb-deck img { height: 5em; }
+  .gb-tier-cards {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.5rem;
+    padding-bottom: 0.4rem;
+    scroll-snap-type: x proximity;
+    scrollbar-color: rgba(217, 180, 74, 0.55) rgba(var(--ground-rgb), 0.6);
+    scrollbar-width: thin;
+  }
+  .gb-tier-cards .paper-card { flex: 0 0 auto; scroll-snap-align: start; }
+  .gb-cards .foot { display: none; }
+
+  /* 筹码池：取消视口中线公式，整宽换行居中；确认条改内联横排 */
+  .gb-tokenpool {
+    grid-area: auto;
+    position: static;
+    left: auto;
+    transform: none;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .pool-gem .gem-circle { width: 2.7em; height: 2.7em; }
+  .gb-actionbar {
+    position: static;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    white-space: normal;
+  }
+  .action-buttons { flex: 0 0 auto; }
+
+  /* 本人资源条：贴底整宽、横向滚动，让出 iOS _home 条 */
+  .gb-my-cards {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding: 0.45rem 0.6rem calc(0.45rem + env(safe-area-inset-bottom));
+    scrollbar-color: rgba(217, 180, 74, 0.55) rgba(16, 22, 29, 0.8);
+    scrollbar-width: thin;
+  }
+  .mc-type { padding: 0 0.35rem; }
+  .mc-reserved { width: 5.5rem; }
+  .mc-reserved-slot { --vc-w: 24px; }
+  .mc-reserved:hover .mc-reserved-slot + .mc-reserved-slot { margin-left: calc(var(--vc-w) * -0.6); }
+  .mc-reserved-slot:hover .paper-card { transform: none; }
+
+  /* 弹窗：预留列表改竖排滚动，卡面放大 */
+  .gb-modal { width: min(92vw, 360px); padding: 1.2rem; }
+  .gb-reserved-modal { width: 94vw; }
+  .reserved-list {
+    flex-direction: column;
+    align-items: center;
+    max-height: 58vh;
+    overflow-y: auto;
+    gap: 0.8rem;
+    scrollbar-color: rgba(217, 180, 74, 0.6) rgba(16, 22, 29, 0.8);
+    scrollbar-width: thin;
+  }
+  .reserved-list .paper-card { --vc-w: min(62vw, 230px); }
+
+  /* 测试开关抬到底栏上面，别压住资源条 */
+  .dbg-dock { bottom: 5.2rem; }
+}
+
+/* 横屏手机：宽 enough 把对手条和会士列并排顶栏，卡行/筹码整宽，少滚一点。
+   卡仍按行横向滚动；三档卡叠起来比屏高时纵向照滚（读牌优先于塞满一屏）。 */
+@media (max-width: 900px) and (orientation: landscape) {
+  :root { --vc-w: clamp(120px, 16vw, 168px); }
+
+  .gb-topbar {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.4rem 3rem;
+  }
+
+  .gb-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "players nobles"
+      "cards   cards"
+      "tokens  tokens";
+    align-content: start;
+    gap: 0.7rem 0.9rem;
+    padding: 0.6rem 0.8rem 5.5rem;
+  }
+  .gb-players { grid-area: players; order: 0; }
+  .gb-nobles {
+    grid-area: nobles;
+    order: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 42vh;
+  }
+  .gb-cards { grid-area: cards; order: 0; }
+  .gb-tokenpool { grid-area: tokens; order: 0; }
+  .noble-flag { --card-w: 96px; --flag-h: 84px; }
+}

@@ -31,6 +31,9 @@
 
 .dbg-panel {
   width: max-content;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow: auto;
   padding: 10px 12px 12px;
   border: 1px solid rgba(132, 90, 51, 0.55);
   border-radius: 10px;
@@ -39,6 +42,14 @@
   color: #e8e0cc;
   font-size: 12px;
 }
+/* 面板自己滚动时也用这套描金皮，别露浏览器默认灰条 */
+.dbg-panel::-webkit-scrollbar { width: 8px; height: 8px; }
+.dbg-panel::-webkit-scrollbar-track { background: rgba(20, 17, 10, 0.6); border-radius: 4px; }
+.dbg-panel::-webkit-scrollbar-thumb {
+  background: rgba(201, 162, 39, 0.45);
+  border-radius: 4px;
+}
+.dbg-panel::-webkit-scrollbar-thumb:hover { background: rgba(230, 200, 120, 0.7); }
 
 .dbg-head {
   display: flex;
@@ -182,6 +193,14 @@
   cursor: pointer;
 }
 .dbg-res button:hover { border-color: rgba(230, 200, 120, 0.85); color: #e6c878; }
+
+/* 窄屏：名字列改横占一整行，AR/VC 两行各自换行，保证每个控件都够得着 */
+@media (max-width: 600px) {
+  .dbg-row { flex-direction: column; gap: 4px; }
+  .dbg-who { width: auto; }
+  .dbg-line { flex-wrap: wrap; }
+  .dbg-vc { flex-wrap: wrap; }
+}
 
 .dbg-clear {
   padding: 2px 6px;

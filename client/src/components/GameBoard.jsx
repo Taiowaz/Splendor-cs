@@ -54,6 +54,17 @@ export default function GameBoard({
   const [showReserved, setShowReserved] = useState(false)
   // 顶栏 ☰ 菜单：null 收起，'open' 展开，另两个值是它里面的二级弹窗
   const [menu, setMenu] = useState(null)
+  // 手机断点：hover 在触屏上不存在，牌面/对手预留改成点按看大图（inspect 弹窗）。
+  // 用 matchMedia 跟 CSS 的 900px 断点同一根轴，旋转屏幕时实时切换。
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 900px)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)')
+    const onChange = e => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  // 点按看大图：{ title, cards:[{card,tier,index}], readOnly, single }
+  const [inspect, setInspect] = useState(null)
 
   // 牌桌有固定最小宽高（.gb-playing），窗口比它小时页面既不缩也不滚，只裁掉边角，
   // 所以量一下实际尺寸，摆不下就盖层提示说清楚差多少，别让人以为是布局坏了。
@@ -64,6 +75,11 @@ export default function GameBoard({
     const el = boardRef.current
     if (!el) return
     const measure = () => {
+      // 手机端牌桌是可滚的响应式布局，没有「摆不开」一说，不盖提示层
+      if (window.matchMedia('(max-width: 900px)').matches) {
+        setTooSmall(null)
+        return
+      }
       const need = { w: el.offsetWidth, h: el.offsetHeight }
       const have = { w: window.innerWidth, h: window.innerHeight }
       setTooSmall(have.w < need.w || have.h < need.h ? { need, have } : null)
@@ -194,7 +210,7 @@ export default function GameBoard({
   const currentOffline = seatOf(gameState.players[currentIndex]?.id)?.offline
 
   return (
-    <div className="gb gb-root gb-playing" ref={boardRef}>
+    <div className={`gb gb-root gb-playing${isMobile ? ' gb-mobile' : ''}`} ref={boardRef}>
       {/* ☰ 菜单：规则和出口以前压根没有，想换人重开只能刷新页面。挂在 .gb-root 上
           而不是顶栏里——顶栏是个 z-index 5 的层叠上下文，菜单在里面永远压不过牌桌。 */}
       <div className="gb-menu">
@@ -252,6 +268,12 @@ export default function GameBoard({
                         setShowReserve(true)
                       }}
                       isMyTurn={isMyTurn}
+                      onInspect={isMobile ? () => setInspect({
+                        title: card.name,
+                        cards: [{ card, tier, index }],
+                        readOnly: false,
+                        single: true
+                      }) : undefined}
                     />
                   ))}
                   {(!gameState.bank[`tier${tier}`] || gameState.bank[`tier${tier}`].length === 0) && (
@@ -362,7 +384,15 @@ export default function GameBoard({
                             挂在咖啡格里、绝对定位贴格的右上角 —— 顶边就跟着这一行走，
                             和左边那张论文卡背齐平（几何见 .opp-reserved）。 */}
                         {type === 'coffee' && reserved.length > 0 && (
-                          <div className="opp-reserved" title={`预留 ${reserved.length} 张（公开）｜悬停摊开看卡面`}>
+                          <div
+                            className="opp-reserved"
+                            title={isMobile ? `预留 ${reserved.length} 张（公开）｜点按看卡面` : `预留 ${reserved.length} 张（公开）｜悬停摊开看卡面`}
+                            onClick={isMobile ? () => setInspect({
+                              title: `${player.name} 的预留`,
+                              cards: reserved.map(c => ({ card: c })),
+                              readOnly: true
+                            }) : undefined}
+                          >
                             {reserved.map(c => (
                               <div key={c.id} className="opp-reserved-slot">
                                 <PaperCard card={c} isMyTurn={false} />
@@ -498,6 +528,46 @@ export default function GameBoard({
             </div>
             <div className="gb-modal-buttons">
               <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserved(false)}>关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 手机点按看大图：触屏没有 hover，牌桌小卡/对手预留摞点一下在这里放大读牌面。
+          牌桌卡带购买/预留行动（小卡上的 foot 在移动端隐掉，行动收进这里）；
+          对手预留只读。 */}
+      {inspect && (
+        <div className="gb-modal-overlay" onClick={() => setInspect(null)}>
+          <div className="gb-modal gb-inspect-modal" onClick={e => e.stopPropagation()}>
+            <h3>{inspect.title}</h3>
+            <div className="inspect-list">
+              {inspect.cards.map(({ card, tier, index }) => (
+                <PaperCard key={card.id} card={card} isMyTurn={false} />
+              ))}
+            </div>
+            {!inspect.readOnly && inspect.single && isMyTurn && (
+              <div className="gb-modal-buttons">
+                {canAfford(myPlayer, inspect.cards[0].card) && (
+                  <button
+                    className="gb-btn gb-btn-gold"
+                    onClick={() => { handleBuyCard(inspect.cards[0].card, inspect.cards[0].tier); setInspect(null) }}
+                  >购买</button>
+                )}
+                <button
+                  className="gb-btn gb-btn-green"
+                  onClick={() => {
+                    setReserveTarget({ tier: inspect.cards[0].tier, index: inspect.cards[0].index })
+                    setShowReserve(true)
+                    setInspect(null)
+                  }}
+                >预留</button>
+              </div>
+            )}
+            {!inspect.readOnly && inspect.single && !isMyTurn && (
+              <p className="reserved-hint">还没轮到你</p>
+            )}
+            <div className="gb-modal-buttons">
+              <button className="gb-btn gb-btn-ghost" onClick={() => setInspect(null)}>关闭</button>
             </div>
           </div>
         </div>

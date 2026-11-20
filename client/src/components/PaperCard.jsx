@@ -21,13 +21,14 @@ const RES_CN = {
 
 const disc = (r) => ({ backgroundImage: `url(/images/tokens/${DISC[r]}Token.png)` })
 
-export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn }) {
+export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn, onInspect }) {
   const tierClass = card.ccf === 'B' ? ' tierB' : card.ccf === 'C' ? ' tierC' : ''
 
   return (
     <div
-      className={`paper-card${tierClass}${canAfford ? ' affordable' : ''}`}
+      className={`paper-card${tierClass}${canAfford ? ' affordable' : ''}${onInspect ? ' tappable' : ''}`}
       title={`${card.fullName} · ${card.cn}`}
+      onClick={onInspect}
     >
       <div className="prestige"><span>{card.prestige}</span></div>
       <div className="ribbon"><span className="dot" />CCF-{card.ccf}<span className="dot" /></div>
@@ -57,9 +58,9 @@ export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn 
 
       {isMyTurn && (
         <div className="foot">
-          {canAfford && <button className="btn buy" onClick={onBuy}>购买</button>}
+          {canAfford && <button className="btn buy" onClick={e => { e.stopPropagation(); onBuy() }}>购买</button>}
           {/* 预留区里的卡不能再预留自己，所以调用方不传 onReserve 时这条就不出现 */}
-          {onReserve && <button className="btn" onClick={onReserve}>预留</button>}
+          {onReserve && <button className="btn" onClick={e => { e.stopPropagation(); onReserve() }}>预留</button>}
         </div>
       )}
     </div>
