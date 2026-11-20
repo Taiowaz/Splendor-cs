@@ -402,7 +402,8 @@ export function setupWebSocket(server) {
         return;
       }
 
-      const aiId = `ai_${Date.now()}`;
+      // 同一毫秒连加多个 AI 时 Date.now() 会撞 id，find 永远命中第一个：补随机后缀
+      const aiId = `ai_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       const aiName = message.aiName || `AI玩家${room.players.length}`;
       room.players.push({ id: aiId, name: aiName, ws: null, isAi: true });
 
