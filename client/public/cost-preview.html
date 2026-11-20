@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VC 成本列排布对比 · 学术宝石</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Judson:wght@400;700&family=Lobster&family=Noto+Serif+SC:wght@500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #3a2a12;
+    --frame: rgba(201, 162, 39, 0.55);
+    --tierA: #8a6d1f; --tierB: #3b4a8c; --tierC: #4a7c43;
+    --serif: 'Noto Serif SC', 'Judson', serif;
+    --num: 'Lobster', cursive;
+    --paper: 17.6px; /* 264px 卡宽 / 15，与 card-preview 同基准 */
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 2rem 2.4rem 3rem;
+    background: #061a2c;
+    background-image: radial-gradient(120% 80% at 50% -10%, rgba(38, 84, 122, 0.35), transparent 60%);
+    color: #e9e4d6; font-family: var(--serif);
+  }
+  h1 { font-size: 1.3rem; letter-spacing: .06em; margin: 0 0 .4rem; color: #e6c878; }
+  .lede { font-size: .85rem; opacity: .75; max-width: 62rem; line-height: 1.7; margin: 0 0 1.6rem; }
+  .lede b { color: #e6c878; font-weight: 700; }
+  .board { display: grid; grid-template-columns: repeat(3, max-content); gap: 1.6rem 2.2rem; justify-content: start; }
+  .colhead { font-size: .95rem; font-weight: 700; color: #e6c878; letter-spacing: .04em; width: 264px; }
+  .colhead small { display: block; font-weight: 400; font-size: .75rem; opacity: .7; margin-top: .2rem; line-height: 1.5; }
+  .cell { display: flex; flex-direction: column; gap: .5rem; }
+  .measure { font-size: .72rem; opacity: .8; letter-spacing: .03em; font-family: var(--serif); }
+  .measure .ok { color: #9edcba; } .measure .bad { color: #e08f8f; }
+
+  /* ===== 卡面：与 PaperCard.css 同口径（裸类，整页只有这一套卡） ===== */
+  .paper-card {
+    position: relative;
+    width: 264px;
+    aspect-ratio: 6 / 9;
+    font-size: var(--paper);
+    display: flex; flex-direction: column;
+    padding: 0.45em 0.6em 0.5em;
+    border-radius: 0.625em;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--serif);
+    background:
+      radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
+      radial-gradient(140% 120% at 50% 120%, rgba(90, 28, 22, 0.32), transparent 60%),
+      linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
+    border: 1px solid var(--frame);
+    box-shadow: rgba(0, 0, 0, 0.85) -0.25em 0.375em 0.875em -0.125em, inset 0 0 2.125em rgba(100, 32, 26, 0.14);
+  }
+  .paper-card::after {
+    content: ''; position: absolute; inset: 0; border-radius: 0.625em; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(120, 40, 32, 0.05) 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, rgba(120, 40, 32, 0.04) 0 1px, transparent 1px 4px);
+    mix-blend-mode: multiply; opacity: .5;
+  }
+  .prestige {
+    position: absolute; top: 0.35em; left: 0.5em; z-index: 3;
+    width: 2.55em; height: 2.55em; border-radius: 50%;
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
+    border: 0.14em solid #6b5616;
+    box-shadow: rgba(0, 0, 0, 0.45) 0 0.125em 0.3125em, inset 0 0 0.375em rgba(201, 162, 39, 0.5);
+  }
+  .prestige span { font-family: var(--num); font-size: 1.5em; line-height: 1; color: #4a3a10; text-shadow: 0 1px 0 #fff2c2; }
+  .ribbon {
+    display: flex; align-items: center; justify-content: center; gap: 0.45em;
+    margin: -0.1em -0.6em 0.35em; padding: 0.28em 0.6em;
+    background: linear-gradient(180deg, var(--tierA), #7d5606);
+    color: #fff; font-weight: 700; font-size: 0.95em; letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 -0.19em 0.375em rgba(0, 0, 0, 0.25);
+  }
+  .tierB .ribbon { background: linear-gradient(180deg, var(--tierB), #2a3568); }
+  .tierC .ribbon { background: linear-gradient(180deg, var(--tierC), #2c552a); }
+  .ribbon .dot { width: 0.5em; height: 0.5em; border-radius: 50%; background: rgb(201, 162, 39); }
+  .title { margin-top: 0.95em; font-weight: 700; font-size: 1.9em; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: 0.02em; }
+  .card-sub { margin-top: 0.1em; font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.05em; line-height: 1.2; text-align: center; color: #4a3a10; letter-spacing: 0.06em; }
+  .card-art { display: grid; place-items: center; margin: 0.25em 0 0; min-height: 3.25em; color: #4a3a10; flex: 1 1 auto; }
+  .card-art img { max-width: 78%; max-height: 2.875em; object-fit: contain; display: block; }
+  .card-art.tone-light { padding: 0.25em 0.625em; border-radius: 0.5em; background: radial-gradient(ellipse at center, rgba(38, 34, 28, 0.85), rgba(38, 34, 28, 0.55) 65%, transparent 100%); }
+  .body { display: flex; align-items: stretch; justify-content: space-between; gap: 0.5em; margin-top: 0.5em; }
+  .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.2em; padding: 0.25em 0.35em; border-radius: 0.5em; background: rgba(120, 40, 32, 0.1); }
+  .gem { position: relative; width: 3.9em; height: 3.9em; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0, 0, 0, 0.26) 0 0.125em 0.3125em, inset 0 0 0 1px rgba(58, 36, 23, 0.18); }
+  .gem .plus { position: absolute; top: -0.375em; right: -0.375em; background: var(--tierA); color: #fff; font-family: var(--num); font-size: 0.95em; border: 0.1em solid #fff; border-radius: 50%; padding: 0 0.28em; line-height: 1.3; }
+  .tierB .gem .plus { background: var(--tierB); } .tierC .gem .plus { background: var(--tierC); }
+  .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1em; color: #38221c; letter-spacing: 0.02em; }
+  .mini { width: 2.8em; height: 2.8em; border-radius: 50%; background-size: cover; background-position: center; flex: 0 0 auto; box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625em 0.1875em, inset 0 0 0 1px rgba(58, 36, 23, 0.18); }
+  .foot { margin-top: auto; padding-top: 0.3em; display: flex; gap: 0.3em; }
+  .btn { flex: 1; text-align: center; font-family: inherit; font-size: 0.85em; padding: 0.25em; border-radius: 0.375em; border: 1px solid rgba(158, 220, 178, 0.55); background: linear-gradient(180deg, #2f7a52, #235c3e 55%, #1a4a31); color: #f6f0e0; }
+  .btn.buy { background: radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.16), transparent 60%), linear-gradient(180deg, #26303c, #1a222c 55%, #151c25); color: #e6c878; font-weight: 700; border-color: #c9a227; }
+
+  /* ===== 方案 A：现状竖叠列（官方成本列口径） ===== */
+  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 0; padding-right: 0.1em; }
+  .cost .row { display: flex; align-items: center; gap: 0.35em; }
+  .cost .row + .row { margin-top: -1.15em; }
+  .cost .n { font-family: var(--num); font-size: 1.4em; color: #38221c; min-width: 0.8em; }
+
+  /* ===== 方案 B：2×2 宫格，数字仍在圆片右侧；奇数末行靠右补齐 ===== */
+  .cost.g { display: grid; grid-template-columns: repeat(2, max-content); justify-content: end; align-content: center; gap: 0.3em 0.3em; }
+  .cost.g .row { gap: 0.25em; }
+  .cost.g .row + .row { margin-top: 0; }
+  .cost.g .row:last-child:nth-child(odd) { grid-column: 2; }
+  .cost.g .n { font-size: 1.25em; min-width: 0.6em; }
+
+  /* ===== 方案 C：2×2 宫格，数字改圆片右下角金章（列更窄） ===== */
+  .cost.b { display: grid; grid-template-columns: repeat(2, 2.8em); justify-content: end; align-content: center; gap: 0.55em 1em; padding-right: 0.8em; }
+  .cost.b .row { position: relative; display: block; }
+  .cost.b .row + .row { margin-top: 0; }
+  /* 三色：孤个放上排右列，其余两个落满下排 → 空位左上，整块靠右靠下 */
+  .cost.b .row:first-child:nth-last-child(3) { grid-column: 2; }
+  .cost.b .n {
+    position: absolute; right: -0.75em; bottom: 0.15em;
+    width: 1.5em; height: 1.5em; min-width: 0;
+    display: grid; place-items: center;
+    font-size: 1.05em; color: #4a3a10; text-shadow: 0 1px 0 #fff2c2;
+    background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
+    border: 0.1em solid #6b5616; border-radius: 50%;
+    box-shadow: rgba(0, 0, 0, 0.35) 0 0.0625em 0.1875em;
+  }
+</style>
+</head>
+<body>
+<h1>VC 成本列排布对比 · 方案 C 已落地</h1>
+<p class="lede">
+  方案 C 已于 2026-11-20 落进游戏卡面与 card-preview 样例，本页留作排布对比档案。
+  同一批代表卡（2 / 3 / 3 / 4 色成本，覆盖全部 90 张的三种色数）横排三种排布。
+  卡面其余部分与游戏内完全同口径；每卡下方是<b>成本区实测高×宽</b>（em，卡宽=15em）与脚部按钮是否仍落在卡高预算内。
+  成本区本来就拿 body 行剩余宽度（约 8.1em），方案 B 满格约 8.0em、方案 C 约 6.2em，<b>都不挤产出区与标题</b>。
+</p>
+<div class="board" id="board"></div>
+<script>
+const DISC = { data: 'White', compute: 'Blue', citation: 'Green', collaborator: 'Brown', funding: 'Red', coffee: 'Gold' }
+const RES_CN = { data: '数据', compute: '算力', citation: '引用', collaborator: '合作', funding: '经费' }
+const CARDS = [
+  { name: 'EAACL', cn: '欧洲计算语言学', ccf: 'C', prestige: 0, bonus: 'data', cost: { data: 2, collaborator: 2 }, art: { src: '/images/venues/eaacl.png', tone: 'color' } },
+  { name: 'EMNLP', cn: '自然语言处理', ccf: 'B', prestige: 3, bonus: 'data', cost: { data: 3, compute: 2, citation: 2 }, art: { src: '/images/venues/emnlp.png', tone: 'color' } },
+  { name: 'CVPR', cn: '计算机视觉', ccf: 'A', prestige: 4, bonus: 'data', cost: { data: 3, compute: 3, collaborator: 2 }, art: { src: '/images/venues/cvpr.svg', tone: 'dark' } },
+  { name: 'NeurIPS', cn: '机器学习', ccf: 'A', prestige: 5, bonus: 'compute', cost: { data: 3, compute: 2, citation: 2, funding: 2 }, art: { src: '/images/venues/neurips.svg', tone: 'dark' } }
+]
+const VARIANTS = [
+  ['A', '方案 A · 现状竖叠列', '官方成本列口径：圆片贴叠、数字在右。最窄（约 4em），但靠 -1.15em 叠行省高度，四色卡最高 7.75em。', ''],
+  ['B', '方案 B · 2×2 宫格数字在右', '上下左右四宫格：不叠行、圆片全露，三色卡两行约 6em、两色卡一行 2.8em；满格宽约 8.0em，贴着现有宽度预算（8.14em）但不越界。', 'g'],
+  ['C', '方案 C · 2×2 宫格数字角章', '同宫格但数字改挂圆片右下金章：列宽收到约 6.2em，留白更多；三色卡孤个在上排靠右、双个铺下排（靠右靠下）。代价是小数字章在窄卡上可读性弱于侧排大数字。', 'b']
+]
+const board = document.getElementById('board')
+for (const [key, title, desc] of VARIANTS) {
+  const h = document.createElement('div')
+  h.className = 'colhead'
+  h.innerHTML = `${title}<small>${desc}</small>`
+  board.appendChild(h)
+}
+for (const card of CARDS) {
+  for (const [key, , , cls] of VARIANTS) {
+    const cell = document.createElement('div')
+    cell.className = 'cell'
+    const tier = card.ccf === 'B' ? ' tierB' : card.ccf === 'C' ? ' tierC' : ''
+    const rows = Object.entries(card.cost).map(([r, n]) =>
+      `<div class="row" title="${RES_CN[r]} ×${n}"><div class="mini" style="background-image:url(/images/tokens/${DISC[r]}Token.png)"></div><span class="n">${n}</span></div>`).join('')
+    cell.innerHTML = `
+      <div class="paper-card${tier}">
+        <div class="prestige"><span>${card.prestige}</span></div>
+        <div class="ribbon"><span class="dot"></span>CCF-${card.ccf}<span class="dot"></span></div>
+        <div class="title">${card.name}</div>
+        <div class="card-sub">${card.cn}</div>
+        <div class="card-art${card.art.tone === 'light' ? ' tone-light' : ''}"><img src="${card.art.src}" alt="" /></div>
+        <div class="body">
+          <div class="bonus">
+            <div class="gem" style="background-image:url(/images/tokens/${DISC[card.bonus]}Token.png)"><span class="plus">+1</span></div>
+            <span class="cap">产出 ${RES_CN[card.bonus]}</span>
+          </div>
+          <div class="cost ${cls}">${rows}</div>
+        </div>
+        <div class="foot"><button class="btn buy">购买</button><button class="btn">预留</button></div>
+      </div>
+      <div class="measure"></div>`
+    board.appendChild(cell)
+  }
+}
+requestAnimationFrame(() => {
+  const EM = 17.6
+  document.querySelectorAll('.cell').forEach(cell => {
+    const card = cell.querySelector('.paper-card')
+    const cost = cell.querySelector('.cost')
+    const foot = cell.querySelector('.foot')
+    const cr = card.getBoundingClientRect(), kr = cost.getBoundingClientRect(), fr = foot.getBoundingClientRect()
+    const h = (kr.height / EM).toFixed(2), w = (kr.width / EM).toFixed(2)
+    const fits = fr.bottom <= cr.bottom - 0.4 * EM
+    cell.querySelector('.measure').innerHTML =
+      `成本区 ${h}em 高 × ${w}em 宽 · 脚部${fits ? '<span class="ok">落在卡高内</span>' : '<span class="bad">超出卡高</span>'}`
+  })
+})
+</script>
+</body>
+</html>

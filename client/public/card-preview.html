@@ -114,12 +114,12 @@
   .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.1rem; color: #4a3410; letter-spacing: .02em; }
 
   /* 费用 */
-  /* 费用：与牌桌同步——去中文资源名（收进 row title）、图标放大、四行贴叠 */
-  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 0; justify-content: center; padding-right: .11rem; }
-  .cost .row { display: flex; align-items: center; gap: .385rem; }
-  .cost .row + .row { margin-top: -1.265rem; }
+  /* 费用：与牌桌同步——2×2 宫格、圆片全露，数字挂圆片右下金章；三色孤个靠右上 */
+  .cost { flex: 1; display: grid; grid-template-columns: repeat(2, 3.08rem); justify-content: end; align-content: center; gap: .605rem 1.1rem; padding-right: .88rem; }
+  .cost .row { position: relative; }
+  .cost .row:first-child:nth-last-child(3) { grid-column: 2; }
   .cost .mini { width: 49.3px; height: 49.3px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.2) 0 1.1px 3.3px, inset 0 0 0 1px rgba(74,52,16,.18); flex: 0 0 auto; }
-  .cost .n { font-family: var(--num); font-size: 1.54rem; color: #4a3410; min-width: .8em; }
+  .cost .n { position: absolute; right: -.825rem; bottom: .165rem; width: 1.65rem; height: 1.65rem; display: grid; place-items: center; font-family: var(--num); font-size: 1.155rem; color: #4a3a10; text-shadow: 0 1px 0 #fff2c2; background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f); border: .11rem solid #6b5616; border-radius: 50%; box-shadow: rgba(0,0,0,.35) 0 .06875rem .20625rem; }
 
   .foot { margin-top: auto; padding-top: .33rem; display: flex; gap: .33rem; }
   .btn { flex: 1; text-align: center; font-family: var(--serif); font-size: .935rem; padding: .275rem; border-radius: 6.6px; border: 1px solid rgba(158,220,178,.55); background: linear-gradient(180deg,#2f7a52,#235c3e 55%,#1a4a31); color:#f6f0e0; }

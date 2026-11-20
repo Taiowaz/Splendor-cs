@@ -205,28 +205,26 @@
   letter-spacing: 0.02em;
 }
 
-/* 所需 AR：只留筹码图标＋数字，中文资源名收进 row 的 title（悬停可读）。
-   图标 2.8em 当主角；行与行叠 1.15em（官方卡那种成本圆片贴叠列），
-   四行 worst case 加脚部按钮仍落在 6:9 卡高预算内。数字在圆片右侧，
-   各行等宽右对齐，下一行圆片只压上一行圆片、不遮数字。 */
+/* 所需 AR：2×2 宫格、圆片全露不叠行，数字改挂圆片右下角金章（与声誉章同套金底）。
+   列距 1em = 角章外溢 0.79em + 0.21em 空隙，角章不挨右列圆片；
+   三色卡孤个放上排右列、其余两个铺满下排 → 空位左上，整块靠右靠下。
+   中文资源名收进 row 的 title（悬停可读）。宫格 6.6em，成本区约 8.1em，不挤产出列。 */
 .paper-card .cost {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 0;
-  padding-right: 0.1em;
+  display: grid;
+  grid-template-columns: repeat(2, 2.8em);
+  justify-content: end;
+  align-content: center;
+  gap: 0.55em 1em;
+  padding-right: 0.8em;
 }
 
 .paper-card .cost .row {
-  display: flex;
-  align-items: center;
-  gap: 0.35em;
+  position: relative;
 }
 
-.paper-card .cost .row + .row {
-  margin-top: -1.15em;
+.paper-card .cost .row:first-child:nth-last-child(3) {
+  grid-column: 2;
 }
 
 .paper-card .cost .mini {
@@ -235,15 +233,25 @@
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  flex: 0 0 auto;
   box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625em 0.1875em, inset 0 0 0 1px rgba(58, 36, 23, 0.18);
 }
 
 .paper-card .cost .n {
+  position: absolute;
+  right: -0.75em;
+  bottom: 0.15em;
+  width: 1.5em;
+  height: 1.5em;
+  display: grid;
+  place-items: center;
   font-family: 'Lobster', cursive;
-  font-size: 1.4em;
-  color: #38221c;
-  min-width: 0.8em;
+  font-size: 1.05em;
+  color: #4a3a10;
+  text-shadow: 0 1px 0 #fff2c2;
+  background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
+  border: 0.1em solid #6b5616;
+  border-radius: 50%;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 0.0625em 0.1875em;
 }
 
 .paper-card .foot {
