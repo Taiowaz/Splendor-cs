@@ -128,13 +128,14 @@
 /* 宽屏：左右两条 minmax(0,1fr) 空档把 VC/FC/对手整组推到视口中央，多出来的 felt
    均分到两侧，FC 和对手之间不再随宽度暴涨（原来对手列独占 1fr 贴右：
    1280 时 230、1920 时 546、2560 时 1162）。
-   阈值 1600：再窄整组居中会把对手列左缘推过确认条右缘（筹码行按视口中线居中、
-   条挂它右侧，右缘 ≈ 视口中线 + 370），两者相叠；1600 以上居中后仍有 ≥12 净空。
+   阈值 1680：再窄整组居中会把对手列左缘推过确认条右缘（筹码行按视口中线居中、
+   条挂它右侧，右缘 ≈ 视口中线 + 370），两者相叠；1680 以上居中后仍有 ≥12 净空
+   （对手列加宽到 259 后阈值从 1600 上调，保住这条净空）。
    空档 min 必须是 0：非 0 下限会进 .gb-playing 的 min-width:max-content，把牌桌
    保底宽顶过 1280 触发「窗口太小」。
    tokens 区域横跨「左空档 + cards + nobles」，左缘仍钉在 --main-pad-l，筹码行那条
    视口中线公式（见 .gb-tokenpool）不受整组居中影响。对手列仍跨两行借高度。 */
-@media (min-width: 1600px) {
+@media (min-width: 1680px) {
   .gb-main {
     grid-template-columns: minmax(0, 1fr) auto auto auto minmax(0, 1fr);
     grid-template-areas:
@@ -142,9 +143,11 @@
       "tokens tokens tokens players .";
   }
   /* 居中后 FC 与对手只剩一个列距（~22）显得挤，给对手列再加一点左留白，
-     让牌堆和玩家之间透气（22 + 32 ≈ 54）。只加在宽屏，窄屏贴右布局不动。 */
+     让牌堆和玩家之间透气（22 + 44.8 ≈ 67）。只加在宽屏，窄屏贴右布局不动。
+     44.8 也是确认条的净空：条右缘按视口中线定位（≈中线+369），居中布局在
+     1680 临界宽时列左缘也落在中线+369，留白加到这档才让出 ~6px 缝不贴条。 */
   .gb-players {
-    margin-left: 2rem;
+    margin-left: 2.8rem;
   }
 }
 
@@ -545,7 +548,7 @@
   align-self: start;
   justify-self: end;
   height: calc(var(--vc-col) + 4.2rem);
-  width: calc(13.5 * var(--opp-em));
+  width: calc(16.2 * var(--opp-em));
   font-size: var(--opp-em);
   display: flex;
   flex-direction: column;
@@ -572,7 +575,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.3em;
-  padding: 0.3em 0.6em 0.45em;
+  padding: 0.35em 0.85em 0.55em;
   background: rgba(138, 129, 114, 0.22);
   border: 1px solid rgba(201, 162, 39, 0.35);
   border-radius: 1rem;
@@ -644,17 +647,20 @@
 /* 对手资源：照底部本人资源条那套形式 —— 每个方向一格「筹码圆片 + 该方向论文卡背」，
    常驻、0 也带角标、空位压暗，卡背按该方向最好的一篇选档。咖啡没有对应的论文方向
    （venues.js 里 bonus 只有那 5 色），所以咖啡那格只有筹码，底部同理。
-   框只有 216 宽（内容 196.8）：三格一行会把角标挤到一起（一格 67.2，三格 201.6 已经
-   超宽），所以两格一行、共三行。圆片保持 2.3em 和本人一样大，卡背收到 1.4em，
-   列间距 20、行间距 8 —— 计数角标那 5.6px 的出边全落在空隙里，不再贴着邻格。
-   代价是框从 127 高到 194（表头那条章带 19.5 + 两列三行）：玩家列借了 tokens 行
-   那档高度后是 609.6，3 × 193.9 + 2 × 8 = 597.7，装得下且不滚动。
-   宽度铺满内容区（194.8 = 216 减左右边框 2 再减内边距 19.2），两列各摊到 87.4：
-   右列的右边缘就是内容的右边缘，预留摞才能贴着它 —— 见 .opp-cell-coffee。 */
+   框 259.2 宽（内容 230）：三格一行会把角标挤到一起，所以两格一行、共三行。
+   圆片保持 2.3em 和本人一样大，卡背收到 1.4em，列间距 20、行间距 9.6 —— 行距是
+   托盘之间那条呼吸带（归零时上下边框贴在一起），计数角标的出边也落在空隙里。
+   左列 max-content 88.4；右列咖啡格带一条 45 宽的预留摞位（见 .opp-cell-coffee），
+   撑到 115.8，两列 + 列距 + 4.8 留白正好落进内容区。
+   行距加高后三个框顶满列高就按 overflow-y 滚动兜底（见 .gb-players）。 */
 .opp-res {
   display: grid;
   grid-template-columns: repeat(2, auto);
-  gap: 0.5rem 1.25rem;
+  /* 行距 0.6rem：托盘之间留一条看得见的呼吸带（原来归零靠托盘内边距撑，上下贴太近）。
+     列距保留，合计章右出 .7em 全落在列距里。
+     margin-right 是封印的留白带：网格右缘不贴内容右缘，章离框边还有一档内边距。 */
+  gap: 0.6rem 1.25rem;
+  margin-right: 0.3rem;
   width: 100%;
 }
 .opp-cell {
@@ -671,30 +677,44 @@
 .opp-cell .vc-mark {
   width: 1.4em;
 }
-/* 咖啡格是预留摞的定位基准：摞顶 = 这一行顶 = 左边那张论文卡背的顶 */
+/* 咖啡格是预留摞的定位基准：摞顶 = 这一行顶 = 左边那张论文卡背的顶。
+   摞不再 tucked 进托盘后面（那样静止时整摞被托盘盖住只露一条边）：托盘右侧
+   用 ::after 留一条独立摞位，摞绝对定位落在摞位里，静止整摞可见；位宽按 3 张
+   定死，0→3 张网格不跳。hover 摊开仍以 right bottom 为原点朝左长、z8 盖到
+   托盘前读牌面，右缘不动所以不出框。 */
 .opp-cell-coffee {
   position: relative;
+  --pile-lane: 45px;
+}
+.opp-cell-coffee::after {
+  content: '';
+  flex: 0 0 auto;
+  width: var(--pile-lane);
+  margin-left: 0.8rem;
 }
 
 /* 预留：真卡面小摞，和本人那一摞（.mc-reserved）同一个形式 —— 服务端现在下发
-   整张卡（明面预留本来就公开）。绝对定位在咖啡格（第三行右列，那格只有筹码）的
-   右上角，不进文档流：进了要给这格加 45 宽，整张网格跟着变宽，三行位置全晃，
-   而且 0 张和 3 张之间来回跳。
-   top/right 都贴 0 —— 顶边和同一行那张论文卡背齐平，右边缘和内容右边缘齐平（网格
-   铺满内容区才做得到）。卡宽 25 → 高 1.5×25 = 37.5，比行高 37.6 差 0.1，正好躺在
-   这一行里。三张露 40% 边 = 25 + 2×10 = 45，从右往左压到 160.4，离左边那枚咖啡筹码
-   的右边缘（154.8）还有 5.6。hover 摊开到 83 会压着咖啡筹码，靠 z-index 盖上去；
-   放大以 right bottom 为原点，往左上长就不会出框。
-   3 面旗那档（最宽的会士带，旗之间叠 -1.5em 所以只有 67.2 宽）右边缘离摞的左边缘
-   还有 28.4px，不需要给会士带让位 —— 这个最坏情况是 /tmp/probe-pile-worst.js 合成的，
-   对齐本身由 /tmp/probe-opp-align2.js 断言（摞顶 == 同行 VC 顶，1/2/3 张都量）。 */
+   整张卡（明面预留本来就公开）。绝对定位在咖啡格（第三行右列）右侧那条独立摞位里
+   （::after 占位，见 .opp-cell-coffee），不进文档流：0→3 张网格不跳。
+   摞顶和同一行那张论文卡背齐平；左缘 = 咖啡托盘右缘 + 0.8rem 摞缝，静止时整摞
+   落在托盘右边、完全可见（不再 tucked 到托盘后面只露一条边）。卡宽 25 → 高 37.5，
+   比行高 37.6 差 0.1，正好躺在这一行里。三张露 40% 边 = 25 + 2×10 = 45 = 摞位宽。
+   hover 摊开到 83 以 right bottom 为原点朝左长、z8 盖到托盘前读牌面，右缘不动不出框。
+   摞顶对齐由 /tmp/grp-game-probe.mjs 断言（摞顶 == 同行 VC 顶、静止不被托盘盖住）。 */
 .opp-reserved {
   position: absolute;
-  top: 0;
-  right: 0;
+  /* 摞顶仍和同行论文卡背齐平：卡背顶 = 托盘内边距 + .15em（2.4em 内容高居中让出来的） */
+  top: calc(var(--grp-pv) + 0.15em);
+  /* 左缘 = 咖啡托盘右缘 + 0.8rem 摞缝：托盘宽 = 圆片 2.3em + 左右内边距 1.2rem
+     + 边框 2（咖啡格不套框但占位保留）。右缘不再贴内容右缘。 */
+  left: calc(2.3em + 1.2rem + 2px + 0.8rem);
+  right: auto;
   z-index: 6;
   display: flex;
   align-items: flex-end;
+}
+.opp-reserved:hover {
+  z-index: 8;
 }
 .opp-reserved-slot {
   --vc-w: 25px;
@@ -1614,8 +1634,14 @@
     scrollbar-color: rgba(217, 180, 74, 0.55) rgba(var(--ground-rgb), 0.6);
     scrollbar-width: thin;
   }
+  .opp-panel { flex: 0 0 auto; width: 15.6em; }
+  /* 仍两列三行：三列会把格子的最小宽顶出框，筹码 spill 到邻框上。
+     右列带摞位（39.6 = 22 宽卡三张露 40% 边），框加宽到 15.6em 才装得下。 */
+  .opp-res { grid-template-columns: repeat(2, auto); gap: 0.5rem 0.8rem; }
   /* 竖屏托盘横内边距收到 .25rem，两列才不顶出框 */
   .opp-cell { --grp-pv: 0.5rem; --grp-pr: 0.25rem; --grp-pl: 0.25rem; }
+  .opp-cell-coffee { --pile-lane: 39.6px; }
+  .opp-reserved { cursor: pointer; left: calc(2.3em + 0.5rem + 2px + 0.8rem); }
   .opp-reserved-slot { --vc-w: 22px; }
   /* 触屏没有 hover，摞不摊开也不放大，点按进弹窗看 */
   .opp-reserved:hover .opp-reserved-slot + .opp-reserved-slot { margin-left: calc(var(--vc-w) * -0.6); }
