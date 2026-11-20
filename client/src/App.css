@@ -26,14 +26,16 @@
   animation: slideDown 0.3s ease;
 }
 
-/* 牌桌顶栏正中就是「学术宝石」标题：提示条收进那条 bar 里，标题同时让位，
-   两者不打架，也不用挪到下面去压第一排牌。 */
+/* 牌桌顶栏那一条归行动横幅：提示条挪到顶栏下面，短暂压一点卡边可以，
+   不能跟横幅抢顶栏。标题不再需要让位（横幅自己会盖住它）。 */
 html:has(.gb-playing) .notification {
-  top: 0.55rem;
+  top: 4.2rem;
 }
-
-html:has(.notification) .gb-title {
-  opacity: 0;
+@media (max-width: 900px) {
+  html:has(.gb-playing) .notification { top: 5.2rem; }
+}
+@media (max-width: 900px) and (orientation: landscape) {
+  html:has(.gb-playing) .notification { top: 3.4rem; }
 }
 
 @keyframes slideDown {

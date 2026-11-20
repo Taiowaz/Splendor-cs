@@ -65,6 +65,8 @@ export default function GameBoard({
   }, [])
   // 点按看大图：{ title, cards:[{card,tier,index}], readOnly, single }
   const [inspect, setInspect] = useState(null)
+  // 轮到我时弹一次行动横幅；主动收起 / 超时 / 一行动就收
+  const [turnBanner, setTurnBanner] = useState(false)
 
   // 牌桌有固定最小宽高（.gb-playing），窗口比它小时页面既不缩也不滚，只裁掉边角，
   // 所以量一下实际尺寸，摆不下就盖层提示说清楚差多少，别让人以为是布局坏了。
@@ -102,6 +104,13 @@ export default function GameBoard({
   const currentIndex = gameState.currentPlayerIndex
   const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
+  // 回合横幅：只在「变成我的回合」那一刻弹，6.5 秒自动收；行动里也会主动收
+  useEffect(() => {
+    if (!isMyTurn) return
+    setTurnBanner(true)
+    const t = setTimeout(() => setTurnBanner(false), 6500)
+    return () => clearTimeout(t)
+  }, [isMyTurn])
 
   // 拿筹码的合法组合只有三种：3 个不同色、2 枚同色（银行该色 ≥4）、单独 1 枚咖啡。
   // 咖啡（万能）不占「3 个不同色」的名额，也不能凑 2 枚 —— 「拿 1 枚咖啡」本身就是
@@ -114,6 +123,7 @@ export default function GameBoard({
   // 再加别色 —— 这样选出来的组合必然落在服务端认的那三种里。
   const handleTokenClick = (type) => {
     if (!isMyTurn) return
+    setTurnBanner(false)
 
     setSelectedTokens(prev => {
       const current = prev[type] || 0
@@ -158,17 +168,20 @@ export default function GameBoard({
     const threeDiff = totalSelected === 3 && types.length === 3 && !selectedTokens.coffee
     const pairSame = totalSelected === 2 && types.length === 1 && gameState.bank.tokens[types[0]] >= 4
     if (!soloCoffee && !threeDiff && !pairSame) return
+    setTurnBanner(false)
     onTakeTokens(selectedTokens)
     setSelectedTokens({})
   }
 
   const handleBuyCard = (card, tier) => {
     if (!isMyTurn) return
+    setTurnBanner(false)
     onBuyCard(card.id, tier)
   }
 
   const handleReserveCard = (tier, cardIndex) => {
     if (!isMyTurn) return
+    setTurnBanner(false)
     onReserveCard(tier, cardIndex)
     setShowReserve(false)
     setReserveTarget(null)
@@ -246,6 +259,35 @@ export default function GameBoard({
               : `等待 ${gameState.players[currentIndex]?.name}`}
         </div>
       </div>
+
+      {/* 轮到我时弹一次：本回合三件事摆清楚，免得盯着牌桌不知道能干嘛。
+          只占顶栏那一条（盖主标题、不压卡牌），点✕、超时、或一行动就收。 */}
+      {turnBanner && (
+        <div className="gb-turn-banner" role="status">
+          <div className="tb-head">
+            <span className="tb-title">轮到你行动</span>
+            <span className="tb-sub">本回合三选一</span>
+          </div>
+          <div className="tb-items">
+            <div className="tb-item">
+              <img src={RESOURCE_INFO.data.gem} alt="" />
+              <b>拿 AR</b>
+              <span>公共池选至多 3 枚</span>
+            </div>
+            <div className="tb-item">
+              <img src={TIER_DECK[3]} alt="" />
+              <b>买论文</b>
+              <span>花 AR 发表，当场拿产出</span>
+            </div>
+            <div className="tb-item">
+              <img src={RESOURCE_INFO.coffee.gem} alt="" />
+              <b>预留论文</b>
+              <span>扣 1 张，换 1 杯咖啡</span>
+            </div>
+          </div>
+          <button className="tb-close" onClick={() => setTurnBanner(false)} title="收起横幅">✕</button>
+        </div>
+      )}
 
       <div className="gb-main">
         {/* 中间：牌桌 */}
