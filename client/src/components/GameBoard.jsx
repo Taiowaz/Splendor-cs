@@ -402,16 +402,23 @@ export default function GameBoard({
                         title={hasVC
                           ? `${info.name}｜筹码 ${n}｜论文 ${papers.length} 篇${breakdown ? `（${breakdown}）` : ''}`
                           : `${info.name}｜筹码 ${n}｜万能筹码，没有对应方向的论文`}>
-                        <div className={`inv-gem ${n === 0 ? 'empty' : ''}`}>
-                          <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
-                          <span className="gem-num">{n}</span>
-                        </div>
-                        {hasVC && (
-                          <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
-                            <img src={TIER_DECK[bestTier]} alt="" />
-                            <span className="vc-count">{papers.length}</span>
+                        <div className="res-grp">
+                          <div className={`inv-gem ${n === 0 ? 'empty' : ''}`}>
+                            <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
                           </div>
-                        )}
+                          {hasVC && (
+                            <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
+                              <img src={TIER_DECK[bestTier]} alt="" />
+                              <span className="vc-count">{papers.length}</span>
+                            </div>
+                          )}
+                          {hasVC && (
+                            <span
+                              className="sum-mark"
+                              title={`${info.name}总数 ${n + papers.length}＝AR ${n} + VC ${papers.length}｜买论文时该方向当 ${n + papers.length} 枚可用`}
+                            >{n + papers.length}</span>
+                          )}
+                        </div>
                         {/* 预留：只能从牌桌明面拿，这信息本来就翻给所有人看过，所以直接上
                             真卡面（服务端已不再只发 tier），和本人那一摞同一个形式。
                             挂在咖啡格里、绝对定位贴格的右上角 —— 顶边就跟着这一行走，
@@ -487,21 +494,29 @@ export default function GameBoard({
           const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
           return (
             <div key={type} className="mc-type">
-              <div className={`inv-gem ${tokens === 0 ? 'empty' : ''}`} title={`${info.name}｜筹码 ${tokens}`}>
-                <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
                 <span className="gem-num">{tokens}</span>
-              </div>
-              {hasVC && (
-                <div
-                  className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}
-                  title={papers.length
-                    ? `${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`
-                    : `${info.name}方向论文 0 篇`}
-                >
-                  <img src={TIER_DECK[bestTier]} alt="" />
-                  <span className="vc-count">{papers.length}</span>
+              <div className="res-grp">
+                <div className={`inv-gem ${tokens === 0 ? 'empty' : ''}`} title={`${info.name}｜筹码 ${tokens}`}>
+                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
                 </div>
-              )}
+                {hasVC && (
+                  <div
+                    className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}
+                    title={papers.length
+                      ? `${info.name}方向论文 ${papers.length} 篇（${breakdown}）｜买卡时 ${info.name} 便宜 ${papers.length}`
+                      : `${info.name}方向论文 0 篇`}
+                  >
+                    <img src={TIER_DECK[bestTier]} alt="" />
+                    <span className="vc-count">{papers.length}</span>
+                  </div>
+                )}
+                {hasVC && (
+                  <span
+                    className="sum-mark"
+                    title={`${info.name}总数 ${tokens + papers.length}＝AR ${tokens} + VC ${papers.length}｜买论文时该方向当 ${tokens + papers.length} 枚可用`}
+                  >{tokens + papers.length}</span>
+                )}
+              </div>
             </div>
           )
         })}

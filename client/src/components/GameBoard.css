@@ -285,6 +285,9 @@
   position: relative;
   width: 1.6em;
   aspect-ratio: 6 / 9;
+  /* flex 子的 min-height:auto 会拿卡背图固有高度当最小高，顶破 6:9；
+     归零后托盘六格才同高（咖啡格靠 .res-grp 的 min-height 对齐） */
+  min-height: 0;
 }
 .vc-mark img {
   width: 100%;
@@ -319,6 +322,53 @@
   color: #e6c878;
   line-height: 1.3em;
   text-align: center;
+}
+/* 合计数章：VC+AR 的总数。半嵌在分组托盘（.res-grp）右边线——章压在「框」上
+   而不是卡背角上，远看不会误读成 VC 自己的数，卡背 hover 放大时章也留在框上。
+   深漆底描金环，跟绿漆底的两枚分量章、金底墨字的选中章（.gem-badge）三套各自认：
+   绿＝分量（手上 / 发过），金环＝合起来买卡时当几枚用。咖啡也挂：值＝AR 数（万能）。 */
+.sum-mark {
+  position: absolute;
+  bottom: -0.3em;
+  right: -0.3em;
+  z-index: 2;
+  min-width: 1.3em;
+  height: 1.3em;
+  padding: 0 0.12em;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #33250a, #1c1508);
+  border: 0.08em solid #c9a227;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
+  font-family: 'Lobster', cursive;
+  font-size: 0.72em;
+  color: #e6c878;
+  line-height: 1.3em;
+  text-align: center;
+}
+/* 同方向分组托盘：筹码＋该方向论文卡背收进一只深漆描金小框，合计章挂框边。
+   内边距用变量给：对手框按对比页方案 A 的原尺寸（竖 pad ≥ .4em 保证章缝）；
+   本人条高度预算紧，改走横向让位（右 pad ≥ 1.1em，章与 VC 章横向错开）；
+   竖屏再收一档宽度。两尺度都量过零重叠（/tmp/grp-game-probe.mjs）。 */
+.res-grp {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* 咖啡格没有卡背撑高，min-height 统一到卡背那档内容高（2.4em），六只托盘同高 */
+  min-height: calc(2.4em + 2 * var(--grp-pv) + 2px);
+  padding: var(--grp-pv, 0.6rem) var(--grp-pr, 0.65rem) var(--grp-pv, 0.6rem) var(--grp-pl, 0.55rem);
+  border: 1px solid rgba(201, 162, 39, 0.42);
+  border-radius: 0.6rem;
+  background: rgba(16, 22, 29, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.07);
+}
+.res-grp .sum-mark {
+  right: -0.7em;
+  /* 56% 而非居中：VC 角标锚卡背右上，居中时两章 bbox 擦边（对手卡背 1.4em 宽更矮）；
+     偏下半档让桌面/竖屏都留出 ≥1.5px 缝，横向半嵌不变 */
+  top: 56%;
+  bottom: auto;
+  transform: translateY(-50%);
 }
 
 /* 持有卡牌抽屉 */
@@ -610,7 +660,13 @@
 .opp-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  --grp-pv: 0.55rem;
+}
+/* 托盘铺满本格：同列三行托盘右缘齐平，合计章排成一列。咖啡格例外（不套框、
+   按内容宽，见 .opp-cell-coffee .res-grp）：它的宽 + 摞缝 + 摞位正好撑起右列宽，
+   摞的 left 公式才稳定 */
+.opp-cell .res-grp {
+  flex: 1 1 auto;
 }
 .opp-cell .vc-mark {
   width: 1.4em;
@@ -750,7 +806,7 @@
      以内 → .mc-id 换行、条子变高、顶到上面的筹码行。max-content 让它按内容撑开，
      再由 translateX(-50%) 居中。 */
   width: max-content;
-  padding: 0.55rem 0.9rem;
+  padding: 0.3rem 0.9rem;
   border-radius: 1rem;
   /* 深漆托盘 + 双线描金：半透纸白压暗底会灰成脏塑料色，HUD 统一漆面，
      纸卡背与金章浮在其上；内圈一道亮金细线做第二道边 */
@@ -844,10 +900,14 @@
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
-  padding: 0 0.85rem;
+  /* 分组托盘自带描金边，格间不再画分隔线；横padding 收一档抵掉托盘的占地。
+     底条高度预算紧（加高就顶进筹码行、再高就触发窗口太小罩）：竖内边距收到
+     .25rem（分量章出边 .3em 仍落在框内），改靠右内边距 1.15rem 给合计章让出
+     一条封印lane——章与 VC 章横向错开 .2em，纵向不再需要缝隙 */
+  padding: 0 0.45rem;
+  --grp-pv: 0.25rem;
+  --grp-pr: 1.15rem;
 }
-.mc-type + .mc-type {
-  border-left: 1px solid rgba(201, 162, 39, 0.35);
 }
 /* 预留区：挂在自己库存末尾 —— 真卡面竖着站（6:9 原比例，不旋转），等比缩到底条
    的内容高度，负 margin 叠成一摞只露出左边一条彩边（档位色），hover 整摞摊开、
@@ -1554,6 +1614,8 @@
     scrollbar-color: rgba(217, 180, 74, 0.55) rgba(var(--ground-rgb), 0.6);
     scrollbar-width: thin;
   }
+  /* 竖屏托盘横内边距收到 .25rem，两列才不顶出框 */
+  .opp-cell { --grp-pv: 0.5rem; --grp-pr: 0.25rem; --grp-pl: 0.25rem; }
   .opp-reserved-slot { --vc-w: 22px; }
   /* 触屏没有 hover，摞不摊开也不放大，点按进弹窗看 */
   .opp-reserved:hover .opp-reserved-slot + .opp-reserved-slot { margin-left: calc(var(--vc-w) * -0.6); }
