@@ -67,6 +67,8 @@ export default function GameBoard({
   const [inspect, setInspect] = useState(null)
   // 轮到我时弹一次行动横幅；主动收起 / 超时 / 一行动就收
   const [turnBanner, setTurnBanner] = useState(false)
+  // 结算覆盖层被主动收起后牌桌供回看，浮动按钮再唤回
+  const [overDismissed, setOverDismissed] = useState(false)
 
   // 牌桌有固定最小宽高（.gb-playing），窗口比它小时页面既不缩也不滚，只裁掉边角，
   // 所以量一下实际尺寸，摆不下就盖层提示说清楚差多少，别让人以为是布局坏了。
@@ -102,8 +104,11 @@ export default function GameBoard({
   // 官方口径：咖啡（金）也算进持有总数，上限 10
   const myTotalAR = INVENTORY_TYPES.reduce((s, t) => s + (myPlayer?.tokens?.[t] || 0), 0)
   const currentIndex = gameState.currentPlayerIndex
-  const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
+  // 终局后牌桌只供回看：即使指针停在我这也一律不算我的回合，行动入口全锁
+  const isMyTurn = !gameState.gameOver && gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
+  const isHost = room?.hostId === myPlayerId
+
   // 回合横幅：只在「变成我的回合」那一刻弹，6.5 秒自动收；行动里也会主动收
   useEffect(() => {
     if (!isMyTurn) return
@@ -111,6 +116,9 @@ export default function GameBoard({
     const t = setTimeout(() => setTurnBanner(false), 6500)
     return () => clearTimeout(t)
   }, [isMyTurn])
+  useEffect(() => {
+    if (!gameState.gameOver) setOverDismissed(false)
+  }, [gameState.gameOver])
 
   // 拿筹码的合法组合只有三种：3 个不同色、2 枚同色（银行该色 ≥4）、单独 1 枚咖啡。
   // 咖啡（万能）不占「3 个不同色」的名额，也不能凑 2 枚 —— 「拿 1 枚咖啡」本身就是
@@ -187,36 +195,6 @@ export default function GameBoard({
     setReserveTarget(null)
   }
 
-  if (gameState.gameOver) {
-    const winner = gameState.winner
-    const isHost = room?.hostId === myPlayerId
-    return (
-      <div className="gb gb-root">
-        <div className="gb-gameover">
-          <h1>游戏结束</h1>
-          <h2>{winner.name} 获胜！</h2>
-          <div className="gb-standings">
-            {gameState.players
-              .slice()
-              .sort((a, b) => b.prestige - a.prestige)
-              .map((p, i) => (
-                <div key={p.id} className={`gb-standing ${p.id === winner.id ? 'winner' : ''}`}>
-                  <span className="standing-rank">#{i + 1}</span>
-                  <span className="standing-name">{p.name}</span>
-                  <span className="standing-score">{p.prestige}</span>
-                </div>
-              ))}
-          </div>
-          {/* 重开由房主发起（服务端只认房主），其他人这条只能等 */}
-          {isHost
-            ? <button className="gb-btn gb-btn-gold" onClick={onRestart}>再来一局</button>
-            : <p className="gb-restart-hint">等房主点「再来一局」…</p>}
-          <button className="gb-btn gb-btn-ghost" onClick={onExitRoom}>回大厅</button>
-        </div>
-      </div>
-    )
-  }
-
   const opponents = gameState.players.filter(p => p.id !== myPlayerId)
   const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
   // 掉线保席中的人还在名单里（roster 带 offline），牌桌上要标出来，
@@ -252,11 +230,13 @@ export default function GameBoard({
       <div className="gb-topbar">
         <div className="gb-title">学术宝石</div>
         <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''} ${currentOffline ? 'waiting' : ''}`}>
-          {isMyTurn
-            ? '轮到你行动'
-            : currentOffline
-              ? `${gameState.players[currentIndex]?.name} 掉线了，等他重连…`
-              : `等待 ${gameState.players[currentIndex]?.name}`}
+          {gameState.gameOver
+            ? '本局已结束'
+            : isMyTurn
+              ? '轮到你行动'
+              : currentOffline
+                ? `${gameState.players[currentIndex]?.name} 掉线了，等他重连…`
+                : `等待 ${gameState.players[currentIndex]?.name}`}
         </div>
       </div>
 
@@ -699,6 +679,43 @@ export default function GameBoard({
             <p className="ts-hint">拖大浏览器窗口，或按 <kbd>F11</kbd> 全屏。</p>
           </div>
         </div>
+      )}
+
+      {/* 终局不跳屏：牌桌原样锁在下面，盖一层动画结算。主动收起后整桌供回看，
+          右下角浮动按钮再唤回结算面板 */}
+      {gameState.gameOver && !overDismissed && (
+        <div className="gb-over-overlay">
+          <div className="over-scrim" />
+          <div className="over-sparks">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i }} />)}</div>
+          <div className="over-panel">
+            <div className="over-seal">终</div>
+            <h1>游戏结束</h1>
+            <h2>{gameState.winner?.name} 获胜！</h2>
+            <div className="gb-standings">
+              {gameState.players
+                .slice()
+                .sort((a, b) => b.prestige - a.prestige)
+                .map((p, i) => (
+                  <div key={p.id} className={`gb-standing ${p.id === gameState.winner?.id ? 'winner' : ''}`}>
+                    <span className="standing-rank">#{i + 1}</span>
+                    <span className="standing-name">{p.name}</span>
+                    <span className="standing-score">{p.prestige}</span>
+                  </div>
+                ))}
+            </div>
+            <div className="over-buttons">
+              <button className="gb-btn gb-btn-ghost" onClick={() => setOverDismissed(true)}>查看牌桌</button>
+              {/* 重开由房主发起（服务端只认房主），其他人这条只能等 */}
+              {isHost
+                ? <button className="gb-btn gb-btn-gold" onClick={onRestart}>再来一局</button>
+                : <p className="gb-restart-hint">等房主点「再来一局」…</p>}
+              <button className="gb-btn gb-btn-ghost" onClick={onExitRoom}>回大厅</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {gameState.gameOver && overDismissed && (
+        <button className="gb-over-reopen" onClick={() => setOverDismissed(false)}>查看结算</button>
       )}
     </div>
   )

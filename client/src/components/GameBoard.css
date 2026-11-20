@@ -1037,10 +1037,6 @@
 .reserved-hint { font-size: 0.85rem; color: #b9ae8f; }
 
 /* ---- 游戏结束 ---- */
-.gb-gameover {
-  margin: auto;
-  width: min(90vw, 460px);
-  padding: 2rem 2.4rem;
 /* ---- 回合行动横幅：轮到我时弹一次，顶栏下一条，三件事摆清楚 ----
    只占一条不挡牌桌；点✕ / 6.5 秒超时 / 一行动就收（逻辑在 GameBoard）。 */
 .gb-turn-banner {
@@ -1103,21 +1099,109 @@
   .tb-sub, .tb-item span { display: none; }
 }
 
+
+/* ---- 终局覆盖层：牌桌原样锁在下面， scrim＋金粉＋盖章结算面板 ----
+   主动收起后整桌供回看，.gb-over-reopen 浮动按钮再唤回。 */
+.gb-over-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.over-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 7, 11, 0.6);
+  backdrop-filter: blur(3px) saturate(0.85);
+  animation: ng-fade 0.6s ease-out;
+}
+.over-sparks { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.over-sparks i {
+  position: absolute;
+  bottom: -2vh;
+  left: calc(var(--i) * 7.2% + 2%);
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff2c2, #c9a227 70%);
+  opacity: 0;
+  animation: spark-rise 3.6s linear infinite;
+  animation-delay: calc(var(--i) * -0.53s);
+}
+@keyframes spark-rise {
+  0% { opacity: 0; transform: translateY(0) scale(0.7); }
+  12% { opacity: 0.85; }
+  80% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-108vh) scale(1.15); }
+}
+.over-panel {
+  position: relative;
+  width: min(92vw, 26rem);
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 1.5rem 1.6rem 1.4rem;
   text-align: center;
   border-radius: 1.2rem;
   background: linear-gradient(180deg, #202a36, #161d26 55%, #121820);
   border: 1px solid rgba(201, 162, 39, 0.7);
   box-shadow: 0 12px 44px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(230, 200, 120, 0.14);
+  animation: over-in 0.65s 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards;
+  scrollbar-color: rgba(201, 162, 39, 0.8) rgba(16, 22, 29, 0.6);
+  scrollbar-width: thin;
 }
-.gb-gameover h1 {
-  font-size: 2.4rem;
+@keyframes over-in { from { opacity: 0; transform: translateY(2.2rem) scale(0.94); } }
+.over-seal {
+  width: 3.6rem;
+  height: 3.6rem;
+  margin: 0 auto 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #a03a28, #7a231a 68%);
+  border: 0.2rem solid #f1e8d4;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 1.6rem rgba(160, 58, 40, 0.5);
+  color: #f6e8d8;
+  font-size: 1.7rem;
+  font-weight: 700;
+  font-family: 'Kaiti SC', 'KaiTi', 'STKaiti', serif;
+  animation: seal-stamp 0.7s 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) backwards;
+}
+@keyframes seal-stamp {
+  0% { opacity: 0; transform: scale(2.4) rotate(-14deg); }
+  70% { opacity: 1; transform: scale(0.92) rotate(3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.over-panel h1 {
+  font-size: 1.9rem;
+  margin: 0;
   background: linear-gradient(to top, #c9a227, #e6c878, #c9a227);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(2px 2px 6px black);
 }
-.gb-gameover h2 { color: #e6c878; margin: 0.4rem 0 1.2rem; }
+.over-panel h2 { color: #e6c878; margin: 0.3rem 0 1rem; font-size: 1.15rem; }
+.over-buttons { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.4rem; }
+.gb-over-reopen {
+  position: fixed;
+  right: 1rem;
+  bottom: 6.6rem;
+  z-index: 46;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  background: linear-gradient(180deg, #26303c, #1a222c);
+  border: 1px solid rgba(230, 200, 120, 0.85);
+  color: #e6c878;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  animation: ng-fade 0.4s ease-out;
+}
+.gb-over-reopen:hover { background: linear-gradient(180deg, #2d3844, #202a36); }
 .gb-standings { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
 .gb-standing {
   display: flex;
@@ -1559,6 +1643,8 @@
   .tb-item b { font-size: 0.8rem; }
   .tb-item img { width: 1.15em; height: 1.15em; }
   .tb-close { width: 1.3rem; height: 1.3rem; font-size: 0.6rem; }
+  .over-panel { padding: 1.1rem 1rem 1rem; max-height: 82vh; }
+  .gb-over-reopen { right: 0.6rem; bottom: 5.6rem; }
 }
 
 /* 横屏顶栏单行：横幅盖满这一行（回合标与横幅文案重复，盖住无妨） */
@@ -1573,4 +1659,10 @@
   .tb-item { padding: 0.2rem 0.3rem; gap: 0.25rem; }
   .tb-item b { font-size: 0.72rem; }
   .tb-item img { width: 1em; height: 1em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb-turn-banner, .ng-card, .ng-rays, .ng-text, .over-panel, .over-seal,
+  .over-scrim, .over-sparks i, .gb-over-reopen { animation: none; }
+  .over-sparks { display: none; }
 }
