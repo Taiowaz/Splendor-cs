@@ -206,6 +206,8 @@
   text-align: center;
   color: #d9cfae;
 }
+/* 满额行把计数点亮：锁是这一行自己的 3/3，不是整面板发不了 */
+.dbg-res span.full { color: #e6c878; font-weight: 700; }
 .dbg-res button {
   width: 18px;
   height: 18px;
@@ -219,6 +221,9 @@
   cursor: pointer;
 }
 .dbg-res button:hover { border-color: rgba(230, 200, 120, 0.85); color: #e6c878; }
+/* 到界只锁本行：满 3 张锁＋、空锁−，别让人误以为整面板发不了 */
+.dbg-res button:disabled { opacity: 0.35; cursor: not-allowed; }
+.dbg-res button:disabled:hover { border-color: rgba(201, 162, 39, 0.45); color: #e8e0cc; }
 .dbg-pre {
   color: #e6c878;
   font-size: 11px;

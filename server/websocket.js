@@ -692,11 +692,14 @@ export function setupWebSocket(server) {
       const game = room.game;
       if (!game.players.some(p => p.id === conn.playerId)) return;
       const player = game.players.find(p => p.id === message.playerId);
-      if (!player) return;
+      if (!player) {
+        ws.send(JSON.stringify({ type: 'error', message: '找不到该玩家（牌桌可能已重开）' }));
+        return;
+      }
 
       if (message.delta === 1) {
         if (player.reservedCards.length >= 3) {
-          ws.send(JSON.stringify({ type: 'error', message: '预留已满（最多 3 张）' }));
+          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 的预留已满（最多 3 张），只锁这一行` }));
           return;
         }
         const tiers = [3, 2, 1].filter(t => game.bank[`tier${t}`].length > 0);
@@ -711,7 +714,7 @@ export function setupWebSocket(server) {
       } else if (message.delta === -1) {
         const card = player.reservedCards.pop();
         if (!card) {
-          ws.send(JSON.stringify({ type: 'error', message: '这个玩家没有预留卡' }));
+          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 没有预留卡` }));
           return;
         }
         const row = game.bank[`tier${card.tier}`];
