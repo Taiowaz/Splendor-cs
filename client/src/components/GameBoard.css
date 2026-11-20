@@ -644,7 +644,14 @@
   --vc-w: 25px;
   position: relative;
   flex: 0 0 auto;
-  transition: margin-left 0.12s ease;
+}
+/* 摊开不走 margin 过渡：margin 动画会在 120ms 里把槽位命中边界扫过静止光标，
+   指针原地反复进出槽位 → 放大/缩小自激抖动。改瞬时摊开，命中几何一次到位。
+   平滑感交给 transform 过渡：transform 不改布局、不吃命中（卡还 pointer-events:none），
+   槽位不动就不会抖。原点放底边右侧，放大/收回都朝左上，方向一致不跳。 */
+.opp-reserved-slot .paper-card {
+  transform-origin: right bottom;
+  transition: transform 0.12s ease;
 }
 .opp-reserved-slot + .opp-reserved-slot {
   margin-left: calc(var(--vc-w) * -0.6);
@@ -655,15 +662,13 @@
 .opp-reserved-slot:hover {
   z-index: 50;
 }
-/* 4.6 倍：25 → 115 宽、37.5 → 172.5 高，正好是牌桌真卡那一档（1366×768 下
-   --vc-w 115.6），会议名/成本那些字才读得清 —— 原来 1.75 只有 43.8 宽，等于
-   把一张缩略图放大了一点，字还是糊的。以 right bottom 为原点往左上长：底边
-   180.8 离框顶只剩 172.5 → 顶到 8.3，横向 115 宽压到 90.4，两个方向都还在框里
-   （几何上限 4.8，再大就顶穿框顶，被玩家列那圈 overflow 裁掉）。
+/* 4.8 倍：25 → 120 宽、37.5 → 180 高，比牌桌真卡那一档（1366×768 下 --vc-w 115.6）
+   还大一点，会议名/成本那些字才读得清。以 right bottom 为原点往左上长：底边
+   180.8 减去 180 高 → 顶到 0.8，横向 120 宽压到 85.4，两个方向都还贴着框里
+   （4.8 就是几何上限，再大就顶穿框顶，被玩家列那圈 overflow 裁掉）。
    代价是 hover 时这一块会盖住右列三格和表头右半 —— 反正是悬停临时浮层。 */
 .opp-reserved-slot:hover .paper-card {
-  transform: scale(4.6);
-  transform-origin: right bottom;
+  transform: scale(4.8);
   /* 放大这张不吃鼠标：115 宽一盖就把左边两张的落点全挡住，指针再也换不到它们身上
      （摞的 hover 只认那 25 宽的槽位，摊开后各张互不遮挡）。浮层归浮层，指针归槽位。 */
   pointer-events: none;
@@ -833,7 +838,12 @@
   --vc-w: 27.7px;
   position: relative;
   flex: 0 0 auto;
-  transition: margin-left 0.12s ease;
+}
+/* 同对手摞：摊开瞬时完成（不走 margin 过渡，避免命中边界扫过光标自激抖动），
+   放大平滑交给 transform 过渡，原点底边右侧。 */
+.mc-reserved-slot .paper-card {
+  transform-origin: right bottom;
+  transition: transform 0.12s ease;
 }
 /* 叠摞的负 margin 挂在后一张的「左边距」而不是前一张的右边距：这样这一摞的
    flex 外框宽度 == 可见并集宽度，justify-content: center 才真居中。走右边距的
@@ -848,17 +858,41 @@
 .mc-reserved-slot:hover {
   z-index: 50;
 }
-/* 和对手那摞一个口径：4.2 倍 = 27.7 → 116.3 宽、41.55 → 174.5 高，正好是牌桌真卡
-   那一档（1366×768 下 --vc-w 115.6），会议名和成本都读得清。原来 1.35 只有 37.4 宽，
-   字是糊的；条本身只有 62 高，装不下这么大的卡 —— 但 .gb-my-cards 没设 overflow，
-   卡就往条外面长：以 right bottom 为原点朝左上探，底边 743.4 减 174.4 = 顶到 568.9，
-   还在视口里（1024 宽下也不出屏），压住的只是牌桌 C 档那行的下半截。
-   放大这张不吃鼠标（同 .opp-reserved-slot）：116 宽一盖就把左边两张和整条资源条的
+/* 和对手那摞一个口径：4.6 倍 = 27.7 → 127.4 宽、41.55 → 191.1 高，比牌桌真卡
+   那一档（1366×768 下 --vc-w 115.6）还大一点，会议名和成本都读得清。条本身只有
+   62 高，装不下这么大的卡 —— 但 .gb-my-cards 没设 overflow，卡就往条外面长：
+   以 right bottom 为原点朝左上探，底边 743.4 减 191.1 = 顶到 552.3，还在视口里
+   （1024 宽下也不出屏），压住的只是牌桌 C 档那行的下半截。
+   放大这张不吃鼠标（同 .opp-reserved-slot）：127 宽一盖就把左边两张和整条资源条的
    落点全挡住，指针换不过去；hover 只认那 27.7 宽的槽位，点一下进弹窗也还是落在槽位上。 */
 .mc-reserved-slot:hover .paper-card {
-  transform: scale(4.2);
-  transform-origin: right bottom;
+  transform: scale(4.6);
   pointer-events: none;
+}
+/* 预留浮层是「极小卡 + transform 放大」：border 有 1px 下限，.plus 那圈 0.1em 白边
+   在 1.85px 字号下被钳成 1px，占掉角标半个盒子，"+1" 被挤出圈外。提高放大倍率救不了
+   （钳制发生在布局期，缩放把文字和圈等比放大，相对溢出不变）。改用 em 的 box-shadow
+   画白圈（阴影不吃 1px 下限），并给角标一个够大的正圆，让 "+1" 落在圆的内接区里。
+   只作用于预留浮层：牌桌真卡字号够大，1px 边比例正常，不动它和 card-preview。 */
+.mc-reserved-slot .paper-card .gem .plus,
+.opp-reserved-slot .paper-card .gem .plus {
+  /* 圆径贴着字：1.7em 圆的内接方约 1.2em，"+1"(1em 字号) 刚好落进去又留一点呼吸，
+     不再像 2.2em 那样字只占半圆、四周一大圈空 */
+  width: 1.7em;
+  height: 1.7em;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  font-size: 1em;
+  line-height: 1;
+  box-shadow: 0 0 0 0.12em #fff;
+}
+/* 收起的小卡只有 3px 圆，"+1" 塞进去会和字圈糊成一团、探出圆外像胶囊。
+   休息态把字隐掉只留干净圆点（色透明但字号不变，白圈还在），hover 放大再显字。 */
+.mc-reserved-slot:not(:hover) .paper-card .gem .plus,
+.opp-reserved-slot:not(:hover) .paper-card .gem .plus {
+  color: transparent;
 }
 
 .gb-my-cards .mini-card {
