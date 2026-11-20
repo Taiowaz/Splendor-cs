@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>学术宝石 · 同方向资源分组方案对比</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Judson:ital,wght@0,400;0,700;1,400&family=Lobster&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --lacquer: #0a0f16;
+    --lacquer-2: #10161d;
+    --gold: #c9a227;
+    --gold-2: #e6c878;
+    --paper: #f1e8d4;
+    --seal: #1d5238;
+    --ink-dim: #9c9480;
+  }
+  * { box-sizing: border-box; }
+  html { scrollbar-color: rgba(217, 180, 74, 0.55) rgba(16, 22, 29, 0.8); scrollbar-width: thin; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 2.2rem 1.6rem 3.4rem;
+    color: var(--paper);
+    font-family: 'Judson', 'Noto Serif SC', 'PingFang SC', serif;
+    background:
+      radial-gradient(60rem 30rem at 12% -6%, rgba(201, 162, 39, 0.10), transparent 60%),
+      radial-gradient(50rem 26rem at 96% 12%, rgba(29, 82, 56, 0.16), transparent 62%),
+      linear-gradient(180deg, #0d141d, var(--lacquer) 40%, #070b11);
+  }
+  body::-webkit-scrollbar { width: 10px; }
+  body::-webkit-scrollbar-track { background: rgba(16, 22, 29, 0.8); }
+  body::-webkit-scrollbar-thumb { background: rgba(201, 162, 39, 0.45); border-radius: 5px; }
+  body::-webkit-scrollbar-thumb:hover { background: rgba(230, 200, 120, 0.7); }
+  header { max-width: 74rem; margin: 0 auto 1.8rem; }
+  h1 {
+    margin: 0 0 .4rem;
+    font-size: 1.7rem;
+    letter-spacing: .04em;
+    background: linear-gradient(90deg, var(--gold-2), var(--gold) 60%, #8a6d1c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  header p { margin: .2rem 0; color: var(--ink-dim); font-size: .92rem; line-height: 1.6; }
+  header p b { color: var(--gold-2); font-weight: 700; }
+  main { max-width: 74rem; margin: 0 auto; display: flex; flex-direction: column; gap: 1.6rem; }
+  section {
+    padding: 1.1rem 1.3rem 1.3rem;
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    border-radius: .9rem;
+    background: linear-gradient(180deg, rgba(28, 36, 46, 0.72), rgba(16, 22, 29, 0.86));
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(230, 200, 120, 0.06);
+  }
+  section.pick { border-color: rgba(230, 200, 120, 0.75); box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 22px rgba(201,162,39,.18), inset 0 0 0 1px rgba(230,200,120,.12); }
+  h2 { margin: 0 0 .3rem; font-size: 1.12rem; color: var(--gold-2); letter-spacing: .03em; }
+  h2 .tag {
+    display: inline-block; margin-left: .6rem; padding: .1rem .55rem;
+    border: 1px solid rgba(201, 162, 39, 0.6); border-radius: 999px;
+    font-size: .72rem; color: var(--gold-2); vertical-align: .12em;
+  }
+  .why { margin: 0 0 1rem; color: var(--ink-dim); font-size: .88rem; line-height: 1.65; }
+  .why b { color: var(--paper); }
+  .scales { display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; }
+  .scale { display: flex; flex-direction: column; gap: .55rem; }
+  .scale > span { font-size: .78rem; color: var(--ink-dim); letter-spacing: .06em; }
+  .strip { display: flex; align-items: center; gap: 1.1rem; font-size: 16px; }
+  .ogrid { display: grid; grid-template-columns: repeat(2, auto); gap: .6rem 1.25rem; margin-right: .3rem; font-size: 13px; }
+  .metric {
+    margin-top: .9rem; display: inline-flex; gap: .8rem; align-items: center;
+    padding: .28rem .8rem; border-radius: 999px;
+    border: 1px solid rgba(201, 162, 39, 0.4); background: rgba(10, 15, 22, 0.7);
+    font-size: .78rem; color: var(--ink-dim);
+  }
+  .metric b { color: var(--gold-2); font-family: 'Lobster', cursive; font-weight: 400; font-size: .95rem; }
+  .metric .bad b { color: #ff9d8a; }
+
+  /* ---- 与牌桌同口径的分量章 / 合计章 ---- */
+  .grp { position: relative; display: flex; align-items: center; gap: .5rem; }
+  .inv-gem { position: relative; width: 2.3em; height: 2.3em; }
+  .gem-circle {
+    width: 2.3em; height: 2.3em; border-radius: 50%;
+    background-size: cover; background-position: center;
+    box-shadow: rgba(0,0,0,.5) 0 3px 6px, inset 0 0 6px rgba(0,0,0,.45);
+    border: 1px solid rgba(246, 240, 224, 0.3);
+  }
+  .gem-num, .vc-count {
+    position: absolute; top: -.3em; right: -.3em; z-index: 2;
+    min-width: 1.3em; height: 1.3em; padding: 0 .12em; border-radius: 50%;
+    background: var(--seal); border: .08em solid var(--paper);
+    box-shadow: rgba(0,0,0,.35) 0 2px 5px;
+    font-family: 'Lobster', cursive; font-size: .72em; color: var(--gold-2);
+    line-height: 1.3em; text-align: center;
+  }
+  .vc-count { top: -.35em; right: -.35em; }
+  .vc-mark { position: relative; width: 1.6em; aspect-ratio: 6 / 9; min-height: 0; }
+  .vc-mark img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: .25rem;
+    border: 1px solid rgba(201, 162, 39, 0.6);
+    box-shadow: rgba(0,0,0,.5) -2px 2px 5px -1px;
+  }
+  .inv-gem.empty .gem-circle, .vc-mark.empty img { opacity: .35; filter: grayscale(.6); }
+  .sum-mark {
+    position: absolute; bottom: -.3em; right: -.3em; z-index: 2;
+    min-width: 1.3em; height: 1.3em; padding: 0 .12em; border-radius: 50%;
+    background: linear-gradient(180deg, #33250a, #1c1508);
+    border: .08em solid var(--gold);
+    box-shadow: rgba(0,0,0,.35) 0 2px 5px;
+    font-family: 'Lobster', cursive; font-size: .72em; color: var(--gold-2);
+    line-height: 1.3em; text-align: center;
+  }
+  .ogrid .vc-mark { width: 1.4em; }
+  /* 与牌桌同步：对手框的咖啡格不套资源框（万能筹码没有论文方向，空框多余），
+     边框占位保留所以六格同高不变 */
+  .ogrid .grp.gv-a:last-child { border-color: transparent; background: transparent; box-shadow: none; }
+
+  /* ---- 方案 A：托盘框＋右边封印 ---- */
+  .gv-a {
+    padding: .6rem .65rem .6rem .55rem;
+    min-height: calc(2.4em + 1.2rem + 2px);
+    border: 1px solid rgba(201, 162, 39, 0.42); border-radius: .6rem;
+    background: rgba(16, 22, 29, 0.6);
+    box-shadow: inset 0 0 0 1px rgba(230, 200, 120, 0.07);
+  }
+  .gv-a .sum-mark { right: -.7em; top: 56%; bottom: auto; transform: translateY(-50%); }
+  .gv-a .inv-gem .sum-mark { top: -.3em; right: -.3em; bottom: auto; transform: none; }
+  .strip .grp.gv-a:last-child { border-color: transparent; background: transparent; box-shadow: none; }
+
+  /* ---- 方案 B：共享底座＋居中合计 ---- */
+  .gv-b { padding-bottom: 1em; min-height: calc(2.4em + 1em); }
+  .gv-b::after {
+    content: ''; position: absolute; left: .1em; right: .1em; bottom: .42em; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold) 12%, var(--gold-2) 50%, var(--gold) 88%, transparent);
+    border-radius: 1px;
+  }
+  .gv-b .sum-mark { left: 50%; right: auto; bottom: .42em; transform: translate(-50%, 50%); }
+
+  /* ---- 方案 C：四角取景线＋顶边封印 ---- */
+  .gv-c {
+    padding: .5rem .45rem;
+    min-height: calc(2.4em + 1rem);
+    background:
+      linear-gradient(var(--gold), var(--gold)) left top / .55em 1px,
+      linear-gradient(var(--gold), var(--gold)) left top / 1px .55em,
+      linear-gradient(var(--gold), var(--gold)) right top / .55em 1px,
+      linear-gradient(var(--gold), var(--gold)) right top / 1px .55em,
+      linear-gradient(var(--gold), var(--gold)) left bottom / .55em 1px,
+      linear-gradient(var(--gold), var(--gold)) left bottom / 1px .55em,
+      linear-gradient(var(--gold), var(--gold)) right bottom / .55em 1px,
+      linear-gradient(var(--gold), var(--gold)) right bottom / 1px .55em;
+    background-repeat: no-repeat;
+  }
+  .gv-c .sum-mark { bottom: -.7em; top: auto; left: 50%; right: auto; transform: translateX(-50%); }
+
+  /* ---- 方案 D：胶囊三格（合计进流内） ---- */
+  .gv-d {
+    padding: .3rem .6rem;
+    min-height: calc(2.4em + .6rem + 2px);
+    border: 1px solid rgba(201, 162, 39, 0.42); border-radius: 999px;
+    background: rgba(16, 22, 29, 0.6);
+  }
+  .gv-d .sum-mark { position: static; transform: none; flex: 0 0 auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>同方向资源分组 · 方案对比</h1>
+  <p>问题：合计章（VC+AR）现在挂在 <b>VC 卡背右下角</b>，容易被读成「VC 自己的数」。下面把同一方向的筹码＋论文框成一组，合计章改挂到「组」上。</p>
+  <p>示例数：数据 AR3/VC2、算力 AR1/VC0、引用 AR0/VC3、合作 0/0、经费 AR4/VC1、咖啡 AR2（无 VC 方向，封印＝AR 数）。左＝本人资源条尺度 16px，右＝对手框尺度 13px。六只托盘同高。页尾实测每方案的条宽与章重叠数。</p>
+</header>
+<main id="main"></main>
+<script>
+  const TYPES = [
+    ['data', '数据', '/images/tokens/WhiteToken.png', 3, 2],
+    ['compute', '算力', '/images/tokens/BlueToken.png', 1, 0],
+    ['citation', '引用', '/images/tokens/GreenToken.png', 0, 3],
+    ['collaborator', '合作者', '/images/tokens/BrownToken.png', 0, 0],
+    ['funding', '经费', '/images/tokens/RedToken.png', 4, 1],
+    ['coffee', '咖啡', '/images/tokens/GoldToken.png', 2, null]
+  ]
+  const DECK = { 3: '/images/decks/crest-A.jpg', 2: '/images/decks/crest-B.jpg', 1: '/images/decks/crest-C.jpg' }
+  const VARIANTS = [
+    ['now', '现状：合计章挂 VC 卡背右下', '', '合计章贴着卡背角，<b>归属含混</b>：远看像 VC 的第二个数；卡背 hover 放大时章也跟着走。零额外占地。'],
+    ['a', '方案 A：托盘框＋右边封印', '推荐', '同方向两枚收进一只<b>深漆托盘</b>，合计章半嵌在托盘右边线中偏下（让开右上 VC 角章）——章压在「框」上而非卡上，归属最清楚；每格约 +1.2em 宽、+1.2em 高。'],
+    ['b', '方案 B：共享底座＋居中合计', '', '一条<b>描金托架线</b>把两枚托在一起，合计章骑在底座中线正中——居中之数天然属于「这一对」；最轻透，但每格加高约 1em。'],
+    ['c', '方案 C：四角取景线＋底边封印', '', '四角<b>取景 bracket</b> 框住一对（纸卡 mounting 语汇），合计章骑底边中线；比整框更透气，但 13px 对手尺度下角线略碎。'],
+    ['d', '方案 D：胶囊三格（合计进流内）', '', '合计作为<b>流内第三格</b>进胶囊，零绝对定位＝零重叠风险，最稳；代价是每格再宽一枚章，本人条总宽最大。']
+  ]
+  const cell = (v, [type, name, gem, ar, vc]) => {
+    const tier = vc >= 3 ? 3 : vc >= 1 ? 2 : 1
+    const sum = ar + (vc || 0)
+    const sumSpan = `<span class="sum-mark" title="${vc === null
+      ? `${name}总数 ${sum}＝AR ${ar} + VC 0｜万能筹码，买任何方向都能顶 1 枚`
+      : `${name}总数 ${sum}＝AR ${ar} + VC ${vc}`}">${sum}</span>`
+    const vcMark = vc === null ? '' :
+      `<div class="vc-mark ${vc === 0 ? 'empty' : ''}"><img src="${DECK[tier]}" alt="" /><span class="vc-count">${vc}</span>${v === 'now' ? sumSpan : ''}</div>`
+    // 与牌桌同步：咖啡格不套框、合计章顶替 gem-num 挂筹码右上（now 基线保持旧样）
+    const coffeeSeal = vc === null && v !== 'now'
+    const gemBadge = coffeeSeal ? sumSpan : `<span class="gem-num">${ar}</span>`
+    const tail = coffeeSeal ? '' : (v !== 'now' || vc === null ? sumSpan : '')
+    return `<div class="grp gv-${v}">
+      <div class="inv-gem ${ar === 0 ? 'empty' : ''}"><div class="gem-circle" style="background-image:url(${gem})"></div>${gemBadge}</div>
+      ${vcMark}${tail}
+    </div>`
+  }
+  document.getElementById('main').innerHTML = VARIANTS.map(([v, title, tag, why]) => `
+    <section class="${v === 'a' ? 'pick' : ''}" data-v="${v}">
+      <h2>${title}${tag ? `<span class="tag">${tag}</span>` : ''}</h2>
+      <p class="why">${why}</p>
+      <div class="scales">
+        <div class="scale"><span>本人资源条 · 16px</span><div class="strip">${TYPES.map(t => cell(v, t)).join('')}</div></div>
+        <div class="scale"><span>对手框 · 13px</span><div class="ogrid">${TYPES.map(t => cell(v, t)).join('')}</div></div>
+      </div>
+      <div class="metric"><span>条宽 <b class="w">–</b></span><span class="ov">章重叠 <b class="o">–</b></span><span>咖啡封印 <b class="c">–</b></span></div>
+    </section>`).join('')
+  // 实测：条宽、合计章与分量章重叠数、咖啡格是否干净
+  const hit = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)
+  for (const sec of document.querySelectorAll('section')) {
+    const strip = sec.querySelector('.strip')
+    let overlaps = 0
+    for (const g of sec.querySelectorAll('.grp')) {
+      const s = g.querySelector('.sum-mark'); if (!s) continue
+      const S = s.getBoundingClientRect()
+      for (const other of g.querySelectorAll('.gem-num, .vc-count')) {
+        if (hit(S, other.getBoundingClientRect())) overlaps++
+      }
+    }
+    const coffee = sec.querySelector('.strip .grp:last-child')
+    sec.querySelector('.w').textContent = Math.round(strip.getBoundingClientRect().width) + 'px'
+    const oEl = sec.querySelector('.o')
+    oEl.textContent = overlaps
+    if (overlaps > 0) oEl.parentElement.classList.add('bad')
+    sec.querySelector('.c').textContent = coffee.querySelector('.sum-mark') ? '有章' : '无章'
+  }
+</script>
+</body>
+</html>
