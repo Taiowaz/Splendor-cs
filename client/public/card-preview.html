@@ -85,7 +85,7 @@
   .prestige span { font-family: var(--num); font-size: 1.65rem; color: #6b4d0a; text-shadow: 0 1px 0 #fff2c2; }
 
   .title { margin-top: 1.045rem; font-family: var(--serif); font-weight: 700; font-size: 2.09rem; line-height: 1.05; text-align: center; color: #2c1e0c; letter-spacing: .02em; }
-  .sub { margin-top: .11rem; font-family: 'Ma Shan Zheng', var(--serif); font-size: .99rem; line-height: 1.2; text-align: center; color: #6a5326; letter-spacing: .06em; }
+  .sub { margin-top: .11rem; font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.155rem; line-height: 1.2; text-align: center; color: #6a5326; letter-spacing: .06em; }
 
   .card-art { display: grid; place-items: center; margin: .275rem 0 0; color: #6a5326; flex: 1 1 auto; min-height: 57.2px; }
   .card-art svg { width: 78%; height: 46px; overflow: visible; }
@@ -104,7 +104,7 @@
   .card-art .art-wm.wm-serif-teal .m { color: #1e516d; }
   .card-art .art-wm.wm-serif-orange .m { color: #a05a1a; }
 
-  .body { display: flex; align-items: stretch; justify-content: space-between; margin-top: .66rem; gap: .55rem; }
+  .body { display: flex; align-items: stretch; justify-content: space-between; margin-top: .55rem; gap: .55rem; }
 
   /* 产出 / 费用：圆里的宝石照片拿掉，只留一圈细边和线条符号，
      符号按资源着色（羊皮纸底上要选够深的色），背景就是卡面本身 */
@@ -114,11 +114,12 @@
   .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.1rem; color: #4a3410; letter-spacing: .02em; }
 
   /* 费用 */
-  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: .242rem; justify-content: center; padding-right: .11rem; }
-  .cost .row { display: flex; align-items: center; gap: .495rem; }
-  .cost .mini { width: 29px; height: 29px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.2) 0 1.1px 3.3px, inset 0 0 0 1px rgba(74,52,16,.18); flex: 0 0 auto; }
-  .cost .n { font-family: var(--num); font-size: 1.265rem; color: #4a3410; min-width: .8em; }
-  .cost .lbl { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.155rem; color: #4a3410; letter-spacing: .03em; margin-left: .11rem; }
+  /* 费用：与牌桌同步——去中文资源名（收进 row title）、图标放大、四行贴叠 */
+  .cost { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 0; justify-content: center; padding-right: .11rem; }
+  .cost .row { display: flex; align-items: center; gap: .385rem; }
+  .cost .row + .row { margin-top: -1.265rem; }
+  .cost .mini { width: 49.3px; height: 49.3px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.2) 0 1.1px 3.3px, inset 0 0 0 1px rgba(74,52,16,.18); flex: 0 0 auto; }
+  .cost .n { font-family: var(--num); font-size: 1.54rem; color: #4a3410; min-width: .8em; }
 
   .foot { margin-top: auto; padding-top: .33rem; display: flex; gap: .33rem; }
   .btn { flex: 1; text-align: center; font-family: var(--serif); font-size: .935rem; padding: .275rem; border-radius: 6.6px; border: 1px solid rgba(158,220,178,.55); background: linear-gradient(180deg,#2f7a52,#235c3e 55%,#1a4a31); color:#f6f0e0; }
@@ -447,7 +448,7 @@
         const bonusHtml = `<div class="gem" style="${disc(v.bonus)}"><span class="plus">+1</span></div><span class="cap">产出 ${b.cn}</span>`;
         const costHtml = Object.entries(v.cost).map(([r, n]) => {
           const c = RES[r];
-          return `<div class="row"><div class="mini" style="${disc(r)}"></div><span class="n">${n}</span><span class="lbl">${c.cn}</span></div>`;
+          return `<div class="row" title="${c.cn} ×${n}"><div class="mini" style="${disc(r)}"></div><span class="n">${n}</span></div>`;
         }).join('');
         const card = document.createElement('div');
         card.className = 'card' + tierClass[ccf];

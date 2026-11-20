@@ -47,10 +47,9 @@ export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn,
         </div>
         <div className="cost">
           {Object.entries(card.cost).map(([resource, count]) => (
-            <div className="row" key={resource}>
+            <div className="row" key={resource} title={`${RES_CN[resource]} ×${count}`}>
               <div className="mini" style={disc(resource)} />
               <span className="n">{count}</span>
-              <span className="lbl">{RES_CN[resource]}</span>
             </div>
           ))}
         </div>

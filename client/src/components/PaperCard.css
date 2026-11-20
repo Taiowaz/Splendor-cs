@@ -124,7 +124,7 @@
 .paper-card .card-sub {
   margin-top: 0.1em;
   font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  font-size: 0.9em;
+  font-size: 1.05em;
   line-height: 1.2;
   text-align: center;
   color: #4a3a10;
@@ -159,7 +159,7 @@
   align-items: stretch;
   justify-content: space-between;
   gap: 0.5em;
-  margin-top: 0.6em;
+  margin-top: 0.5em;
 }
 
 .paper-card .bonus {
@@ -205,25 +205,33 @@
   letter-spacing: 0.02em;
 }
 
+/* 所需 AR：只留筹码图标＋数字，中文资源名收进 row 的 title（悬停可读）。
+   图标 2.8em 当主角；行与行叠 1.15em（官方卡那种成本圆片贴叠列），
+   四行 worst case 加脚部按钮仍落在 6:9 卡高预算内。数字在圆片右侧，
+   各行等宽右对齐，下一行圆片只压上一行圆片、不遮数字。 */
 .paper-card .cost {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  gap: 0.22em;
+  gap: 0;
   padding-right: 0.1em;
 }
 
 .paper-card .cost .row {
   display: flex;
   align-items: center;
-  gap: 0.45em;
+  gap: 0.35em;
+}
+
+.paper-card .cost .row + .row {
+  margin-top: -1.15em;
 }
 
 .paper-card .cost .mini {
-  width: 1.65em;
-  height: 1.65em;
+  width: 2.8em;
+  height: 2.8em;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
@@ -233,17 +241,9 @@
 
 .paper-card .cost .n {
   font-family: 'Lobster', cursive;
-  font-size: 1.15em;
+  font-size: 1.4em;
   color: #38221c;
   min-width: 0.8em;
-}
-
-.paper-card .cost .lbl {
-  font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
-  font-size: 1.05em;
-  color: #38221c;
-  letter-spacing: 0.03em;
-  margin-left: 0.1em;
 }
 
 .paper-card .foot {
