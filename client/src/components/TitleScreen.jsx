@@ -60,7 +60,7 @@ export default function TitleScreen({
       </div>
 
       <h1 className="sc-logo">学术宝石</h1>
-      <p className="sc-tagline">攒资源 · 发论文 · 当院士</p>
+      <p className="sc-tagline">攒资源 · 发论文</p>
 
       <div className="sc-panel">
         {loggedIn ? (
