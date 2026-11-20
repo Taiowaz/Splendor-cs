@@ -28,6 +28,7 @@ const GROUNDS = [
 ]
 
 export const GROUND_KEY = 'splendor-ground'
+export const DEFAULT_GROUND = 'diancui'
 
 export function applyGround(key) {
   document.documentElement.dataset.ground = key
@@ -44,6 +45,7 @@ const FCS = [
 ]
 
 export const FC_KEY = 'splendor-fc'
+export const DEFAULT_FC = 'qingjin'
 
 export function applyFc(key) {
   document.documentElement.dataset.fc = key
@@ -51,8 +53,8 @@ export function applyFc(key) {
 
 export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetReserved, onSetVc }) {
   const [open, setOpen] = useState(false)
-  const [ground, setGround] = useState(() => localStorage.getItem(GROUND_KEY) || 'ciqing')
-  const [fc, setFc] = useState(() => localStorage.getItem(FC_KEY) || 'auto')
+  const [ground, setGround] = useState(() => localStorage.getItem(GROUND_KEY) || DEFAULT_GROUND)
+  const [fc, setFc] = useState(() => localStorage.getItem(FC_KEY) || DEFAULT_FC)
   // 敲进去的数在等服务端回包的那几十毫秒里得留在框里，否则状态一广播就把没敲完的
   // 值顶回旧数（想敲 12，敲完「1」就被顶回 1）
   const [draft, setDraft] = useState({})
