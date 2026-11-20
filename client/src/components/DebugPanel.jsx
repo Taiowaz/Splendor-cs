@@ -129,41 +129,55 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
             const reserved = p.reservedCards?.length || 0
             return (
               <div key={p.id} className="dbg-row">
-                <span className={`dbg-name ${isMe ? 'me' : ''}`} title={p.name}>
-                  {isMe && '▸ '}{p.name}
-                </span>
-                <div className="dbg-cells">
-                  {TYPES.map(([type, label, gem]) => {
-                    const key = `${p.id}:${type}`
-                    const has = p.tokens?.[type] ?? 0
-                    // 能设的上限 = 牌堆现有的 + 自己已经拿在手里的
-                    const max = (bank[type] ?? 0) + has
-                    return (
-                      <label
-                        key={type}
-                        className="dbg-cell"
-                        title={`${label}｜手里 ${has}｜牌堆 ${bank[type] ?? 0}｜最多能设到 ${max}`}
-                      >
-                        <img src={gem} alt="" />
-                        <input
-                          type="number"
-                          min="0"
-                          max={max}
-                          value={draft[key] ?? has}
-                          onChange={e => setDraft(prev => ({ ...prev, [key]: e.target.value }))}
-                          onBlur={e => commit(p, type, e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
-                        />
-                      </label>
-                    )
-                  })}
+                <div className="dbg-who">
+                  <span className={`dbg-name ${isMe ? 'me' : ''}`} title={p.name}>
+                    {isMe && '▸ '}{p.name}
+                  </span>
+                  <span className="dbg-pre" title="声誉＝VC + FC 累计">声誉 {p.prestige ?? 0}</span>
                 </div>
-                <div className="dbg-res" title="预留卡：从牌桌明面发一张 / 收回最后一张（不送咖啡、不改回合）">
-                  <button onClick={() => onSetReserved(p.id, -1)}>−</button>
-                  <span>{reserved}/3</span>
-                  <button onClick={() => onSetReserved(p.id, 1)}>＋</button>
+                <div className="dbg-lines">
+                  <div className="dbg-line">
+                    <span className="dbg-tag">AR</span>
+                    <div className="dbg-cells">
+                      {TYPES.map(([type, label, gem]) => {
+                        const key = `${p.id}:${type}`
+                        const has = p.tokens?.[type] ?? 0
+                        // 能设的上限 = 牌堆现有的 + 自己已经拿在手里的
+                        const max = (bank[type] ?? 0) + has
+                        return (
+                          <label
+                            key={type}
+                            className="dbg-cell"
+                            title={`${label}｜手里 ${has}｜牌堆 ${bank[type] ?? 0}｜最多能设到 ${max}`}
+                          >
+                            <img src={gem} alt="" />
+                            <input
+                              type="number"
+                              min="0"
+                              max={max}
+                              value={draft[key] ?? has}
+                              onChange={e => setDraft(prev => ({ ...prev, [key]: e.target.value }))}
+                              onBlur={e => commit(p, type, e.target.value)}
+                              onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}
+                            />
+                          </label>
+                        )
+                      })}
+                    </div>
+                    <div className="dbg-res" title="预留卡：从牌桌明面发一张 / 收回最后一张（不送咖啡、不改回合）">
+                      <button onClick={() => onSetReserved(p.id, -1)} disabled={reserved === 0}>−</button>
+                      <span className={reserved >= 3 ? 'full' : ''}>{reserved}/3</span>
+                      <button
+                        onClick={() => onSetReserved(p.id, 1)}
+                        disabled={reserved >= 3}
+                        title={reserved >= 3
+                          ? `${p.name} 预留已满 3 张（规则上限，只锁这一行）：先−收回一张再加。注意 AI 回合买不起/拿不到时也会自己预留占额`
+                          : '从牌桌明面发一张预留给他（不送咖啡、不改回合）'}
+                      >＋</button>
+                    </div>
+                    <button className="dbg-clear" onClick={() => clearRow(p)}>清零</button>
+                  </div>
                 </div>
-                <button className="dbg-clear" onClick={() => clearRow(p)}>清零</button>
               </div>
             )
           })}

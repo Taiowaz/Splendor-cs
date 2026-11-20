@@ -125,13 +125,39 @@
 
 .dbg-row {
   display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.dbg-row + .dbg-row { margin-top: 8px; }
+/* 名字列：名字在上、声誉读数在下，跟右侧 AR/VC 两行分开 */
+.dbg-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 92px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.dbg-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.dbg-line {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
-.dbg-row + .dbg-row { margin-top: 6px; }
+/* AR / VC 两行行首的同款小标签，宽度一致保证两行格子左缘对齐 */
+.dbg-tag {
+  width: 16px;
+  flex-shrink: 0;
+  color: #9c9480;
+  font-size: 11px;
+}
 
 .dbg-name {
-  width: 92px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -193,6 +219,11 @@
   cursor: pointer;
 }
 .dbg-res button:hover { border-color: rgba(230, 200, 120, 0.85); color: #e6c878; }
+.dbg-pre {
+  color: #e6c878;
+  font-size: 11px;
+  white-space: nowrap;
+}
 
 /* 窄屏：名字列改横占一整行，AR/VC 两行各自换行，保证每个控件都够得着 */
 @media (max-width: 600px) {
