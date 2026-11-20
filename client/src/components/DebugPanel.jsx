@@ -166,7 +166,7 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
                             className="dbg-cell"
                             title={`${label}｜手里 ${has}｜牌堆 ${bank[type] ?? 0}｜最多能设到 ${max}`}
                           >
-                            <img src={gem} alt="" />
+                            <span className="dbg-gem" style={{ backgroundImage: `url(${gem})` }} />
                             <input
                               type="number"
                               min="0"
@@ -211,7 +211,7 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
                             className="dbg-cell"
                             title={`${label}产出｜已有 ${has}｜明面 ${face}｜最多能设到 ${max}（牌堆该色发完会弹提示）`}
                           >
-                            <img src={gem} alt="" />
+                            <span className="dbg-gem" style={{ backgroundImage: `url(${gem})` }} />
                             <input
                               type="number"
                               min="0"
