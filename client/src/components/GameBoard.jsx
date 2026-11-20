@@ -97,6 +97,8 @@ export default function GameBoard({
 
   const myPlayer = gameState.players.find(p => p.id === myPlayerId)
   const myReserved = myPlayer?.reservedCards || []
+  // 官方口径：咖啡（金）也算进持有总数，上限 10
+  const myTotalAR = INVENTORY_TYPES.reduce((s, t) => s + (myPlayer?.tokens?.[t] || 0), 0)
   const currentIndex = gameState.currentPlayerIndex
   const isMyTurn = gameState.players[currentIndex]?.id === myPlayerId
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
@@ -430,6 +432,13 @@ export default function GameBoard({
           <div className="mc-id">
             <p className="inv-name">{myPlayer?.name}</p>
             <span className="inv-order">第 {myOrder} 位</span>
+          </div>
+          <div
+            className={`mc-total${myTotalAR > 10 ? ' over' : myTotalAR === 10 ? ' full' : ''}`}
+            title={`持有 AR 总数 ${myTotalAR} / 上限 10（咖啡计入上限）`}
+          >
+            <span className="mc-total-label">AR 总数</span>
+            <span className="mc-total-num">{myTotalAR}<i>/10</i></span>
           </div>
         </div>
         {INVENTORY_TYPES.map(type => {

@@ -800,6 +800,44 @@
 }
 .mc-id { display: flex; flex-direction: column; line-height: 1.15; }
 
+/* AR 总数章：官方只常驻每色计数，总数仅在「返还超额」弹窗文案里出现；
+   这里补一枚常驻小章，口径跟官方一致（咖啡计入、上限 10）。
+   配色跟计数章同族绿漆底＋纸环；满 10 换琥珀漆、超 10 换朱漆提醒。 */
+.mc-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.05rem;
+  padding: 0.22rem 0.55rem;
+  border-radius: 0.6rem;
+  background: #1d5238;
+  border: 0.08em solid #f1e8d4;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 2px 5px;
+  line-height: 1.1;
+}
+.mc-total-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: rgba(241, 232, 212, 0.78);
+}
+.mc-total-num {
+  font-family: 'Lobster', cursive;
+  font-size: 1.1em;
+  color: #e6c878;
+}
+.mc-total-num i {
+  font-style: normal;
+  font-size: 0.62em;
+  color: rgba(241, 232, 212, 0.6);
+  margin-left: 0.12em;
+}
+.mc-total.full { background: #6b4a12; }
+.mc-total.full .mc-total-num { color: #ffd98a; }
+.mc-total.over { background: #7a231a; }
+.mc-total.over .mc-total-num { color: #ffc9b8; }
+.mc-total.over .mc-total-label { color: rgba(255, 201, 184, 0.85); }
+
 .mc-type {
   display: flex;
   flex-direction: row;
