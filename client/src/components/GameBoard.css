@@ -373,6 +373,14 @@
   bottom: auto;
   transform: translateY(-50%);
 }
+/* 咖啡章改挂筹码右上（与 gem-num 同锚点）：咖啡格不套框后章没有托盘右缘可挂，
+   而它的值就是 AR 数本身，直接顶替 gem-num，一枚筹码一枚章、不再重复 */
+.inv-gem .sum-mark {
+  top: -0.3em;
+  right: -0.3em;
+  bottom: auto;
+  transform: none;
+}
 
 /* 持有卡牌抽屉 */
 .inv-cards,
@@ -686,6 +694,16 @@
   position: relative;
   --pile-lane: 45px;
 }
+/* 咖啡是万能筹码、没有对应论文方向，套资源框只会多一只空暗盒：去边框、底色、
+   内描光，托盘收回内容宽不再铺满本格。合计章挂筹码右上（.inv-gem .sum-mark），
+   托盘右缘不再出章。padding 与边框占位保留（边框只改透明），六格同高、筹码左缘
+   对齐、摞的 left 公式都不变。 */
+.opp-cell-coffee .res-grp {
+  flex: 0 0 auto;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
 .opp-cell-coffee::after {
   content: '';
   flex: 0 0 auto;
@@ -928,6 +946,15 @@
   --grp-pv: 0.25rem;
   --grp-pr: 1.15rem;
 }
+/* 咖啡格不套资源框（与对手框同口径）：去边框/底色/内描光；合计章已挂筹码右上，
+   1.15rem 的封印 lane 不再需要，右内边距收回普通档，格宽不留空尾 */
+.mc-type-coffee {
+  --grp-pr: 0.65rem;
+}
+.mc-type-coffee .res-grp {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 /* 预留区：挂在自己库存末尾 —— 真卡面竖着站（6:9 原比例，不旋转），等比缩到底条
    的内容高度，负 margin 叠成一摞只露出左边一条彩边（档位色），hover 整摞摊开、

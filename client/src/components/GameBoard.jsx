@@ -405,6 +405,9 @@ export default function GameBoard({
                         <div className="res-grp">
                           <div className={`inv-gem ${n === 0 ? 'empty' : ''}`}>
                             <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
+                            {hasVC
+                              ? <span className="gem-num">{n}</span>
+                              : <span className="sum-mark" title={`${info.name}总数 ${n}＝AR ${n} + VC 0｜万能筹码，买任何方向都能顶 1 枚`}>{n}</span>}
                           </div>
                           {hasVC && (
                             <div className={`vc-mark ${papers.length === 0 ? 'empty' : ''}`}>
@@ -493,11 +496,13 @@ export default function GameBoard({
           const byTier = papers.reduce((a, c) => { a[c.tier] = (a[c.tier] || 0) + 1; return a }, {})
           const breakdown = [3, 2, 1].filter(t => byTier[t]).map(t => `CCF-${TIER_CCF[t]}×${byTier[t]}`).join(' ')
           return (
-            <div key={type} className="mc-type">
-                <span className="gem-num">{tokens}</span>
+            <div key={type} className={`mc-type ${type === 'coffee' ? 'mc-type-coffee' : ''}`}>
               <div className="res-grp">
                 <div className={`inv-gem ${tokens === 0 ? 'empty' : ''}`} title={`${info.name}｜筹码 ${tokens}`}>
                   <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
+                  {hasVC
+                    ? <span className="gem-num">{tokens}</span>
+                    : <span className="sum-mark" title={`${info.name}总数 ${tokens}＝AR ${tokens} + VC 0｜万能筹码，买任何方向都能顶 1 枚`}>{tokens}</span>}
                 </div>
                 {hasVC && (
                   <div
