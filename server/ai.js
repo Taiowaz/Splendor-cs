@@ -2,6 +2,7 @@
 import {
   canAffordCard,
   takeTokens,
+  returnTokens,
   buyCard,
   reserveCard,
   checkNobleVisit,
@@ -13,6 +14,21 @@ import {
 export function aiDecide(game, playerIndex) {
   const player = game.players[playerIndex];
   const bank = game.bank;
+
+  if (game.gameOver) return null;
+  if (game.pendingDiscard) {
+    if (game.pendingDiscard.playerId !== player.id) return null;
+    const remaining = { ...player.tokens };
+    const tokens = {};
+    for (let i = 0; i < game.pendingDiscard.count; i++) {
+      const resource = RESOURCE_TYPES.filter(r => remaining[r] > 0)
+        .sort((a, b) => remaining[b] - remaining[a])[0] || 'coffee';
+      if (!remaining[resource]) return null;
+      remaining[resource]--;
+      tokens[resource] = (tokens[resource] || 0) + 1;
+    }
+    return { action: 'return', tokens };
+  }
 
   // 1. 尝试购买卡牌（优先高声望）
   const allCards = [
@@ -29,7 +45,7 @@ export function aiDecide(game, playerIndex) {
     return { action: 'buy', cardId: card.id, tier: card.tier };
   }
 
-  // 1.5 明面买不起就看看预留区：手里攥满 10 枚时这是唯一能花掉筹码的出口
+  // 1.5 明面买不起就看看预留区
   const affordableReserved = (player.reservedCards || []).filter(c => canAffordCard(player, c));
   if (affordableReserved.length > 0) {
     affordableReserved.sort((a, b) => b.prestige - a.prestige);
@@ -37,29 +53,25 @@ export function aiDecide(game, playerIndex) {
     return { action: 'buyReserved', cardId: card.id, tier: card.tier };
   }
 
-  // 2. 拿资源：只提「拿完不超 10」的组合。原来不看手里总数，攥到 8-9 枚还提
-  //    「拿 3 枚」会被服务端拒掉，而拒掉之后回合不结束 —— 整桌永久卡死。
-  const tokenTotal = Object.values(player.tokens).reduce((a, b) => a + b, 0);
-  const room = 10 - tokenTotal;
-  const availableResources = RESOURCE_TYPES.filter(r => bank.tokens[r] > 0);
-  if (room >= 3 && availableResources.length >= 3) {
+  // 2. 拿普通资源，超额在归还阶段处理。
+  const availableResources = RESOURCE_TYPES.filter(r => bank.tokens[r] > 0)
+    .sort((a, b) => player.tokens[a] - player.tokens[b]);
+  if (availableResources.length >= 3) {
     const tokens = {};
     availableResources.slice(0, 3).forEach(r => { tokens[r] = 1; });
     return { action: 'take', tokens };
   }
-  if (room >= 2) {
-    for (const resource of RESOURCE_TYPES) {
-      if (bank.tokens[resource] >= 4) {
-        return { action: 'take', tokens: { [resource]: 2 } };
-      }
+  for (const resource of availableResources) {
+    if (bank.tokens[resource] >= 4) {
+      return { action: 'take', tokens: { [resource]: 2 } };
     }
   }
-  if (room >= 1 && (bank.tokens.coffee || 0) > 0) {
-    return { action: 'take', tokens: { coffee: 1 } };
+  if (availableResources.length > 0) {
+    return { action: 'take', tokens: Object.fromEntries(availableResources.map(r => [r, 1])) };
   }
 
-  // 3. 预留卡牌：送的那杯咖啡也算进 10 上限，满手且银行还有咖啡时预留是非法的
-  if (player.reservedCards.length < 3 && (tokenTotal < 10 || (bank.tokens.coffee || 0) === 0)) {
+  // 3. 预留卡牌
+  if (player.reservedCards.length < 3) {
     const tiers = [1, 2, 3];
     for (const tier of tiers) {
       const tierCards = bank[`tier${tier}`];
@@ -70,25 +82,29 @@ export function aiDecide(game, playerIndex) {
     }
   }
 
-  // 4. 理论上仍可能无合法行动（满手、买不起、预留满）：交回执行层跳过，保桌不卡死
+  // 4. 无合法行动时交回执行层跳过
   return null;
 }
 
 // 执行 AI 操作
 export function executeAiTurn(game, playerIndex, room, broadcastFn) {
+  if (game.gameOver || playerIndex !== game.currentPlayerIndex) return;
   const decision = aiDecide(game, playerIndex);
   const player = game.players[playerIndex];
   const currentPlayerId = player.id;
 
-  // 行动被拒 / 无合法行动的兜底：照常结束回合并广播。少了这条，AI 链条会在
-  // 这里断掉、整桌永久卡死（aiDecide 里已尽量只提合法行动，这是最后一道保险）。
-  const passTurn = () => {
+  const finishTurn = (actionMessage = null) => {
     endTurn(game);
-    broadcastFn(room.id, game.gameOver
-      ? { type: 'game_over', winner: game.winner, gameState: getSanitizedGameStateForAi(game) }
-      : { type: 'turn_changed', currentPlayerIndex: game.currentPlayerIndex, gameState: getSanitizedGameStateForAi(game) });
+    const gameState = getSanitizedGameStateForAi(game);
+    if (actionMessage) broadcastFn(room.id, { ...actionMessage, gameState });
+    broadcastFn(room.id, {
+      type: game.pendingDiscard ? 'discard_required' : game.gameOver ? 'game_over' : 'turn_changed',
+      currentPlayerIndex: game.currentPlayerIndex,
+      winner: game.winner,
+      gameState
+    });
   };
-  if (!decision) { passTurn(); return; }
+  if (!decision) { finishTurn(); return; }
 
   switch (decision.action) {
     case 'buy':
@@ -108,67 +124,32 @@ export function executeAiTurn(game, playerIndex, room, broadcastFn) {
           });
         }
 
-        broadcastFn(room.id, {
-          type: 'card_bought',
-          playerId: currentPlayerId,
-          card: result.card,
-          gameState: getSanitizedGameStateForAi(game)
-        });
-
-        endTurn(game);
-
-        if (game.gameOver) {
-          broadcastFn(room.id, {
-            type: 'game_over',
-            winner: game.winner,
-            gameState: getSanitizedGameStateForAi(game)
-          });
-        } else {
-          broadcastFn(room.id, {
-            type: 'turn_changed',
-            currentPlayerIndex: game.currentPlayerIndex,
-            gameState: getSanitizedGameStateForAi(game)
-          });
-        }
-      } else passTurn();
+        finishTurn({ type: 'card_bought', playerId: currentPlayerId, card: result.card });
+      } else finishTurn();
       break;
     }
 
     case 'take': {
       const result = takeTokens(player, decision.tokens, game.bank.tokens);
       if (result.success) {
-        broadcastFn(room.id, {
-          type: 'tokens_taken',
-          playerId: currentPlayerId,
-          tokens: decision.tokens,
-          gameState: getSanitizedGameStateForAi(game)
-        });
-        endTurn(game);
-        broadcastFn(room.id, {
-          type: 'turn_changed',
-          currentPlayerIndex: game.currentPlayerIndex,
-          gameState: getSanitizedGameStateForAi(game)
-        });
-      } else passTurn();
+        finishTurn({ type: 'tokens_taken', playerId: currentPlayerId, tokens: decision.tokens });
+      } else finishTurn();
       break;
     }
 
     case 'reserve': {
       const result = reserveCard(game, playerIndex, decision.tier, decision.cardIndex);
       if (result.success) {
-        broadcastFn(room.id, {
-          type: 'card_reserved',
-          playerId: currentPlayerId,
-          card: result.card,
-          gameState: getSanitizedGameStateForAi(game)
-        });
-        endTurn(game);
-        broadcastFn(room.id, {
-          type: 'turn_changed',
-          currentPlayerIndex: game.currentPlayerIndex,
-          gameState: getSanitizedGameStateForAi(game)
-        });
-      } else passTurn();
+        finishTurn({ type: 'card_reserved', playerId: currentPlayerId, card: result.card });
+      } else finishTurn();
+      break;
+    }
+
+    case 'return': {
+      const result = returnTokens(game, playerIndex, decision.tokens);
+      if (result.success) {
+        finishTurn({ type: 'tokens_returned', playerId: currentPlayerId, tokens: decision.tokens });
+      } else finishTurn();
       break;
     }
   }
@@ -200,6 +181,7 @@ function getSanitizedGameStateForAi(game) {
       nobles: game.bank.nobles
     },
     currentPlayerIndex: game.currentPlayerIndex,
+    pendingDiscard: game.pendingDiscard,
     gameOver: game.gameOver,
     winner: game.winner,
     turnCount: game.turnCount

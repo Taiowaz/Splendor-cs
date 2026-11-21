@@ -65,6 +65,7 @@ export function initializeGame(playerCount) {
     players: [],
     bank: bank,
     currentPlayerIndex: 0,
+    pendingDiscard: null,
     gameOver: false,
     winner: null,
     turnCount: 0
@@ -175,29 +176,58 @@ export function buyCard(gameState, playerIndex, cardId, tier, fromReserved = fal
   return { success: true, card };
 }
 
-// 拿取资源token
 export function takeTokens(player, tokens, bankTokens) {
-  const totalTokens = Object.values(tokens).reduce((a, b) => a + b, 0);
-  const playerTotal = Object.values(player.tokens).reduce((a, b) => a + b, 0);
-
-  // 检查是否超过token上限（10个）
-  if (playerTotal + totalTokens > 10) {
-    return { success: false, error: '超过资源上限（10个）' };
+  if (!tokens || typeof tokens !== 'object' || Array.isArray(tokens)) {
+    return { success: false, error: '无效的筹码选择' };
+  }
+  const entries = Object.entries(tokens);
+  if (!entries.length || entries.some(([type, count]) =>
+    !RESOURCE_TYPES.includes(type) || !Number.isInteger(count) || count < 1 || count > 2)) {
+    return { success: false, error: '只能拿取普通 AR，咖啡只能通过预选论文获得' };
   }
 
-  // 检查银行是否有足够的token
-  for (const [type, count] of Object.entries(tokens)) {
-    if (bankTokens[type] < count) {
-      return { success: false, error: `银行${type}不足` };
-    }
+  const availableColors = RESOURCE_TYPES.filter(type => bankTokens[type] > 0).length;
+  const differentColors = entries.length === Math.min(3, availableColors) && entries.every(([, count]) => count === 1);
+  const sameColorPair = entries.length === 1 && entries[0][1] === 2 && bankTokens[entries[0][0]] >= 4;
+  if (!differentColors && !sameColorPair) {
+    return { success: false, error: '请选择三色各 1 枚（不足三色时取现有各色），或同色 2 枚（公共池该色至少 4 枚）' };
+  }
+  if (entries.some(([type, count]) => bankTokens[type] < count)) {
+    return { success: false, error: '公共池筹码不足' };
   }
 
-  // 转移token
-  for (const [type, count] of Object.entries(tokens)) {
+  for (const [type, count] of entries) {
     player.tokens[type] += count;
     bankTokens[type] -= count;
   }
+  return { success: true };
+}
 
+export function returnTokens(gameState, playerIndex, tokens) {
+  const player = gameState.players[playerIndex];
+  if (gameState.gameOver || !gameState.pendingDiscard ||
+      gameState.pendingDiscard.playerId !== player?.id || playerIndex !== gameState.currentPlayerIndex) {
+    return { success: false, error: '当前无需归还筹码' };
+  }
+  if (!tokens || typeof tokens !== 'object' || Array.isArray(tokens)) {
+    return { success: false, error: '无效的归还选择' };
+  }
+  const entries = Object.entries(tokens);
+  const types = [...RESOURCE_TYPES, 'coffee'];
+  if (!entries.length || entries.some(([type, count]) =>
+    !types.includes(type) || !Number.isSafeInteger(count) || count < 1 || count > player.tokens[type])) {
+    return { success: false, error: '只能归还自己持有的筹码，数量须为正整数' };
+  }
+  const excess = Object.values(player.tokens).reduce((sum, count) => sum + count, 0) - 10;
+  if (entries.reduce((sum, [, count]) => sum + count, 0) !== excess) {
+    return { success: false, error: `请恰好归还 ${excess} 枚筹码` };
+  }
+
+  for (const [type, count] of entries) {
+    player.tokens[type] -= count;
+    gameState.bank.tokens[type] += count;
+  }
+  gameState.pendingDiscard = null;
   return { success: true };
 }
 
@@ -211,7 +241,7 @@ export function reserveCard(gameState, playerIndex, tier, cardIndex) {
   }
 
   if (player.reservedCards.length >= 3) {
-    return { success: false, error: '预留卡牌已满（最多3张）' };
+    return { success: false, error: '预选卡牌已满（最多3张）' };
   }
 
   const card = tierCards.splice(cardIndex, 1)[0];
@@ -260,6 +290,15 @@ export function checkVictory(gameState) {
 
 // 回合结束处理
 export function endTurn(gameState) {
+  if (gameState.gameOver) return;
+  const player = gameState.players[gameState.currentPlayerIndex];
+  const excess = Object.values(player.tokens).reduce((sum, count) => sum + count, 0) - 10;
+  if (excess > 0) {
+    gameState.pendingDiscard = { playerId: player.id, count: excess };
+    return;
+  }
+  gameState.pendingDiscard = null;
+
   // 检查胜利
   const winner = checkVictory(gameState);
   if (winner) {

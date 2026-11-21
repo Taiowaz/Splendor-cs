@@ -76,7 +76,7 @@ export default function PlayerPanel({ player, isMe, isCurrentTurn, myTokens, onB
           {/* 预留卡牌 */}
           {isMe && player.reservedCards && player.reservedCards.length > 0 && (
             <div className="reserved-section">
-              <h4>预留论文 ({player.reservedCards.length}/3)</h4>
+              <h4>预选论文 ({player.reservedCards.length}/3)</h4>
               <div className="mini-cards">
                 {player.reservedCards.map(card => (
                   <div key={card.id} className={`mini-card reserved tier-${card.tier}`}>

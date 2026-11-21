@@ -3,6 +3,7 @@ import {
   initializeGame,
   createPlayer,
   takeTokens,
+  returnTokens,
   buyCard,
   reserveCard,
   canAffordCard,
@@ -129,6 +130,9 @@ export function setupWebSocket(server) {
             break;
           case 'take_tokens':
             handleTakeTokens(message);
+            break;
+          case 'return_tokens':
+            handleReturnTokens(message);
             break;
           case 'buy_card':
             handleBuyCard(message);
@@ -482,58 +486,45 @@ export function setupWebSocket(server) {
       checkAndExecuteAiTurn(room);
     }
 
+    function canAct(game, allowDiscard = false) {
+      const error = game.gameOver ? '游戏已结束'
+        : game.players[game.currentPlayerIndex]?.id !== conn.playerId ? '不是你的回合'
+        : game.pendingDiscard && !allowDiscard ? '请先归还超出的筹码' : null;
+      if (!error) return true;
+      ws.send(JSON.stringify({ type: 'error', message: error }));
+      return false;
+    }
+
     function handleTakeTokens(message) {
       const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === conn.playerId);
-
-      if (playerIndex !== game.currentPlayerIndex) {
-        ws.send(JSON.stringify({ type: 'error', message: '不是你的回合' }));
-        return;
-      }
-
-      const player = game.players[playerIndex];
+      if (!canAct(game)) return;
+      const player = game.players[game.currentPlayerIndex];
       const { tokens } = message;
-
-      // 合法的拿取只有三种：3 个不同色 / 2 枚同色（银行该色至少 4）/ 单独 1 枚咖啡。
-      // 咖啡（万能）不参与前两种 —— 「拿 1 枚万能」本身就是完整的一个行动，
-      // 不能和别的颜色混拿，一轮也拿不到 2 枚（参考实现 TakeTokenAction 里
-      // double 和 unique 互斥，gold 更是直接拒收，这里是官方变体的放宽版）。
-      const tokenTypes = Object.keys(tokens);
-      const totalTokens = Object.values(tokens).reduce((a, b) => a + b, 0);
-      const coffeeTaken = tokens.coffee || 0;
-      const saneCounts = tokenTypes.length > 0 &&
-        tokenTypes.every(t => Number.isInteger(tokens[t]) && tokens[t] > 0 && tokens[t] <= 2);
-      const threeDiff = totalTokens === 3 && tokenTypes.length === 3 && !coffeeTaken;
-      const pairSame = totalTokens === 2 && tokenTypes.length === 1 && !coffeeTaken &&
-        game.bank.tokens[tokenTypes[0]] >= 4;
-      const soloCoffee = totalTokens === 1 && coffeeTaken === 1;
-
-      if (!saneCounts || (!threeDiff && !pairSame && !soloCoffee)) {
-        ws.send(JSON.stringify({ type: 'error', message: '无效的token选择' }));
-        return;
-      }
-
       const result = takeTokens(player, tokens, game.bank.tokens);
       if (!result.success) {
         ws.send(JSON.stringify({ type: 'error', message: result.error }));
         return;
       }
 
-      broadcastToRoom(conn.roomId, {
-        type: 'tokens_taken',
-        playerId: conn.playerId,
-        tokens,
-        gameState: getSanitizedGameState(game)
-      });
-      endTurn(game);
-      broadcastToRoomWithPlayerState(conn.roomId, {
-        type: 'turn_changed',
-        currentPlayerIndex: game.currentPlayerIndex
-      }, game);
-      checkAndExecuteAiTurn(room);
+      finishTurn(room, { type: 'tokens_taken', playerId: conn.playerId, tokens });
+    }
+
+    function handleReturnTokens(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!canAct(game, true)) return;
+      const result = returnTokens(game, game.currentPlayerIndex, message.tokens);
+      if (!result.success) {
+        ws.send(JSON.stringify({ type: 'error', message: result.error }));
+        return;
+      }
+
+      finishTurn(room, { type: 'tokens_returned', playerId: conn.playerId, tokens: message.tokens });
     }
 
     function handleBuyCard(message) {
@@ -541,12 +532,8 @@ export function setupWebSocket(server) {
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === conn.playerId);
-
-      if (playerIndex !== game.currentPlayerIndex) {
-        ws.send(JSON.stringify({ type: 'error', message: '不是你的回合' }));
-        return;
-      }
+      if (!canAct(game)) return;
+      const playerIndex = game.currentPlayerIndex;
 
       const player = game.players[playerIndex];
       const { cardId, tier, fromReserved } = message;
@@ -556,7 +543,7 @@ export function setupWebSocket(server) {
         // 从预留卡牌中购买
         const reservedIndex = player.reservedCards.findIndex(c => c.id === cardId);
         if (reservedIndex === -1) {
-          ws.send(JSON.stringify({ type: 'error', message: '卡牌不在预留区' }));
+          ws.send(JSON.stringify({ type: 'error', message: '卡牌不在预选区' }));
           return;
         }
         if (!canAffordCard(player, player.reservedCards[reservedIndex])) {
@@ -583,28 +570,7 @@ export function setupWebSocket(server) {
           });
         }
 
-        broadcastToRoom(conn.roomId, {
-          type: 'card_bought',
-          playerId: conn.playerId,
-          card: result.card,
-          gameState: getSanitizedGameState(game)
-        });
-
-        endTurn(game);
-
-        if (game.gameOver) {
-          broadcastToRoom(conn.roomId, {
-            type: 'game_over',
-            winner: game.winner,
-            gameState: getSanitizedGameState(game)
-          });
-        } else {
-          broadcastToRoomWithPlayerState(conn.roomId, {
-            type: 'turn_changed',
-            currentPlayerIndex: game.currentPlayerIndex
-          }, game);
-          checkAndExecuteAiTurn(room);
-        }
+        finishTurn(room, { type: 'card_bought', playerId: conn.playerId, card: result.card });
       } else {
         ws.send(JSON.stringify({ type: 'error', message: result.error }));
       }
@@ -615,39 +581,26 @@ export function setupWebSocket(server) {
       if (!room || !room.game) return;
 
       const game = room.game;
-      const playerIndex = game.players.findIndex(p => p.id === conn.playerId);
-
-      if (playerIndex !== game.currentPlayerIndex) {
-        ws.send(JSON.stringify({ type: 'error', message: '不是你的回合' }));
-        return;
-      }
+      if (!canAct(game)) return;
+      const playerIndex = game.currentPlayerIndex;
 
       const { tier, cardIndex } = message;
       const result = reserveCard(game, playerIndex, tier, cardIndex);
 
       if (result.success) {
-        broadcastToRoom(conn.roomId, {
-          type: 'card_reserved',
-          playerId: conn.playerId,
-          card: result.card,
-          gameState: getSanitizedGameState(game)
-        });
-
-        endTurn(game);
-        broadcastToRoomWithPlayerState(conn.roomId, {
-          type: 'turn_changed',
-          currentPlayerIndex: game.currentPlayerIndex
-        }, game);
-        checkAndExecuteAiTurn(room);
+        finishTurn(room, { type: 'card_reserved', playerId: conn.playerId, card: result.card });
       } else {
         ws.send(JSON.stringify({ type: 'error', message: result.error }));
       }
     }
 
-    // 测试面板改资源：守恒 —— 每色的总数（公共牌堆 + 所有玩家手里）是固定的，所以
-    // 某个玩家最多只能设到「牌堆现有的 + 自己已有的」，超了就拒掉并回一条错误。
-    // 凭空生成的话总数就变了，而且一超 takeTokens 那条「手里最多 10 枚」就把后面的
-    // 拿取全堵死。不改回合、不结算。
+    function rejectPendingDiscard(game) {
+      if (!game.pendingDiscard) return false;
+      ws.send(JSON.stringify({ type: 'error', message: '请先归还超出的筹码' }));
+      return true;
+    }
+
+    // 测试面板改资源：每色守恒，不改回合、不结算。
     function handleDebugSetTokens(message) {
       const room = rooms.get(conn.roomId);
       if (!room || !room.game) return;
@@ -655,6 +608,7 @@ export function setupWebSocket(server) {
       const game = room.game;
       // 请求方得在这局里（面板只对本局玩家可见，别拿它去戳别人的房间）
       if (!game.players.some(p => p.id === conn.playerId)) return;
+      if (rejectPendingDiscard(game)) return;
       const player = game.players.find(p => p.id === message.playerId);
       if (!player || !message.tokens) return;
 
@@ -695,6 +649,7 @@ export function setupWebSocket(server) {
 
       const game = room.game;
       if (!game.players.some(p => p.id === conn.playerId)) return;
+      if (rejectPendingDiscard(game)) return;
       const player = game.players.find(p => p.id === message.playerId);
       if (!player) {
         ws.send(JSON.stringify({ type: 'error', message: '找不到该玩家（牌桌可能已重开）' }));
@@ -703,7 +658,7 @@ export function setupWebSocket(server) {
 
       if (message.delta === 1) {
         if (player.reservedCards.length >= 3) {
-          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 的预留已满（最多 3 张），只锁这一行` }));
+          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 的预选已满（最多 3 张），只锁这一行` }));
           return;
         }
         const tiers = [3, 2, 1].filter(t => game.bank[`tier${t}`].length > 0);
@@ -718,7 +673,7 @@ export function setupWebSocket(server) {
       } else if (message.delta === -1) {
         const card = player.reservedCards.pop();
         if (!card) {
-          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 没有预留卡` }));
+          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 没有预选卡` }));
           return;
         }
         const row = game.bank[`tier${card.tier}`];
@@ -786,6 +741,7 @@ export function setupWebSocket(server) {
 
       const game = room.game;
       if (!game.players.some(p => p.id === conn.playerId)) return;
+      if (rejectPendingDiscard(game)) return;
       const player = game.players.find(p => p.id === message.playerId);
       if (!player) {
         ws.send(JSON.stringify({ type: 'error', message: '找不到该玩家（牌桌可能已重开）' }));
@@ -990,40 +946,55 @@ function broadcastToRoomWithPlayerState(roomId, messageTemplate, game) {
   });
 }
 
+function finishTurn(room, actionMessage = null) {
+  const game = room.game;
+  endTurn(game);
+  if (actionMessage) broadcastToRoomWithPlayerState(room.id, actionMessage, game);
+  broadcastToRoomWithPlayerState(room.id, {
+    type: game.pendingDiscard ? 'discard_required' : game.gameOver ? 'game_over' : 'turn_changed',
+    currentPlayerIndex: game.currentPlayerIndex,
+    winner: game.winner
+  }, game);
+  checkAndExecuteAiTurn(room);
+}
+
 // 检查并执行AI回合
 function checkAndExecuteAiTurn(room) {
-  if (!room || !rooms.has(room.id) || !room.game || room.game.gameOver) return;
-  // 一个真人都不剩（全退出/掉线转 AI 了）：这桌先停，别让 AI 自己打出个胜负白烧 CPU。
-  // 本人回来认领时 resumeSeat 会再调这里续上。
-  if (!room.players.some(p => !p.isAi)) return;
-
+  if (!room) return;
   const game = room.game;
-  const currentPlayer = game.players[game.currentPlayerIndex];
-  const playerInfo = room.players.find(p => p.id === currentPlayer.id);
-
-  if (playerInfo && playerInfo.isAi) {
-    // AI回合，延迟1秒后执行（模拟思考时间）
-    setTimeout(() => {
-      // 排队这一发可能房间已回收、或本人已回来认领：开火前把房间、回合、真人、AI 都再确认一遍
-      if (!rooms.has(room.id) || !room.game || room.game.gameOver ||
-          room.game.currentPlayerIndex !== game.currentPlayerIndex) return;
-      if (!room.players.some(p => !p.isAi)) return;
-      // 排队这一秒里本人可能刚好重连认领回席位，开火前再确认一次还是 AI
-      const now = room.players.find(p => p.id === room.game.players[room.game.currentPlayerIndex].id);
-      if (!now || !now.isAi) return;
-      const aiBroadcast = (roomId, message) => {
-        if (message.gameState !== undefined) {
-          const { gameState, ...template } = message;
-          broadcastToRoomWithPlayerState(roomId, template, game);
-        } else {
-          broadcastToRoom(roomId, message);
-        }
-      };
-      executeAiTurn(game, game.currentPlayerIndex, room, aiBroadcast);
-      // 执行后继续检查下一个玩家是否是AI
-      setTimeout(() => checkAndExecuteAiTurn(room), 500);
-    }, 1000);
+  const playerIndex = game?.currentPlayerIndex;
+  const currentPlayer = game?.players[playerIndex];
+  const playerInfo = room.players.find(p => p.id === currentPlayer?.id);
+  // 全 AI 时暂停，真人回来后继续；每桌只排一个 AI 操作。
+  if (rooms.get(room.id) !== room || !game || game.gameOver ||
+      !room.players.some(p => !p.isAi) || !playerInfo?.isAi) {
+    clearTimeout(room.aiTimer);
+    room.aiTimer = null;
+    return;
   }
+  if (room.aiTimer) return;
+
+  const pendingDiscard = game.pendingDiscard;
+  room.aiTimer = setTimeout(() => {
+    room.aiTimer = null;
+    const now = room.players.find(p => p.id === currentPlayer.id);
+    if (rooms.get(room.id) !== room || room.game !== game || game.gameOver ||
+        game.currentPlayerIndex !== playerIndex || game.pendingDiscard !== pendingDiscard ||
+        !room.players.some(p => !p.isAi) || !now?.isAi) {
+      checkAndExecuteAiTurn(room);
+      return;
+    }
+    const aiBroadcast = (roomId, message) => {
+      if (message.gameState !== undefined) {
+        const { gameState, ...template } = message;
+        broadcastToRoomWithPlayerState(roomId, template, game);
+      } else {
+        broadcastToRoom(roomId, message);
+      }
+    };
+    executeAiTurn(game, playerIndex, room, aiBroadcast);
+    checkAndExecuteAiTurn(room);
+  }, 1000);
 }
 
 function getSanitizedGameState(game) {
@@ -1055,6 +1026,7 @@ function getSanitizedGameState(game) {
       nobles: game.bank.nobles
     },
     currentPlayerIndex: game.currentPlayerIndex,
+    pendingDiscard: game.pendingDiscard,
     gameOver: game.gameOver,
     winner: game.winner,
     turnCount: game.turnCount

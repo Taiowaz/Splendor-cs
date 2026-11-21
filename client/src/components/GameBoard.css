@@ -87,6 +87,20 @@
   border: 1px solid rgba(201, 162, 39, 0.5);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(230, 200, 120, 0.12);
 }
+.gb-turnpill.ended {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.gb-turnpill.ended:hover { border-color: #e6c878; background: linear-gradient(180deg, #2d3844, #202a36); }
+.gb-turnpill.ended:focus-visible { outline: 2px solid #e6c878; outline-offset: 3px; }
+.turnpill-action {
+  padding-left: 0.6rem;
+  border-left: 1px solid rgba(230, 200, 120, 0.4);
+  color: #f6f0e0;
+}
 .gb-turnpill.mine {
   color: #26221c;
   background: linear-gradient(to top, #c9a227, #d9b44a);
@@ -443,17 +457,25 @@
 }
 .pool-gem {
   position: relative;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
   transition: transform 0.12s ease;
 }
+.pool-gem:disabled { cursor: default; }
+.pool-gem:focus-visible { outline: 2px solid #e6c878; outline-offset: 4px; border-radius: 50%; }
 .pool-gem .gem-circle {
+  display: block;
   width: 3em;
   height: 3em;
 }
 .pool-gem .gem-num {
   font-size: 0.95em; /* 48px 的筹码，徽标跟着放大到 ~20px */
 }
-.pool-gem:hover {
+.pool-gem:not(:disabled):hover {
   transform: translateY(-3px);
 }
 .pool-gem.selected .gem-circle {
@@ -513,6 +535,17 @@
   color: #e6c878;
   text-align: center;
   box-shadow: rgba(0, 0, 0, 0.3) 0 2px 4px;
+}
+/* 牌堆数量角标跟档色：A 金币 / B 蓝漆 / C 绿漆（基色），
+   与卡背纹章、卡面产出角标同一族 */
+.gb-tier-row.tier-3 .deck-count {
+  background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
+  color: #4a3a10;
+  text-shadow: 0 1px 0 #fff2c2;
+}
+.gb-tier-row.tier-2 .deck-count {
+  background: linear-gradient(180deg, #3b4a8c, #2a3568);
+  color: #f6f0e0;
 }
 .gb-tier-cards {
   display: flex;
@@ -729,6 +762,8 @@
   right: auto;
   z-index: 6;
   display: flex;
+  width: var(--pile-lane);
+  justify-content: flex-end;
   align-items: flex-end;
 }
 .opp-reserved:hover {
@@ -739,13 +774,10 @@
   position: relative;
   flex: 0 0 auto;
 }
-/* 摊开不走 margin 过渡：margin 动画会在 120ms 里把槽位命中边界扫过静止光标，
-   指针原地反复进出槽位 → 放大/缩小自激抖动。改瞬时摊开，命中几何一次到位。
-   平滑感交给 transform 过渡：transform 不改布局、不吃命中（卡还 pointer-events:none），
-   槽位不动就不会抖。原点放底边右侧，放大/收回都朝左上，方向一致不跳。 */
-.opp-reserved-slot .paper-card {
-  transform-origin: right bottom;
-  transition: transform 0.12s ease;
+/* 卡面不参与命中，避免摊开时浮层遮住相邻槽位。 */
+.opp-reserved-slot .paper-card,
+.mc-reserved-slot .paper-card {
+  pointer-events: none;
 }
 .opp-reserved-slot + .opp-reserved-slot {
   margin-left: calc(var(--vc-w) * -0.6);
@@ -755,17 +787,6 @@
 }
 .opp-reserved-slot:hover {
   z-index: 50;
-}
-/* 4.8 倍：25 → 120 宽、37.5 → 180 高，比牌桌真卡那一档（1366×768 下 --vc-w 115.6）
-   还大一点，会议名/成本那些字才读得清。以 right bottom 为原点往左上长：底边
-   180.8 减去 180 高 → 顶到 0.8，横向 120 宽压到 85.4，两个方向都还贴着框里
-   （4.8 就是几何上限，再大就顶穿框顶，被玩家列那圈 overflow 裁掉）。
-   代价是 hover 时这一块会盖住右列三格和表头右半 —— 反正是悬停临时浮层。 */
-.opp-reserved-slot:hover .paper-card {
-  transform: scale(4.8);
-  /* 放大这张不吃鼠标：115 宽一盖就把左边两张的落点全挡住，指针再也换不到它们身上
-     （摞的 hover 只认那 25 宽的槽位，摊开后各张互不遮挡）。浮层归浮层，指针归槽位。 */
-  pointer-events: none;
 }
 
 /* 会士卡：立在玩家面前的旗形卡，这里缩成一面小旗，只留机构徽标 */
@@ -780,22 +801,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 0.2em;
+  /* 居中按旗身算：右内边距扣掉三角尖 0.45em，徽标才落在矩形身的中线上 */
+  padding-right: 0.45em;
   clip-path: polygon(0 0, calc(100% - 0.45em) 0, 100% 50%, calc(100% - 0.45em) 100%, 0 100%);
-  /* 机构徽标多为白色：旗面用深铜/深漆托底，金底会把白徽标吃掉 */
-  background: linear-gradient(180deg, #5a4212, #33250a);
+  /* 旗面跟 FC 匾额同一套漆（默认青金）：米色墨章压深蓝釉才读得出，
+     白底会把米色章整个吃掉 */
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.12), transparent 55%),
+    linear-gradient(180deg, var(--fc-a), var(--fc-b) 55%, var(--fc-c));
+  filter: drop-shadow(-2px 1px 3px rgba(0, 0, 0, 0.7));
 }
 .opp-fc[data-tier='triple'] {
-  background: linear-gradient(180deg, #2b3440, #10161d);
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgba(230, 200, 120, 0.18), transparent 55%),
+    linear-gradient(180deg, var(--fc-ta), var(--fc-tb) 55%, var(--fc-tc));
 }
-.opp-fc + .opp-fc { margin-left: -1.5em; }
+/* 叠放量让上一面旗的徽标全露：可见宽 1.8em ≥ 徽标右缘 1.675em */
+.opp-fc + .opp-fc { margin-left: -0.6em; }
 .opp-fc img {
-  width: 1.3em;
-  height: 1.3em;
+  width: 1.4em;
+  height: 1.4em;
   object-fit: contain;
-  border-radius: 50%;
-  background: #fff;
-  padding: 0.08em;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
 }
 .opp-fc span { font-size: 0.6em; }
 
@@ -958,7 +985,7 @@
 }
 /* 预留区：挂在自己库存末尾 —— 真卡面竖着站（6:9 原比例，不旋转），等比缩到底条
    的内容高度，负 margin 叠成一摞只露出左边一条彩边（档位色），hover 整摞摊开、
-   单张再放大成浮层（见 .mc-reserved-slot:hover）。宽度按预留上限 3 张固定，所以
+   单张预览挂在独立浮层（见 .reserved-pop）。宽度按预留上限 3 张固定，所以
    预留/买卡时条宽不变（条是居中定位的，一变宽整条会横移）；摊开 91.1 ≤ 内宽 115.8
    也不会把条撑宽。静止那一摞只当「有几张、什么档」的颜色提醒，要看清就 hover，
    要挑哪张仍然点一下进弹窗（见 .gb-reserved-modal）。整摞在预留区里水平居中：
@@ -985,12 +1012,6 @@
   position: relative;
   flex: 0 0 auto;
 }
-/* 同对手摞：摊开瞬时完成（不走 margin 过渡，避免命中边界扫过光标自激抖动），
-   放大平滑交给 transform 过渡，原点底边右侧。 */
-.mc-reserved-slot .paper-card {
-  transform-origin: right bottom;
-  transition: transform 0.12s ease;
-}
 /* 叠摞的负 margin 挂在后一张的「左边距」而不是前一张的右边距：这样这一摞的
    flex 外框宽度 == 可见并集宽度，justify-content: center 才真居中。走右边距的
    话末尾还留着 -16.6，外框比并集窄，居中后整摞会往右偏 8px。
@@ -1004,22 +1025,14 @@
 .mc-reserved-slot:hover {
   z-index: 50;
 }
-/* 和对手那摞一个口径：4.6 倍 = 27.7 → 127.4 宽、41.55 → 191.1 高，比牌桌真卡
-   那一档（1366×768 下 --vc-w 115.6）还大一点，会议名和成本都读得清。条本身只有
-   62 高，装不下这么大的卡 —— 但 .gb-my-cards 没设 overflow，卡就往条外面长：
-   以 right bottom 为原点朝左上探，底边 743.4 减 191.1 = 顶到 552.3，还在视口里
-   （1024 宽下也不出屏），压住的只是牌桌 C 档那行的下半截。
-   放大这张不吃鼠标（同 .opp-reserved-slot）：127 宽一盖就把左边两张和整条资源条的
-   落点全挡住，指针换不过去；hover 只认那 27.7 宽的槽位，点一下进弹窗也还是落在槽位上。 */
-.mc-reserved-slot:hover .paper-card {
-  transform: scale(4.6);
+/* 按预览尺寸重新排版，避免极小卡缩放后的 1px 边框挤字；fixed 避开对手列滚动裁切。 */
+.reserved-pop {
+  position: fixed;
+  z-index: 80;
   pointer-events: none;
 }
-/* 预留浮层是「极小卡 + transform 放大」：border 有 1px 下限，.plus 那圈 0.1em 白边
-   在 1.85px 字号下被钳成 1px，占掉角标半个盒子，"+1" 被挤出圈外。提高放大倍率救不了
-   （钳制发生在布局期，缩放把文字和圈等比放大，相对溢出不变）。改用 em 的 box-shadow
-   画白圈（阴影不吃 1px 下限），并给角标一个够大的正圆，让 "+1" 落在圆的内接区里。
-   只作用于预留浮层：牌桌真卡字号够大，1px 边比例正常，不动它和 card-preview。 */
+
+/* 极小卡的白圈改用阴影，避免边框最小像素占满圆心。 */
 .mc-reserved-slot .paper-card .gem .plus,
 .opp-reserved-slot .paper-card .gem .plus {
   /* 圆径贴着字：1.7em 圆的内接方约 1.2em，"+1"(1em 字号) 刚好落进去又留一点呼吸，
@@ -1034,10 +1047,9 @@
   line-height: 1;
   box-shadow: 0 0 0 0.12em #fff;
 }
-/* 收起的小卡只有 3px 圆，"+1" 塞进去会和字圈糊成一团、探出圆外像胶囊。
-   休息态把字隐掉只留干净圆点（色透明但字号不变，白圈还在），hover 放大再显字。 */
-.mc-reserved-slot:not(:hover) .paper-card .gem .plus,
-.opp-reserved-slot:not(:hover) .paper-card .gem .plus {
+/* 卡摞只留圆点，完整数字在独立预览里显示。 */
+.mc-reserved-slot .paper-card .gem .plus,
+.opp-reserved-slot .paper-card .gem .plus {
   color: transparent;
 }
 
@@ -1122,6 +1134,52 @@
 }
 .gb-modal p { color: #b9ae9c; margin-bottom: 1.2rem; }
 .gb-modal-buttons { display: flex; gap: 0.8rem; justify-content: center; }
+.gb-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.gb-return-overlay { z-index: 200; padding: 1rem 0; }
+.gb-modal.gb-return-modal { width: min(92vw, 520px); max-height: 90dvh; overflow-y: auto; }
+.gb-return-modal:focus { outline: none; }
+.return-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; margin-bottom: 1rem; }
+.return-token {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.6rem 0.2rem;
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f6f0e0;
+}
+.return-token.selected { border-color: #e6c878; background: rgba(201, 162, 39, 0.12); }
+.return-token-image { width: 2.3rem; height: 2.3rem; border-radius: 50%; background-position: center; background-size: 120%; }
+.return-token b { font-size: 0.9rem; }
+.return-owned { font-size: 0.75rem; color: #b9ae9c; }
+.return-stepper { display: flex; align-items: center; justify-content: center; width: 100%; }
+.return-stepper button {
+  flex: 1;
+  min-width: 0;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.35rem;
+  background: rgba(201, 162, 39, 0.12);
+  color: #e6c878;
+  font: inherit;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.return-stepper button:disabled { opacity: 0.3; cursor: not-allowed; }
+.return-stepper output { min-width: 1.5rem; font-variant-numeric: tabular-nums; }
+.gb-return-modal .return-progress { font-size: 0.9rem; color: #e6c878; }
+.gb-return-modal button:focus-visible { outline: 2px solid #e6c878; outline-offset: 2px; }
+@media (max-width: 560px) {
+  .gb-modal.gb-return-modal { padding: 1rem; }
+  .gb-return-modal h3 { font-size: 1.4rem; }
+  .gb-return-modal p { font-size: 0.85rem; margin-bottom: 0.8rem; }
+  .return-grid { gap: 0.45rem; }
+  .return-token { padding: 0.4rem 0.15rem; }
+  .return-token-image { width: 2rem; height: 2rem; }
+}
 
 /* 预留区弹窗：把几张预留卡按真实卡面摊开，逐张挑着买（参考实现也是在这个
    位置列出预留列，见 taketurn.js:220-238）。宽度按 3 张卡算，不足 3 张时
@@ -1161,47 +1219,68 @@
   gap: 0.7rem;
   padding: 0 0.8rem;
   border-radius: 0 0 0.9rem 0.9rem;
-  background: linear-gradient(180deg, #1c242e, #141b23 55%, #10161d);
+  background:
+    radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
+    radial-gradient(140% 120% at 50% 120%, rgba(90, 28, 22, 0.14), transparent 60%),
+    linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
   border: 1px solid rgba(201, 162, 39, 0.65);
   border-top: none;
   box-shadow: rgba(0, 0, 0, 0.55) 0 6px 18px,
-    inset 0 0 0 1px rgba(230, 200, 120, 0.16);
+    inset 0 0 12px rgba(100, 32, 26, 0.1);
   animation: tb-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.gb-turn-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(120, 40, 32, 0.05) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(120, 40, 32, 0.04) 0 1px, transparent 1px 4px);
+  mix-blend-mode: multiply;
+  opacity: 0.5;
 }
 @keyframes tb-in {
   from { opacity: 0; transform: translate(-50%, -100%); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 .tb-head { display: flex; align-items: baseline; gap: 0.45rem; white-space: nowrap; }
-.tb-title { font-size: 1.05rem; color: #e6c878; font-weight: 700; letter-spacing: 0.06em; }
-.tb-sub { font-size: 0.72rem; color: rgba(241, 232, 212, 0.6); }
+.tb-title { font-size: 1.05rem; color: #3a2a12; font-weight: 700; letter-spacing: 0.06em; }
+.tb-sub { font-size: 0.72rem; color: #3a2a12; }
 .tb-close {
   flex-shrink: 0;
   align-self: center;
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  border: 1px solid rgba(201, 162, 39, 0.45);
-  background: rgba(16, 22, 29, 0.6);
-  color: rgba(241, 232, 212, 0.75);
+  border: 1px solid rgba(138, 109, 31, 0.5);
+  background: rgba(255, 255, 255, 0.18);
+  color: #3a2a12;
   font-size: 0.7rem;
   cursor: pointer;
 }
-.tb-close:hover { color: #e6c878; border-color: rgba(230, 200, 120, 0.85); }
+.tb-close:hover { background: rgba(255, 255, 255, 0.4); border-color: #8a6d1f; }
+.tb-close:focus-visible { outline: 2px solid #3a2a12; outline-offset: 2px; }
 .tb-items { display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-width: 0; }
 .tb-item {
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 0.4rem;
   padding: 0.3rem 0.55rem;
   border-radius: 0.6rem;
-  background: rgba(230, 200, 120, 0.07);
-  border: 1px solid rgba(201, 162, 39, 0.28);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(138, 109, 31, 0.35);
   white-space: nowrap;
 }
-.tb-item img { width: 1.35em; height: 1.35em; object-fit: contain; border-radius: 0.25em; }
-.tb-item b { color: #f1e8d4; font-size: 0.88rem; }
-.tb-item span { color: rgba(241, 232, 212, 0.62); font-size: 0.68rem; line-height: 1.3; }
+.tb-item img,
+.tb-token { width: 1.35em; height: 1.35em; flex-shrink: 0; }
+.tb-item img { object-fit: contain; border-radius: 0.25em; }
+.tb-token { border-radius: 50%; background-position: center; background-size: 120%; }
+.tb-item b { color: #3a2a12; font-size: 0.88rem; line-height: 1; }
+.tb-item span { color: #3a2a12; font-size: 0.68rem; line-height: 1; }
 /* 中等宽度先砍说明小字，保住单行高度不压卡牌 */
 @media (max-width: 1100px) {
   .tb-sub, .tb-item span { display: none; }
@@ -1216,7 +1295,25 @@
   border-left: 1px solid rgba(201, 162, 39, 0.35);
 }
 .mc-nobles .opp-fc { width: 2.6em; height: 2.2em; }
-.mc-nobles .opp-fc + .opp-fc { margin-left: -1.2em; }
+.mc-nobles .opp-fc + .opp-fc { margin-left: -0.7em; }
+
+/* ---- 获得的 FC hover 放大读：整面旗浮层 ----
+   对手列 .gb-players 是滚动容器，绝对定位浮层会被 overflow 裁掉，故挂 fixed
+   共享层：桌面跟 hover（pointer-events none 不抢指针），手机点按开、点罩收。
+   尺寸复用会士来访盖章（.ng-card）那档 170px 旗宽，名字/需求/声誉都读得清。 */
+.fc-pop {
+  position: fixed;
+  z-index: 156;
+  pointer-events: none;
+  animation: fc-pop-in 0.14s ease;
+}
+.fc-pop .noble-flag { --card-w: 170px; --flag-font-ref: 170px; --flag-h: 156px; --fc-scale: 1; }
+/* 罩与旗压过测试 dock(150)，点按读旗时不被右下角按钮盖角；断线遮罩 900 仍在最上 */
+.fc-pop-scrim { position: fixed; inset: 0; z-index: 155; background: rgba(4, 6, 10, 0.45); }
+@keyframes fc-pop-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
 
 /* ---- 会士来访徽记：盖章动画盖在牌桌上，自动收 / 点一下收 ---- */
 .gb-noble-gain {
@@ -1272,8 +1369,7 @@
 .ng-text b { color: #e6c878; font-size: 1.25rem; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); }
 .ng-text span { color: rgba(241, 232, 212, 0.8); font-size: 0.85rem; }
 
-/* ---- 终局覆盖层：牌桌原样锁在下面， scrim＋金粉＋盖章结算面板 ----
-   主动收起后整桌供回看，.gb-over-reopen 浮动按钮再唤回。 */
+/* ---- 终局覆盖层 ---- */
 .gb-over-overlay {
   position: fixed;
   inset: 0;
@@ -1324,28 +1420,18 @@
   scrollbar-width: thin;
 }
 @keyframes over-in { from { opacity: 0; transform: translateY(2.2rem) scale(0.94); } }
-.over-seal {
-  width: 3.6rem;
-  height: 3.6rem;
-  margin: 0 auto 0.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #a03a28, #7a231a 68%);
-  border: 0.2rem solid #f1e8d4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 1.6rem rgba(160, 58, 40, 0.5);
-  color: #f6e8d8;
-  font-size: 1.7rem;
-  font-weight: 700;
-  font-family: 'Kaiti SC', 'KaiTi', 'STKaiti', serif;
-  animation: seal-stamp 0.7s 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) backwards;
+.over-panel .over-logo {
+  width: 9rem;
+  height: 5rem;
+  margin: 0 auto 1.1rem;
 }
-@keyframes seal-stamp {
-  0% { opacity: 0; transform: scale(2.4) rotate(-14deg); }
-  70% { opacity: 1; transform: scale(0.92) rotate(3deg); }
-  100% { transform: scale(1) rotate(0deg); }
+.over-logo .sc-deck {
+  width: 3.2rem;
+  border-width: 1px;
+  border-radius: 0.3rem;
 }
+.over-logo .sc-deck.c { transform: translateX(-50%) rotate(-13deg) translateX(-1.8rem); }
+.over-logo .sc-deck.b { transform: translateX(-50%) rotate(13deg) translateX(1.8rem); }
 .over-panel h1 {
   font-size: 1.9rem;
   margin: 0;
@@ -1355,29 +1441,14 @@
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(2px 2px 6px black);
 }
-.over-panel h2 { color: #e6c878; margin: 0.3rem 0 1rem; font-size: 1.15rem; }
+.over-panel h2 { color: #e6c878; margin: 0.3rem 0 1rem; font-size: 1.15rem; overflow-wrap: anywhere; }
 .over-buttons { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.4rem; }
-.gb-over-reopen {
-  position: fixed;
-  right: 1rem;
-  bottom: 6.6rem;
-  z-index: 46;
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  background: linear-gradient(180deg, #26303c, #1a222c);
-  border: 1px solid rgba(230, 200, 120, 0.85);
-  color: #e6c878;
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  animation: ng-fade 0.4s ease-out;
-}
-.gb-over-reopen:hover { background: linear-gradient(180deg, #2d3844, #202a36); }
 .gb-standings { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
 .gb-standing {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 0.8rem;
   padding: 0.5rem 0.9rem;
   border-radius: 0.6rem;
   background: rgba(16, 22, 29, 0.55);
@@ -1387,7 +1458,29 @@
   border-color: rgb(201, 162, 39);
   background: rgba(201, 162, 39, 0.22);
 }
-.standing-score { font-family: 'Lobster', cursive; color: #e6c878; }
+.standing-name {
+  color: #f6f0e0;
+  font-weight: 700;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.standing-rank {
+  --medal-fill: #91b9d3;
+  --medal-ink: #203e55;
+  --medal-ribbon: #41637c;
+  display: block;
+  width: 2rem;
+  height: 2.5rem;
+}
+.standing-rank[data-rank='1'] { --medal-fill: #e6c878; --medal-ink: #715013; --medal-ribbon: #a44535; }
+.standing-rank[data-rank='2'] { --medal-fill: #d5dde5; --medal-ink: #536679; --medal-ribbon: #4d6989; }
+.standing-rank[data-rank='3'] { --medal-fill: #d5a078; --medal-ink: #784629; --medal-ribbon: #55745b; }
+.standing-rank svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4)); }
+.rank-ribbon { fill: var(--medal-ribbon); stroke: var(--medal-fill); stroke-width: 0.7; }
+.rank-medal { fill: var(--medal-fill); stroke: var(--medal-ink); stroke-width: 1.2; }
+.rank-ring { fill: none; stroke: var(--medal-ink); stroke-width: 0.7; opacity: 0.7; }
+.rank-star { fill: var(--medal-ink); }
+.standing-score { font-family: 'Lobster', cursive; font-size: 1.25rem; color: #e6c878; }
 
 /* ---- ☰ 菜单：顶栏左侧，规则 / 房号 / 退出 ----
    固定在视口左上角：窄屏横向滚动时菜单不能跟着牌桌滚出屏幕。
@@ -1672,7 +1765,6 @@
   .opp-reserved-slot { --vc-w: 22px; }
   /* 触屏没有 hover，摞不摊开也不放大，点按进弹窗看 */
   .opp-reserved:hover .opp-reserved-slot + .opp-reserved-slot { margin-left: calc(var(--vc-w) * -0.6); }
-  .opp-reserved-slot:hover .paper-card { transform: none; }
 
   /* 会士：横向滚动一排，旗面收到能读又不至于占满屏 */
   .gb-nobles {
@@ -1755,7 +1847,6 @@
   .mc-reserved { width: 5.5rem; }
   .mc-reserved-slot { --vc-w: 24px; }
   .mc-reserved:hover .mc-reserved-slot + .mc-reserved-slot { margin-left: calc(var(--vc-w) * -0.6); }
-  .mc-reserved-slot:hover .paper-card { transform: none; }
 
   /* 弹窗：预留列表改竖排滚动，卡面放大 */
   .gb-modal { width: min(92vw, 360px); padding: 1.2rem; }
@@ -1821,13 +1912,12 @@
   .tb-items { gap: 0.35rem; }
   .tb-item { padding: 0.22rem 0.4rem; gap: 0.3rem; }
   .tb-item b { font-size: 0.8rem; }
-  .tb-item img { width: 1.15em; height: 1.15em; }
+  .tb-item img, .tb-token { width: 1.15em; height: 1.15em; }
   .tb-close { width: 1.3rem; height: 1.3rem; font-size: 0.6rem; }
   .mc-nobles { padding-left: 0.6rem; }
   .ng-card .noble-flag { --card-w: 132px; --flag-font-ref: 132px; --flag-h: 120px; }
   .ng-text b { font-size: 1.05rem; }
   .over-panel { padding: 1.1rem 1rem 1rem; max-height: 82vh; }
-  .gb-over-reopen { right: 0.6rem; bottom: 5.6rem; }
 }
 
 /* 横屏顶栏单行：横幅盖满这一行（回合标与横幅文案重复，盖住无妨） */
@@ -1841,11 +1931,15 @@
   .gb-turn-banner { gap: 0.3rem; padding: 0 0.4rem; max-width: calc(100vw - 6rem); }
   .tb-item { padding: 0.2rem 0.3rem; gap: 0.25rem; }
   .tb-item b { font-size: 0.72rem; }
-  .tb-item img { width: 1em; height: 1em; }
+  .tb-item img, .tb-token { width: 1em; height: 1em; }
+}
+
+@media (max-width: 360px) {
+  .gb-turn-banner { left: calc(50% + 1.2rem); max-width: calc(100vw - 3.8rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gb-turn-banner, .ng-card, .ng-rays, .ng-text, .over-panel, .over-seal,
-  .over-scrim, .over-sparks i, .gb-over-reopen { animation: none; }
+  .gb-turn-banner, .ng-card, .ng-rays, .ng-text, .over-panel,
+  .over-scrim, .over-sparks i { animation: none; }
   .over-sparks { display: none; }
 }

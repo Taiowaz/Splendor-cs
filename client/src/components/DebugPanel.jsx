@@ -101,8 +101,8 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
             <b>{players ? '测试：设置各玩家资源' : '测试：底色与资源'}</b>
             <span>
               {players
-                ? '每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预留卡从牌桌明面发/收；VC 按产出设张数（发真卡、立即判 FC）'
-                : '底色随时可换并记住；筹码与预留卡编辑进牌桌后开放'}
+                ? '每色总数守恒（牌堆 + 所有玩家），设不进会弹提示；预选卡从牌桌明面发/收；VC 按产出设张数（发真卡、立即判 FC）'
+                : '底色随时可换并记住；筹码与预选卡编辑进牌桌后开放'}
             </span>
           </div>
           <div className="dbg-grounds" title="换整张牌桌的底色，立即生效并记住选择（入口/大厅同样换）">
@@ -180,15 +180,15 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
                         )
                       })}
                     </div>
-                    <div className="dbg-res" title="预留卡：从牌桌明面发一张 / 收回最后一张（不送咖啡、不改回合）">
+                    <div className="dbg-res" title="预选卡：从牌桌明面发一张 / 收回最后一张（不送咖啡、不改回合）">
                       <button onClick={() => onSetReserved(p.id, -1)} disabled={reserved === 0}>−</button>
                       <span className={reserved >= 3 ? 'full' : ''}>{reserved}/3</span>
                       <button
                         onClick={() => onSetReserved(p.id, 1)}
                         disabled={reserved >= 3}
                         title={reserved >= 3
-                          ? `${p.name} 预留已满 3 张（规则上限，只锁这一行）：先−收回一张再加。注意 AI 回合买不起/拿不到时也会自己预留占额`
-                          : '从牌桌明面发一张预留给他（不送咖啡、不改回合）'}
+                          ? `${p.name} 预选已满 3 张（规则上限，只锁这一行）：先−收回一张再加。注意 AI 回合买不起/拿不到时也会自己预选占额`
+                          : '从牌桌明面发一张预选给他（不送咖啡、不改回合）'}
                       >＋</button>
                     </div>
                     <button className="dbg-clear" onClick={() => clearRow(p)}>清零</button>
@@ -231,14 +231,14 @@ export default function DebugPanel({ gameState, myPlayerId, onSetTokens, onSetRe
             )
           })}
           {!players && (
-            <div className="dbg-note">进牌桌后，这里会展开成逐个玩家的筹码 / 预留卡编辑行</div>
+            <div className="dbg-note">进牌桌后，这里会展开成逐个玩家的筹码 / 预选卡编辑行</div>
           )}
         </div>
       )}
       <button
         className={`dbg-toggle ${open ? 'open' : ''}`}
         onClick={() => setOpen(prev => !prev)}
-        title={open ? '收起测试面板' : '展开测试面板，逐个玩家改手里的筹码和预留卡'}
+        title={open ? '收起测试面板' : '展开测试面板，逐个玩家改手里的筹码和预选卡'}
       >
         {open ? '✕ 收起' : '🧪 测试'}
       </button>

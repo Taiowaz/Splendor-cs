@@ -184,17 +184,20 @@
   box-shadow: rgba(0, 0, 0, 0.26) 0 0.125em 0.3125em, inset 0 0 0 1px rgba(58, 36, 23, 0.18);
 }
 
+/* 产出角标：比旧版大一档；CCF-A 用声誉章同套金币底（深棕字压亮金），
+   B/C 保持蓝/绿漆白字。外溢跟着章体放大开到 0.5em，不吃圆片符号 */
 .paper-card .gem .plus {
   position: absolute;
-  top: -0.375em;
-  right: -0.375em;
-  background: var(--tier-A);
-  color: #fff;
+  top: -0.5em;
+  right: -0.5em;
+  background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
+  color: #4a3a10;
+  text-shadow: 0 1px 0 #fff2c2;
   font-family: 'Lobster', cursive;
-  font-size: 0.95em;
+  font-size: 1.15em;
   border: 0.1em solid #fff;
   border-radius: 50%;
-  padding: 0 0.28em;
+  padding: 0 0.3em;
   line-height: 1.3;
 }
 
@@ -205,7 +208,8 @@
   letter-spacing: 0.02em;
 }
 
-/* 所需 AR：2×2 宫格、圆片全露不叠行，数字改挂圆片右下角金章（与声誉章同套金底）。
+/* 所需 AR：2×2 宫格、圆片全露不叠行，数字改挂圆片右下角漆底描金章
+   （与本人资源栏合计章 .sum-mark 同套：深漆底＋金环＋亮金字）。
    列距 1em = 角章外溢 0.79em + 0.21em 空隙，角章不挨右列圆片；
    三色卡孤个放上排右列、其余两个铺满下排 → 空位左上，整块靠右靠下。
    中文资源名收进 row 的 title（悬停可读）。宫格 6.6em，成本区约 8.1em，不挤产出列。 */
@@ -246,12 +250,11 @@
   place-items: center;
   font-family: 'Lobster', cursive;
   font-size: 1.05em;
-  color: #4a3a10;
-  text-shadow: 0 1px 0 #fff2c2;
-  background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
-  border: 0.1em solid #6b5616;
+  color: #e6c878;
+  background: linear-gradient(180deg, #33250a, #1c1508);
+  border: 0.08em solid #c9a227;
   border-radius: 50%;
-  box-shadow: rgba(0, 0, 0, 0.35) 0 0.0625em 0.1875em;
+  box-shadow: rgba(0, 0, 0, 0.35) 0 0.09em 0.22em;
 }
 
 .paper-card .foot {
@@ -307,8 +310,12 @@
 
 .paper-card.tierB .gem .plus {
   background: var(--tier-B);
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
 }
 
 .paper-card.tierC .gem .plus {
   background: var(--tier-C);
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
 }

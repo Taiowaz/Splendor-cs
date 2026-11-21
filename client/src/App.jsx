@@ -179,6 +179,8 @@ function App() {
           break
 
         case 'tokens_taken':
+        case 'tokens_returned':
+        case 'discard_required':
         case 'card_bought':
         case 'card_reserved':
         case 'turn_changed':
@@ -313,6 +315,7 @@ function App() {
           myPlayerId={myPlayerId}
           room={room}
           onTakeTokens={handleTakeTokens}
+          onReturnTokens={tokens => sendMessage({ type: 'return_tokens', tokens })}
           onBuyCard={handleBuyCard}
           onReserveCard={handleReserveCard}
           onRestart={handleStartGame}

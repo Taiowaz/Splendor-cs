@@ -57,9 +57,9 @@ export default function PaperCard({ card, canAfford, onBuy, onReserve, isMyTurn,
 
       {isMyTurn && (
         <div className="foot">
-          {canAfford && <button className="btn buy" onClick={e => { e.stopPropagation(); onBuy() }}>购买</button>}
           {/* 预留区里的卡不能再预留自己，所以调用方不传 onReserve 时这条就不出现 */}
-          {onReserve && <button className="btn" onClick={e => { e.stopPropagation(); onReserve() }}>预留</button>}
+          {onReserve && <button className="btn" onClick={e => { e.stopPropagation(); onReserve() }}>预选</button>}
+          {canAfford && <button className="btn buy" onClick={e => { e.stopPropagation(); onBuy() }}>发表</button>}
         </div>
       )}
     </div>

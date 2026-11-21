@@ -41,6 +41,7 @@ export default function GameBoard({
   myPlayerId,
   room,
   onTakeTokens,
+  onReturnTokens,
   onBuyCard,
   onReserveCard,
   onRestart,
@@ -52,6 +53,8 @@ export default function GameBoard({
   onNobleGainDone
 }) {
   const [selectedTokens, setSelectedTokens] = useState({})
+  const [returnSelection, setReturnSelection] = useState({})
+  const returnModalRef = useRef(null)
   const [showReserve, setShowReserve] = useState(false)
   const [reserveTarget, setReserveTarget] = useState(null)
   const [showReserved, setShowReserved] = useState(false)
@@ -68,9 +71,42 @@ export default function GameBoard({
   }, [])
   // 点按看大图：{ title, cards:[{card,tier,index}], readOnly, single }
   const [inspect, setInspect] = useState(null)
+  const [fcPop, setFcPop] = useState(null)
+  const [reservedPop, setReservedPop] = useState(null)
+
+  const showReservedPop = (card, el) => {
+    const r = el.getBoundingClientRect()
+    const width = boardRef.current.querySelector('.gb-tier-cards .paper-card').getBoundingClientRect().width
+    const height = width * 1.5
+    const x = Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8))
+    const y = r.top - height - 12 >= 8
+      ? r.top - height - 12
+      : Math.max(8, Math.min(r.bottom + 12, window.innerHeight - height - 8))
+    setReservedPop({ card, x, y, width })
+  }
+
+  useEffect(() => {
+    if (!reservedPop) return
+    const close = () => setReservedPop(null)
+    window.addEventListener('resize', close)
+    window.addEventListener('scroll', close, true)
+    return () => {
+      window.removeEventListener('resize', close)
+      window.removeEventListener('scroll', close, true)
+    }
+  }, [reservedPop])
+
+  // 获得的 FC 小旗 hover／点按放大读整面旗：对手列是滚动容器，绝对定位浮层会被
+  // overflow 裁掉，统一挂 fixed 共享层；桌面跟 hover，手机点按开、点罩收
+  const showFcPop = (noble, el) => {
+    const r = el.getBoundingClientRect()
+    const W = 292, H = 170
+    const x = Math.min(Math.max(8, r.left + r.width / 2 - W / 2), window.innerWidth - W - 8)
+    const y = r.top - H - 10 >= 8 ? r.top - H - 10 : r.bottom + 10
+    setFcPop({ noble, x, y })
+  }
   // 轮到我时弹一次行动横幅；主动收起 / 超时 / 一行动就收
   const [turnBanner, setTurnBanner] = useState(false)
-  // 结算覆盖层被主动收起后牌桌供回看，浮动按钮再唤回
   const [overDismissed, setOverDismissed] = useState(false)
 
   // 牌桌有固定最小宽高（.gb-playing），窗口比它小时页面既不缩也不滚，只裁掉边角，
@@ -108,17 +144,35 @@ export default function GameBoard({
   const myTotalAR = INVENTORY_TYPES.reduce((s, t) => s + (myPlayer?.tokens?.[t] || 0), 0)
   const currentIndex = gameState.currentPlayerIndex
   // 终局后牌桌只供回看：即使指针停在我这也一律不算我的回合，行动入口全锁
-  const isMyTurn = !gameState.gameOver && gameState.players[currentIndex]?.id === myPlayerId
+  const isReturningTokens = !gameState.gameOver && gameState.pendingDiscard?.playerId === myPlayerId
+  const isMyTurn = !gameState.gameOver && !gameState.pendingDiscard && gameState.players[currentIndex]?.id === myPlayerId
+  const returnRequired = isReturningTokens ? gameState.pendingDiscard.count : 0
+  const returnTotal = Object.values(returnSelection).reduce((sum, count) => sum + count, 0)
   const myOrder = gameState.players.findIndex(p => p.id === myPlayerId) + 1
   const isHost = room?.hostId === myPlayerId
 
   // 回合横幅：只在「变成我的回合」那一刻弹，6.5 秒自动收；行动里也会主动收
   useEffect(() => {
-    if (!isMyTurn) return
+    if (!isMyTurn) {
+      setSelectedTokens({})
+      setTurnBanner(false)
+      return
+    }
     setTurnBanner(true)
     const t = setTimeout(() => setTurnBanner(false), 6500)
     return () => clearTimeout(t)
   }, [isMyTurn])
+  useEffect(() => {
+    setReturnSelection({})
+    if (isReturningTokens) {
+      setShowReserve(false)
+      setShowReserved(false)
+      setInspect(null)
+      setFcPop(null)
+      setReservedPop(null)
+      returnModalRef.current?.focus()
+    }
+  }, [isReturningTokens, gameState.turnCount])
   useEffect(() => {
     if (!gameState.gameOver) setOverDismissed(false)
   }, [gameState.gameOver])
@@ -129,17 +183,16 @@ export default function GameBoard({
     return () => clearTimeout(t)
   }, [nobleGain, onNobleGainDone])
 
-  // 拿筹码的合法组合只有三种：3 个不同色、2 枚同色（银行该色 ≥4）、单独 1 枚咖啡。
-  // 咖啡（万能）不占「3 个不同色」的名额，也不能凑 2 枚 —— 「拿 1 枚咖啡」本身就是
-  // 一个完整行动，所以点咖啡会把已选的清掉只留咖啡，反过来选了咖啡再点别的色就换回
-  // 普通选法。服务端 handleTakeTokens 按同一口径判。
-  //
-  // 「拿 2 枚同色」靠连点两次，不能用 dblclick：浏览器真双击必定先派发两次 click，
-  // 旧的「单击 toggle + 双击升到 2」会被第二次 click 又清回 0，双击分支永远进不去。
-  // 循环 0 → 1 → 2 → 0，2 只在「场上只有这一色且银行 ≥4」时给，并且握着 2 枚就不
-  // 再加别色 —— 这样选出来的组合必然落在服务端认的那三种里。
+  const requiredColors = Math.min(3, VC_TYPES.filter(type => gameState.bank.tokens[type] > 0).length)
+  const selectedEntries = Object.entries(selectedTokens)
+  const totalSelected = Object.values(selectedTokens).reduce((sum, count) => sum + count, 0)
+  const differentColors = selectedEntries.length === requiredColors && selectedEntries.every(([, count]) => count === 1)
+  const sameColorPair = selectedEntries.length === 1 && selectedEntries[0][1] === 2 && gameState.bank.tokens[selectedEntries[0][0]] >= 4
+  const canConfirmTokens = isMyTurn && totalSelected > 0 && (differentColors || sameColorPair) &&
+    selectedEntries.every(([type, count]) => VC_TYPES.includes(type) && gameState.bank.tokens[type] >= count)
+
   const handleTokenClick = (type) => {
-    if (!isMyTurn) return
+    if (!isMyTurn || type === 'coffee') return
     setTurnBanner(false)
 
     setSelectedTokens(prev => {
@@ -150,17 +203,6 @@ export default function GameBoard({
         const next = { ...prev }
         delete next[key]
         return next
-      }
-
-      if (type === 'coffee') {
-        if (current) return clear('coffee')
-        if (bankCount <= 0) return prev
-        return { coffee: 1 }
-      }
-
-      if (prev.coffee) {
-        const next = clear('coffee')
-        return bankCount > 0 ? { ...next, [type]: 1 } : next
       }
 
       if (current === 2) return clear(type)
@@ -178,16 +220,35 @@ export default function GameBoard({
   }
 
   const handleConfirmTokens = () => {
-    const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
-    if (totalSelected === 0) return
-    const types = Object.keys(selectedTokens)
-    const soloCoffee = totalSelected === 1 && types[0] === 'coffee'
-    const threeDiff = totalSelected === 3 && types.length === 3 && !selectedTokens.coffee
-    const pairSame = totalSelected === 2 && types.length === 1 && gameState.bank.tokens[types[0]] >= 4
-    if (!soloCoffee && !threeDiff && !pairSame) return
+    if (!canConfirmTokens) return
     setTurnBanner(false)
     onTakeTokens(selectedTokens)
     setSelectedTokens({})
+  }
+
+  const handleReturnChange = (type, delta) => {
+    setReturnSelection(prev => {
+      const count = (prev[type] || 0) + delta
+      const total = Object.values(prev).reduce((sum, value) => sum + value, 0) + delta
+      if (count < 0 || count > myPlayer.tokens[type] || total > returnRequired) return prev
+      const next = { ...prev, [type]: count }
+      if (count === 0) delete next[type]
+      return next
+    })
+  }
+
+  const handleReturnKeyDown = (event) => {
+    if (event.key !== 'Tab') return
+    const buttons = [...returnModalRef.current.querySelectorAll('button:not(:disabled)')]
+    const first = buttons[0]
+    const last = buttons.at(-1)
+    if (event.shiftKey && (document.activeElement === first || document.activeElement === returnModalRef.current)) {
+      event.preventDefault()
+      last?.focus()
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault()
+      first?.focus()
+    }
   }
 
   const handleBuyCard = (card, tier) => {
@@ -205,7 +266,6 @@ export default function GameBoard({
   }
 
   const opponents = gameState.players.filter(p => p.id !== myPlayerId)
-  const totalSelected = Object.values(selectedTokens).reduce((a, b) => a + b, 0)
   // 掉线保席中的人还在名单里（roster 带 offline），牌桌上要标出来，
   // 不然大家只看到「等待 X」却不知道为什么一直不动
   const seatOf = (id) => room?.players?.find(p => p.id === id)
@@ -238,15 +298,23 @@ export default function GameBoard({
       {/* 顶部标题栏 */}
       <div className="gb-topbar">
         <div className="gb-title">学术宝石</div>
-        <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''} ${currentOffline ? 'waiting' : ''}`}>
-          {gameState.gameOver
-            ? '本局已结束'
-            : isMyTurn
-              ? '轮到你行动'
-              : currentOffline
-                ? `${gameState.players[currentIndex]?.name} 掉线了，等他重连…`
-                : `等待 ${gameState.players[currentIndex]?.name}`}
-        </div>
+        {gameState.gameOver && overDismissed ? (
+          <button className="gb-turnpill ended" onClick={() => setOverDismissed(false)}>
+            本局已结束<span className="turnpill-action">查看结算</span>
+          </button>
+        ) : (
+          <div className={`gb-turnpill ${isMyTurn ? 'mine' : ''} ${currentOffline ? 'waiting' : ''}`}>
+            {gameState.gameOver
+              ? '本局已结束'
+              : gameState.pendingDiscard
+                ? isReturningTokens ? `请归还 ${returnRequired} 枚筹码` : `等待 ${gameState.players[currentIndex]?.name} 归还筹码`
+                : isMyTurn
+                  ? '轮到你行动'
+                  : currentOffline
+                  ? `${gameState.players[currentIndex]?.name} 掉线了，等他重连…`
+                  : `等待 ${gameState.players[currentIndex]?.name}`}
+          </div>
+        )}
       </div>
 
       {/* 轮到我时弹一次：本回合三件事摆清楚，免得盯着牌桌不知道能干嘛。
@@ -259,19 +327,19 @@ export default function GameBoard({
           </div>
           <div className="tb-items">
             <div className="tb-item">
-              <img src={RESOURCE_INFO.data.gem} alt="" />
+              <div className="tb-token" style={{ backgroundImage: `url(${RESOURCE_INFO.data.gem})` }} aria-hidden="true" />
               <b>拿 AR</b>
-              <span>公共池选至多 3 枚</span>
+              <span>三色各一，或同色两枚</span>
             </div>
             <div className="tb-item">
               <img src={TIER_DECK[3]} alt="" />
-              <b>买论文</b>
-              <span>花 AR 发表，当场拿产出</span>
+              <b>发论文</b>
+              <span>花 AR 发表，获得永久折扣</span>
             </div>
             <div className="tb-item">
-              <img src={RESOURCE_INFO.coffee.gem} alt="" />
-              <b>预留论文</b>
-              <span>扣 1 张，换 1 杯咖啡</span>
+              <div className="tb-token" style={{ backgroundImage: `url(${RESOURCE_INFO.coffee.gem})` }} aria-hidden="true" />
+              <b>预选论文</b>
+              <span>预选一张</span>
             </div>
           </div>
           <button className="tb-close" onClick={() => setTurnBanner(false)} title="收起横幅">✕</button>
@@ -324,27 +392,28 @@ export default function GameBoard({
             ))}
           </div>
 
-          {/* 公共筹码（AR）：排在 VC + FC 整块下面，我的资源条上面。
-              6 色全在这里 —— 之前只渲染 5 色，银行那 5 枚咖啡根本摸不到，只能靠
-              预留卡换 1 枚。咖啡走「单独拿 1 枚」那条行动，见 handleTokenClick。 */}
           <div className="gb-tokenpool">
             {INVENTORY_TYPES.map(type => {
               const info = RESOURCE_INFO[type]
               const bankCount = gameState.bank.tokens[type] || 0
               const sel = selectedTokens[type] || 0
               return (
-                <div
+                <button
                   key={type}
+                  type="button"
                   className={`pool-gem ${sel > 0 ? 'selected' : ''} ${bankCount === 0 ? 'empty' : ''}`}
+                  disabled={!isMyTurn || type === 'coffee' || bankCount === 0}
+                  aria-label={`${info.name}，公共池 ${bankCount} 枚${type === 'coffee' ? '，只能通过预选论文获得' : ''}`}
+                  aria-pressed={sel > 0}
                   onClick={() => handleTokenClick(type)}
                   title={type === 'coffee'
-                    ? `${info.name}｜银行 ${bankCount}｜只能单独拿 1 枚，不与其他色混拿；预留 1 张卡也会送 1 枚`
+                    ? `${info.name}｜银行 ${bankCount}｜只能通过预选论文获得，不能直接拿取`
                     : `${info.name}｜银行 ${bankCount}｜单击选 1，再点一下选 2（只有这一色且银行 ≥4），第三次取消`}
                 >
-                  <div className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
+                  <span className="gem-circle" style={{ backgroundImage: `url(${info.gem})` }} />
                   <span className="gem-num">{bankCount}</span>
                   {sel > 0 && <span className="gem-badge">{sel}</span>}
-                </div>
+                </button>
               )
             })}
 
@@ -352,9 +421,13 @@ export default function GameBoard({
                 对手列左缘以内，后期对手框长高也压不到（几何见 .gb-actionbar） */}
             {totalSelected > 0 && (
               <div className="gb-actionbar">
-                <span className="action-summary">已选 {totalSelected} 个资源</span>
+                <span className="action-summary">
+                  {!canConfirmTokens ? `已选 ${totalSelected} 枚，请凑齐 ${requiredColors} 色`
+                    : myTotalAR + totalSelected > 10 ? `已选 ${totalSelected} 枚，需归还 ${myTotalAR + totalSelected - 10} 枚`
+                      : `已选 ${totalSelected} 枚 AR`}
+                </span>
                 <div className="action-buttons">
-                  <button className="gb-btn gb-btn-gold" onClick={handleConfirmTokens}>确认拿取</button>
+                  <button className="gb-btn gb-btn-gold" disabled={!canConfirmTokens} onClick={handleConfirmTokens}>确认拿取</button>
                   <button className="gb-btn gb-btn-ghost" onClick={() => setSelectedTokens({})}>取消</button>
                 </div>
               </div>
@@ -429,15 +502,17 @@ export default function GameBoard({
                         {type === 'coffee' && reserved.length > 0 && (
                           <div
                             className="opp-reserved"
-                            title={isMobile ? `预留 ${reserved.length} 张（公开）｜点按看卡面` : `预留 ${reserved.length} 张（公开）｜悬停摊开看卡面`}
+                            title={isMobile ? `预选 ${reserved.length} 张（公开）｜点按看卡面` : `预选 ${reserved.length} 张（公开）｜悬停摊开看卡面`}
                             onClick={isMobile ? () => setInspect({
-                              title: `${player.name} 的预留`,
+                              title: `${player.name} 的预选`,
                               cards: reserved.map(c => ({ card: c })),
                               readOnly: true
                             }) : undefined}
                           >
                             {reserved.map(c => (
-                              <div key={c.id} className="opp-reserved-slot">
+                              <div key={c.id} className="opp-reserved-slot"
+                                onMouseEnter={isMobile ? undefined : e => showReservedPop(c, e.currentTarget)}
+                                onMouseLeave={() => setReservedPop(null)}>
                                 <PaperCard card={c} isMyTurn={false} />
                               </div>
                             ))}
@@ -453,7 +528,10 @@ export default function GameBoard({
                     <div className="opp-fcs" title={`会士卡 ${fcs.length} 张`}>
                       {fcs.map(n => (
                         <div key={n.id} className="opp-fc" data-tier={n.tier}
-                          title={`${n.cn}｜声誉 ${n.prestige}`}>
+                          title={`${n.cn}｜声誉 ${n.prestige}`}
+                          onMouseEnter={isMobile ? undefined : e => showFcPop(n, e.currentTarget)}
+                          onMouseLeave={isMobile ? undefined : () => setFcPop(null)}
+                          onClick={isMobile ? e => { e.stopPropagation(); fcPop?.noble.id === n.id ? setFcPop(null) : showFcPop(n, e.currentTarget) } : undefined}>
                           {n.logo ? <img src={n.logo} alt="" /> : <span>{n.name}</span>}
                         </div>
                       ))}
@@ -532,11 +610,13 @@ export default function GameBoard({
         {myReserved.length > 0 && (
           <div
             className="mc-reserved"
-            title={`预留 ${myReserved.length} 张｜点开挑一张买`}
-            onClick={() => setShowReserved(true)}
+            title={`预选 ${myReserved.length} 张｜点开挑一张买`}
+            onClick={() => { setReservedPop(null); setShowReserved(true) }}
           >
             {myReserved.map(card => (
-              <div key={card.id} className="mc-reserved-slot">
+              <div key={card.id} className="mc-reserved-slot"
+                onMouseEnter={isMobile ? undefined : e => showReservedPop(card, e.currentTarget)}
+                onMouseLeave={() => setReservedPop(null)}>
                 <PaperCard card={card} isMyTurn={false} />
               </div>
             ))}
@@ -549,7 +629,10 @@ export default function GameBoard({
           <div className="mc-nobles" title={`我的会士卡 ${myPlayer.nobles.length} 张`}>
             {myPlayer.nobles.map(n => (
               <div key={n.id} className="opp-fc" data-tier={n.tier}
-                title={`${n.cn}｜声誉 ${n.prestige}`}>
+                title={`${n.cn}｜声誉 ${n.prestige}`}
+                onMouseEnter={isMobile ? undefined : e => showFcPop(n, e.currentTarget)}
+                onMouseLeave={isMobile ? undefined : () => setFcPop(null)}
+                onClick={isMobile ? e => { e.stopPropagation(); fcPop?.noble.id === n.id ? setFcPop(null) : showFcPop(n, e.currentTarget) } : undefined}>
                 {n.logo ? <img src={n.logo} alt="" /> : <span>{n.name}</span>}
               </div>
             ))}
@@ -557,14 +640,74 @@ export default function GameBoard({
         )}
       </div>
 
+      {reservedPop && !isMobile && (
+        <div className="reserved-pop" style={{ left: reservedPop.x, top: reservedPop.y, '--vc-w': `${reservedPop.width}px` }}>
+          <PaperCard card={reservedPop.card} isMyTurn={false} />
+        </div>
+      )}
+
+      {/* 获得的 FC hover 放大读：整面旗浮层（fixed 共享层，躲开对手列滚动裁切） */}
+      {fcPop && (
+        <>
+          {isMobile && <div className="fc-pop-scrim" onClick={() => setFcPop(null)} />}
+          <div className="fc-pop" style={{ left: fcPop.x, top: fcPop.y }}>
+            <NobleTile noble={fcPop.noble} />
+          </div>
+        </>
+      )}
+
+      {isReturningTokens && (
+        <div className="gb-modal-overlay gb-return-overlay">
+          <div
+            className="gb-modal gb-return-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="return-title"
+            aria-describedby="return-description"
+            tabIndex={-1}
+            ref={returnModalRef}
+            onKeyDown={handleReturnKeyDown}
+          >
+            <h3 id="return-title">归还筹码</h3>
+            <p id="return-description">当前持有 {myTotalAR} 枚，请选择 {returnRequired} 枚归还公共池。咖啡计入上限，刚拿到的筹码也可以归还。</p>
+            <div className="return-grid">
+              {INVENTORY_TYPES.map(type => {
+                const info = RESOURCE_INFO[type]
+                const owned = myPlayer.tokens[type]
+                const selected = returnSelection[type] || 0
+                return (
+                  <div className={`return-token${selected ? ' selected' : ''}`} key={type}>
+                    <div className="return-token-image" style={{ backgroundImage: `url(${info.gem})` }} aria-hidden="true" />
+                    <b>{info.name}</b>
+                    <span className="return-owned">持有 {owned} 枚</span>
+                    <div className="return-stepper">
+                      <button type="button" aria-label={`少归还一枚${info.name}`} disabled={selected === 0} onClick={() => handleReturnChange(type, -1)}>−</button>
+                      <output aria-label={`${info.name}归还数量`}>{selected}</output>
+                      <button type="button" aria-label={`多归还一枚${info.name}`} disabled={selected >= owned || returnTotal >= returnRequired} onClick={() => handleReturnChange(type, 1)}>+</button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <p className="return-progress" aria-live="polite">已选 {returnTotal} / {returnRequired} 枚 · 归还后持有 {myTotalAR - returnTotal} 枚</p>
+            <div className="gb-modal-buttons">
+              <button className="gb-btn gb-btn-ghost" disabled={returnTotal === 0} onClick={() => setReturnSelection({})}>清空选择</button>
+              <button className="gb-btn gb-btn-gold" disabled={returnTotal !== returnRequired} onClick={() => onReturnTokens(returnSelection)}>确认归还</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 预留确认弹窗 */}
       {showReserve && reserveTarget && (
         <div className="gb-modal-overlay" onClick={() => setShowReserve(false)}>
           <div className="gb-modal" onClick={e => e.stopPropagation()}>
-            <h3>确认预留？</h3>
-            <p>预留卡牌将获得 1 杯咖啡（万能资源）</p>
+            <h3>确认预选？</h3>
+            <p>{gameState.bank.tokens.coffee > 0
+              ? `预选后获得 1 杯咖啡（万能资源）${myTotalAR >= 10 ? '，超出 10 枚须归还筹码' : ''}`
+              : '公共池没有咖啡，仍可预选，但不会获得咖啡'}</p>
             <div className="gb-modal-buttons">
-              <button className="gb-btn gb-btn-green" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>确认预留</button>
+              <button className="gb-btn gb-btn-green" onClick={() => handleReserveCard(reserveTarget.tier, reserveTarget.index)}>确认预选</button>
               <button className="gb-btn gb-btn-ghost" onClick={() => setShowReserve(false)}>取消</button>
             </div>
           </div>
@@ -578,8 +721,8 @@ export default function GameBoard({
       {showReserved && myReserved.length > 0 && (
         <div className="gb-modal-overlay" onClick={() => setShowReserved(false)}>
           <div className="gb-modal gb-reserved-modal" onClick={e => e.stopPropagation()}>
-            <h3>从预留区购买</h3>
-            <p>买预留卡就是你这一回合的行动，买下的那张当场结算产出筹码。</p>
+            <h3>发表预选论文</h3>
+            <p>发表预选论文就是你这一回合的行动，发表后获得对应颜色的永久折扣，不领取筹码。</p>
             <div className="reserved-list">
               {myReserved.map(card => {
                 const affordable = isMyTurn && canAfford(myPlayer, card)
@@ -620,12 +763,6 @@ export default function GameBoard({
             </div>
             {!inspect.readOnly && inspect.single && isMyTurn && (
               <div className="gb-modal-buttons">
-                {canAfford(myPlayer, inspect.cards[0].card) && (
-                  <button
-                    className="gb-btn gb-btn-gold"
-                    onClick={() => { handleBuyCard(inspect.cards[0].card, inspect.cards[0].tier); setInspect(null) }}
-                  >购买</button>
-                )}
                 <button
                   className="gb-btn gb-btn-green"
                   onClick={() => {
@@ -633,7 +770,13 @@ export default function GameBoard({
                     setShowReserve(true)
                     setInspect(null)
                   }}
-                >预留</button>
+                >预选</button>
+                {canAfford(myPlayer, inspect.cards[0].card) && (
+                  <button
+                    className="gb-btn gb-btn-gold"
+                    onClick={() => { handleBuyCard(inspect.cards[0].card, inspect.cards[0].tier); setInspect(null) }}
+                  >发表</button>
+                )}
               </div>
             )}
             {!inspect.readOnly && inspect.single && !isMyTurn && (
@@ -655,16 +798,16 @@ export default function GameBoard({
               <section>
                 <h4>每回合做一件事</h4>
                 <ul>
-                  <li><b>取筹码</b>：3 枚不同色，或 2 枚同色（公共堆该色得有 ≥4），或单独取 1 枚咖啡。</li>
-                  <li><b>买论文</b>：按卡面付筹码，咖啡能顶任何缺口；买下来当场拿走这张卡的 1 枚产出筹码。</li>
-                  <li><b>预留论文</b>：从牌面挑一张压进自己的预留区（最多 3 张），立刻换 1 枚咖啡，以后再来买。</li>
+                  <li><b>拿 AR</b>：3 种不同色各 1 枚；公共池不足 3 种普通色时，取现有各色各 1 枚。也可取同色 2 枚，但拿取前公共池该色至少有 4 枚。咖啡不能直接拿取。</li>
+                  <li><b>发论文</b>：按卡面付筹码，咖啡能替代任何颜色；发表后获得对应颜色的永久折扣，不领取筹码。</li>
+                  <li><b>预选论文</b>：从牌面挑一张放进自己的预选区（最多 3 张）。公共池有咖啡时获得 1 枚，没有咖啡也可以预选。</li>
                 </ul>
               </section>
               <section>
                 <h4>筹码</h4>
                 <p>
-                  手里最多 10 枚，会超就不能这么取。六色里只有咖啡是万能筹码，
-                  它不对应任何论文方向，所以不能拿 2 枚同色咖啡。
+                  回合结束时最多持有 10 枚筹码，咖啡也计入。拿取或预选后若超出，须自行选择多余筹码归还公共池，
+                  可以归还刚拿到的筹码或咖啡，归还完成后才轮到下一位。论文的永久折扣不计入筹码上限。
                 </p>
               </section>
               <section>
@@ -739,14 +882,17 @@ export default function GameBoard({
         </div>
       )}
 
-      {/* 终局不跳屏：牌桌原样锁在下面，盖一层动画结算。主动收起后整桌供回看，
-          右下角浮动按钮再唤回结算面板 */}
+      {/* 终局保留牌桌供回看，行动入口保持锁定。 */}
       {gameState.gameOver && !overDismissed && (
         <div className="gb-over-overlay">
           <div className="over-scrim" />
           <div className="over-sparks">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i }} />)}</div>
           <div className="over-panel">
-            <div className="over-seal">终</div>
+            <div className="sc-decks over-logo" role="img" aria-label="学术宝石三张卡牌标志">
+              <img className="sc-deck c" src={TIER_DECK[1]} alt="" />
+              <img className="sc-deck b" src={TIER_DECK[2]} alt="" />
+              <img className="sc-deck a" src={TIER_DECK[3]} alt="" />
+            </div>
             <h1>游戏结束</h1>
             <h2>{gameState.winner?.name} 获胜！</h2>
             <div className="gb-standings">
@@ -755,7 +901,14 @@ export default function GameBoard({
                 .sort((a, b) => b.prestige - a.prestige)
                 .map((p, i) => (
                   <div key={p.id} className={`gb-standing ${p.id === gameState.winner?.id ? 'winner' : ''}`}>
-                    <span className="standing-rank">#{i + 1}</span>
+                    <span className="standing-rank" data-rank={i + 1} role="img" aria-label={`第 ${i + 1} 名`} title={`第 ${i + 1} 名`}>
+                      <svg viewBox="0 0 32 40" aria-hidden="true">
+                        <path className="rank-ribbon" d="M6 2h8l2 10 2-10h8l-6 18h-8Z" />
+                        <circle className="rank-medal" cx="16" cy="24" r="13" />
+                        <circle className="rank-ring" cx="16" cy="24" r="10" />
+                        <path className="rank-star" d="m16 17 2 4.4 4.8.5-3.5 3.2.9 4.7-4.2-2.3-4.2 2.3.9-4.7-3.5-3.2 4.8-.5Z" />
+                      </svg>
+                    </span>
                     <span className="standing-name">{p.name}</span>
                     <span className="standing-score">{p.prestige}</span>
                   </div>
@@ -771,9 +924,6 @@ export default function GameBoard({
             </div>
           </div>
         </div>
-      )}
-      {gameState.gameOver && overDismissed && (
-        <button className="gb-over-reopen" onClick={() => setOverDismissed(false)}>查看结算</button>
       )}
     </div>
   )

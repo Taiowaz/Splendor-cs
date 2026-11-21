@@ -33,8 +33,13 @@
 }
 
 /* ---- 入口页 ---- */
+html:has(.sc-title) { scrollbar-gutter: stable both-edges; }
 .sc-title {
   gap: 0.8rem;
+}
+.sc.sc-title {
+  justify-content: flex-start;
+  padding-top: clamp(3rem, 10svh, 8rem);
 }
 
 .sc-decks {
@@ -72,16 +77,16 @@
   text-shadow: 0 0.3rem 1.2rem rgba(217, 180, 74, 0.4);
 }
 
-/* 落款金印：标题末尾一方小印，墨文「学」字，瓷青描金主题的点睛 */
 .sc-logo::after {
-  content: '学';
+  content: 'CS';
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.3em;
-  height: 1.3em;
+  width: 1.55em;
+  height: 1.55em;
   margin-left: 0.15em;
-  font-size: 0.42em;
+  font-size: 0.36em;
+  line-height: 1;
   letter-spacing: 0;
   color: #26221c;
   background: linear-gradient(160deg, #e6c878, #c9a227);
@@ -373,17 +378,6 @@
     radial-gradient(120% 90% at 50% 0%, rgba(230, 200, 120, 0.22), transparent 60%),
     linear-gradient(180deg, #26303c, #1a222c 55%, #151c25);
   border-color: #e6c878;
-}
-
-/* 按钮下面那行说明：负 margin 把它往按钮上收，和下一个按钮之间留出组间距，
-   三组「按钮 + 小字」读起来才是三件事而不是六个散件。 */
-.sc-btn-note {
-  margin: -0.35rem 0 0.1rem;
-  font-size: 0.82rem;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  text-align: center;
-  color: #b3a98c;
 }
 
 .sc-icon-btn,
@@ -709,7 +703,6 @@
 
   .sc-title .sc-buttons { gap: 0.35rem; }
   .sc-title .sc-btn { padding: 0.55rem 1.1rem; font-size: 1rem; }
-  .sc-title .sc-btn-note { margin: -0.25rem 0 0; font-size: 0.76rem; }
   .sc-title .sc-status { font-size: 0.8rem; }
 }
 

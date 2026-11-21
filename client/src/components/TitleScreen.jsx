@@ -60,7 +60,7 @@ export default function TitleScreen({
       </div>
 
       <h1 className="sc-logo">学术宝石</h1>
-      <p className="sc-tagline">攒资源 · 发论文</p>
+      <p className="sc-tagline">攒资源 · 发论文 · 拿头衔</p>
 
       <div className="sc-panel">
         {loggedIn ? (
@@ -91,7 +91,6 @@ export default function TitleScreen({
                 />
               </label>
             ) : (
-              /* 登录/注册的提交按钮单独放在 .sc-auth 里，和下面三个玩法按钮分开 */
               <form className="sc-auth" onSubmit={submit}>
                 <label className="sc-field">
                   <span>账号名</span>
@@ -139,23 +138,22 @@ export default function TitleScreen({
           </>
         )}
 
-        {/* 说明小字放在按钮下面单独一行：塞在按钮里会把主标题挤得偏左，
-            按钮看着不居中。挪出来后按钮只剩一行居中的标题。 */}
-        <div className="sc-divider"><span>开始玩</span></div>
-        <div className="sc-buttons">
-          <button className="sc-btn primary" onClick={onQuickStart} disabled={!connected}>
-            快速开局
-          </button>
-          <p className="sc-btn-note">你 + 3 个 AI</p>
-          <button className="sc-btn" onClick={onCreateRoom} disabled={!connected}>
-            创建房间
-          </button>
-          <p className="sc-btn-note">开房号，等同学进来</p>
-          <button className="sc-btn" onClick={onEnterLobby} disabled={!connected}>
-            加入同学的房间
-          </button>
-          <p className="sc-btn-note">看房间列表 / 输房号</p>
-        </div>
+        {(loggedIn || tab === 'guest') && (
+          <>
+            <div className="sc-divider"><span>开始玩</span></div>
+            <div className="sc-buttons">
+              <button className="sc-btn primary" onClick={onQuickStart} disabled={!connected} title="你 + 3 个 AI">
+                快速开局
+              </button>
+              <button className="sc-btn" onClick={onCreateRoom} disabled={!connected} title="开房号，等同学进来">
+                创建房间
+              </button>
+              <button className="sc-btn" onClick={onEnterLobby} disabled={!connected} title="看房间列表 / 输房号">
+                加入同学的房间
+              </button>
+            </div>
+          </>
+        )}
 
         <div className="sc-status">
           <span className={`sc-dot ${connected ? 'on' : 'off'}`}></span>

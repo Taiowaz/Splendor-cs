@@ -87,8 +87,8 @@
   .body { display: flex; align-items: stretch; justify-content: space-between; gap: 0.5em; margin-top: 0.5em; }
   .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.2em; padding: 0.25em 0.35em; border-radius: 0.5em; background: rgba(120, 40, 32, 0.1); }
   .gem { position: relative; width: 3.9em; height: 3.9em; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0, 0, 0, 0.26) 0 0.125em 0.3125em, inset 0 0 0 1px rgba(58, 36, 23, 0.18); }
-  .gem .plus { position: absolute; top: -0.375em; right: -0.375em; background: var(--tierA); color: #fff; font-family: var(--num); font-size: 0.95em; border: 0.1em solid #fff; border-radius: 50%; padding: 0 0.28em; line-height: 1.3; }
-  .tierB .gem .plus { background: var(--tierB); } .tierC .gem .plus { background: var(--tierC); }
+  .gem .plus { position: absolute; top: -0.5em; right: -0.5em; background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f); color: #4a3a10; text-shadow: 0 1px 0 #fff2c2; font-family: var(--num); font-size: 1.15em; border: 0.1em solid #fff; border-radius: 50%; padding: 0 0.3em; line-height: 1.3; }
+  .tierB .gem .plus { background: var(--tierB); color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.4); } .tierC .gem .plus { background: var(--tierC); color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.4); }
   .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1em; color: #38221c; letter-spacing: 0.02em; }
   .mini { width: 2.8em; height: 2.8em; border-radius: 50%; background-size: cover; background-position: center; flex: 0 0 auto; box-shadow: rgba(0, 0, 0, 0.2) 0 0.0625em 0.1875em, inset 0 0 0 1px rgba(58, 36, 23, 0.18); }
   .foot { margin-top: auto; padding-top: 0.3em; display: flex; gap: 0.3em; }
@@ -108,7 +108,7 @@
   .cost.g .row:last-child:nth-child(odd) { grid-column: 2; }
   .cost.g .n { font-size: 1.25em; min-width: 0.6em; }
 
-  /* ===== 方案 C：2×2 宫格，数字改圆片右下角金章（列更窄） ===== */
+  /* ===== 方案 C：2×2 宫格，数字改圆片右下角漆底描金章（列更窄） ===== */
   .cost.b { display: grid; grid-template-columns: repeat(2, 2.8em); justify-content: end; align-content: center; gap: 0.55em 1em; padding-right: 0.8em; }
   .cost.b .row { position: relative; display: block; }
   .cost.b .row + .row { margin-top: 0; }
@@ -118,10 +118,10 @@
     position: absolute; right: -0.75em; bottom: 0.15em;
     width: 1.5em; height: 1.5em; min-width: 0;
     display: grid; place-items: center;
-    font-size: 1.05em; color: #4a3a10; text-shadow: 0 1px 0 #fff2c2;
-    background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f);
-    border: 0.1em solid #6b5616; border-radius: 50%;
-    box-shadow: rgba(0, 0, 0, 0.35) 0 0.0625em 0.1875em;
+    font-size: 1.05em; color: #e6c878;
+    background: linear-gradient(180deg, #33250a, #1c1508);
+    border: 0.08em solid #c9a227; border-radius: 50%;
+    box-shadow: rgba(0, 0, 0, 0.35) 0 0.09em 0.22em;
   }
 </style>
 </head>
@@ -146,7 +146,7 @@ const CARDS = [
 const VARIANTS = [
   ['A', '方案 A · 现状竖叠列', '官方成本列口径：圆片贴叠、数字在右。最窄（约 4em），但靠 -1.15em 叠行省高度，四色卡最高 7.75em。', ''],
   ['B', '方案 B · 2×2 宫格数字在右', '上下左右四宫格：不叠行、圆片全露，三色卡两行约 6em、两色卡一行 2.8em；满格宽约 8.0em，贴着现有宽度预算（8.14em）但不越界。', 'g'],
-  ['C', '方案 C · 2×2 宫格数字角章', '同宫格但数字改挂圆片右下金章：列宽收到约 6.2em，留白更多；三色卡孤个在上排靠右、双个铺下排（靠右靠下）。代价是小数字章在窄卡上可读性弱于侧排大数字。', 'b']
+  ['C', '方案 C · 2×2 宫格数字角章', '同宫格但数字改挂圆片右下漆底描金章（与资源栏合计章同套）：列宽收到约 6.2em，留白更多；三色卡孤个在上排靠右、双个铺下排（靠右靠下）。深漆底压羊皮纸、金环亮金字，窄卡上也读得清。', 'b']
 ]
 const board = document.getElementById('board')
 for (const [key, title, desc] of VARIANTS) {
@@ -176,7 +176,7 @@ for (const card of CARDS) {
           </div>
           <div class="cost ${cls}">${rows}</div>
         </div>
-        <div class="foot"><button class="btn buy">购买</button><button class="btn">预留</button></div>
+        <div class="foot"><button class="btn buy">购买</button><button class="btn">预选</button></div>
       </div>
       <div class="measure"></div>`
     board.appendChild(cell)

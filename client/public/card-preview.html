@@ -110,16 +110,16 @@
      符号按资源着色（羊皮纸底上要选够深的色），背景就是卡面本身 */
   .bonus { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: .22rem; padding: .275rem .385rem; border-radius: 8.8px; background: rgba(120,40,32,.10); }
   .bonus .gem { position: relative; width: 68.6px; height: 68.6px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.26) 0 2.2px 5.5px, inset 0 0 0 1px rgba(74,52,16,.18); }
-  .bonus .plus { position: absolute; top: -6.6px; right: -6.6px; background: var(--tierA); color: #fff; font-family: var(--num); font-size: 1.045rem; border: .1em solid #fff; border-radius: 50%; padding: 0 .28em; line-height: 1.3; }
+  .bonus .plus { position: absolute; top: -8.8px; right: -8.8px; background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f); color: #4a3a10; text-shadow: 0 1px 0 #fff2c2; font-family: var(--num); font-size: 1.265rem; border: .1em solid #fff; border-radius: 50%; padding: 0 .3em; line-height: 1.3; }
   .bonus .cap { font-family: 'Ma Shan Zheng', var(--serif); font-size: 1.1rem; color: #4a3410; letter-spacing: .02em; }
 
   /* 费用 */
-  /* 费用：与牌桌同步——2×2 宫格、圆片全露，数字挂圆片右下金章；三色孤个靠右上 */
+  /* 费用：与牌桌同步——2×2 宫格、圆片全露，数字挂圆片右下漆底描金章（同资源栏合计章）；三色孤个靠右上 */
   .cost { flex: 1; display: grid; grid-template-columns: repeat(2, 3.08rem); justify-content: end; align-content: center; gap: .605rem 1.1rem; padding-right: .88rem; }
   .cost .row { position: relative; }
   .cost .row:first-child:nth-last-child(3) { grid-column: 2; }
   .cost .mini { width: 49.3px; height: 49.3px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: rgba(0,0,0,.2) 0 1.1px 3.3px, inset 0 0 0 1px rgba(74,52,16,.18); flex: 0 0 auto; }
-  .cost .n { position: absolute; right: -.825rem; bottom: .165rem; width: 1.65rem; height: 1.65rem; display: grid; place-items: center; font-family: var(--num); font-size: 1.155rem; color: #4a3a10; text-shadow: 0 1px 0 #fff2c2; background: radial-gradient(circle at 38% 32%, #e6c878, #c9a227 62%, #8a6d1f); border: .11rem solid #6b5616; border-radius: 50%; box-shadow: rgba(0,0,0,.35) 0 .06875rem .20625rem; }
+  .cost .n { position: absolute; right: -.825rem; bottom: .165rem; width: 1.65rem; height: 1.65rem; display: grid; place-items: center; font-family: var(--num); font-size: 1.155rem; color: #e6c878; background: linear-gradient(180deg, #33250a, #1c1508); border: .08em solid #c9a227; border-radius: 50%; box-shadow: rgba(0,0,0,.35) 0 .099rem .242rem; }
 
   .foot { margin-top: auto; padding-top: .33rem; display: flex; gap: .33rem; }
   .btn { flex: 1; text-align: center; font-family: var(--serif); font-size: .935rem; padding: .275rem; border-radius: 6.6px; border: 1px solid rgba(158,220,178,.55); background: linear-gradient(180deg,#2f7a52,#235c3e 55%,#1a4a31); color:#f6f0e0; }
@@ -147,8 +147,8 @@
   .card-row { display: flex; gap: 1.4rem; flex-wrap: nowrap; justify-content: center; align-items: flex-start; max-width: 100%; overflow-x: auto; padding-bottom: .5rem; }
   .card.tierB .ribbon { background: linear-gradient(180deg, var(--tierB), #2a3568); }
   .card.tierC .ribbon { background: linear-gradient(180deg, var(--tierC), #2c552a); }
-  .card.tierB .bonus .plus { background: var(--tierB); }
-  .card.tierC .bonus .plus { background: var(--tierC); }
+  .card.tierB .bonus .plus { background: var(--tierB); color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.4); }
+  .card.tierC .bonus .plus { background: var(--tierC); color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,.4); }
 
   /* 文字徽标 (wordmark) 对比 */
   .wm-row { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: center; }
@@ -462,7 +462,7 @@
             <div class="bonus">${bonusHtml}</div>
             <div class="cost">${costHtml}</div>
           </div>
-          <div class="foot"><div class="btn buy">购买</div><div class="btn">预留</div></div>`;
+          <div class="foot"><div class="btn">预选</div><div class="btn buy">发表</div></div>`;
         row.appendChild(card);
       });
       block.appendChild(head);
