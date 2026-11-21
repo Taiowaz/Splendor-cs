@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "splendor-cs-free",
+  "main": "worker.js",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "ALLOWED_ORIGINS": "",
+    "MAX_ROOMS": "20",
+    "MAX_CONNECTIONS": "100"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "GAME_HUB", "class_name": "GameHub" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameHub"] }],
+  "observability": { "enabled": false }
+}

@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
+    "test": "node --test",
     "verify:llm": "node verify-llm.mjs"
   },
   "dependencies": {

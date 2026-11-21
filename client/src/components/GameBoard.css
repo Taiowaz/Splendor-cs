@@ -1219,49 +1219,38 @@
   gap: 0.7rem;
   padding: 0 0.8rem;
   border-radius: 0 0 0.9rem 0.9rem;
-  background:
-    radial-gradient(130% 90% at 50% -10%, rgba(255, 255, 255, 0.38), transparent 55%),
-    radial-gradient(140% 120% at 50% 120%, rgba(90, 28, 22, 0.14), transparent 60%),
-    linear-gradient(158deg, #f3e7c3 0%, #e6d3a2 52%, #cdb47e 100%);
-  border: 1px solid rgba(201, 162, 39, 0.65);
+  background-color: var(--ground);
+  background-image: var(--silk);
+  background-size: cover, cover, cover, cover, cover, 260px 260px, auto, cover;
+  background-position: center;
+  background-attachment: fixed;
+  border: 1px solid rgba(190, 161, 94, 0.5);
   border-top: none;
   box-shadow: rgba(0, 0, 0, 0.55) 0 6px 18px,
-    inset 0 0 12px rgba(100, 32, 26, 0.1);
+    inset 0 1px 0 rgba(225, 207, 159, 0.08);
   animation: tb-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2);
-}
-.gb-turn-banner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(120, 40, 32, 0.05) 0 1px, transparent 1px 3px),
-    repeating-linear-gradient(90deg, rgba(120, 40, 32, 0.04) 0 1px, transparent 1px 4px);
-  mix-blend-mode: multiply;
-  opacity: 0.5;
 }
 @keyframes tb-in {
   from { opacity: 0; transform: translate(-50%, -100%); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
 .tb-head { display: flex; align-items: baseline; gap: 0.45rem; white-space: nowrap; }
-.tb-title { font-size: 1.05rem; color: #3a2a12; font-weight: 700; letter-spacing: 0.06em; }
-.tb-sub { font-size: 0.72rem; color: #3a2a12; }
+.tb-title { font-size: 1.05rem; color: #e5ce94; font-weight: 700; letter-spacing: 0.06em; }
+.tb-sub { font-size: 0.72rem; color: #c4c9cd; }
 .tb-close {
   flex-shrink: 0;
   align-self: center;
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  border: 1px solid rgba(138, 109, 31, 0.5);
-  background: rgba(255, 255, 255, 0.18);
-  color: #3a2a12;
+  border: 1px solid rgba(190, 161, 94, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5ce94;
   font-size: 0.7rem;
   cursor: pointer;
 }
-.tb-close:hover { background: rgba(255, 255, 255, 0.4); border-color: #8a6d1f; }
-.tb-close:focus-visible { outline: 2px solid #3a2a12; outline-offset: 2px; }
+.tb-close:hover { background: rgba(229, 206, 148, 0.14); border-color: #bea15e; }
+.tb-close:focus-visible { outline: 2px solid #e5ce94; outline-offset: 2px; }
 .tb-items { display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-width: 0; }
 .tb-item {
   display: flex;
@@ -1271,16 +1260,16 @@
   gap: 0.4rem;
   padding: 0.3rem 0.55rem;
   border-radius: 0.6rem;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(138, 109, 31, 0.35);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(190, 161, 94, 0.25);
   white-space: nowrap;
 }
 .tb-item img,
 .tb-token { width: 1.35em; height: 1.35em; flex-shrink: 0; }
 .tb-item img { object-fit: contain; border-radius: 0.25em; }
 .tb-token { border-radius: 50%; background-position: center; background-size: 120%; }
-.tb-item b { color: #3a2a12; font-size: 0.88rem; line-height: 1; }
-.tb-item span { color: #3a2a12; font-size: 0.68rem; line-height: 1; }
+.tb-item b { color: #eee4cd; font-size: 0.88rem; line-height: 1; }
+.tb-item span { color: #c4c9cd; font-size: 0.68rem; line-height: 1; }
 /* 中等宽度先砍说明小字，保住单行高度不压卡牌 */
 @media (max-width: 1100px) {
   .tb-sub, .tb-item span { display: none; }

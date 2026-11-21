@@ -6,6 +6,7 @@ import GameBoard from './components/GameBoard.jsx'
 import DebugPanel from './components/DebugPanel.jsx'
 import useWebSocket from './hooks/useWebSocket.js'
 import { NAME_KEY, saveToken, clearToken } from './session.js'
+import { getApiUrl } from './endpoints.js'
 import './App.css'
 
 // 名字记在本地，下次进来不用重新填
@@ -36,7 +37,11 @@ function App() {
   const [account, setAccount] = useState(null)
   const logoutResolveRef = useRef(null)
 
-  const { connected, sendMessage, drainMessages, msgVersion, elsewhere, reconnectNow } = useWebSocket()
+  const { connected, sendMessage, drainMessages, msgVersion, elsewhere, connectionError, reconnectNow } = useWebSocket()
+
+  useEffect(() => {
+    if (!connected) intentRef.current = null
+  }, [connected])
 
   // 每条提示都自带一个 3 秒清除定时器；不先把上一条的定时器清掉，旧定时器到点会把
   // 刚弹出来的新提示一起抹掉（连发几条时最后一条经常一闪就没）
@@ -69,9 +74,19 @@ function App() {
   // 处理 WebSocket 消息：一次把攒下的整批都处理掉。服务端握手时连发好几条，
   // 只处理「最后一条」会把 session_restored 漏掉（刷新就回不了房）。
   useEffect(() => {
+    let identityChanged = false
     for (const m of drainMessages()) {
       switch (m.type) {
         case 'welcome':
+          if (account && account.id !== m.player.id) {
+            identityChanged = true
+            intentRef.current = null
+            setRoom(null)
+            setGameState(null)
+            setMyPlayerId(null)
+            setScreen('title')
+            if (m.player.guest) showNotification('原身份未能恢复，已以游客身份进入；账号用户请重新登录')
+          }
           saveToken(m.token)
           setAccount(m.player)
           // 游客名字以本地输入为准：打字不再发 hello，名字进房那一刻才落定查重。所以只在
@@ -105,13 +120,13 @@ function App() {
         }
 
         case 'session_lost':
-          // 服务端重启过，房间在内存里没了：牌桌已经点不动，退回大厅重开一局
-          if (room) {
+          intentRef.current = null
+          if (room && !identityChanged) {
             setRoom(null)
             setGameState(null)
             setMyPlayerId(null)
             setScreen('lobby')
-            showNotification('⚠️ 服务器重启过，刚才那一局没留住，重新开一局吧')
+            showNotification('房间已过期或无法恢复，请重新开一局')
           }
           break
 
@@ -131,7 +146,7 @@ function App() {
         case 'joined_room': {
           setMyPlayerId(m.playerId)
           setRoom({ roomId: m.roomId, hostId: m.hostId, started: false, players: m.players })
-          if (intentRef.current === 'quick') {
+          if (connected && intentRef.current === 'quick') {
             intentRef.current = null
             for (let i = 1; i < MAX_PLAYERS; i++) {
               sendMessage({ type: 'add_ai', aiName: `AI玩家${i}` })
@@ -202,11 +217,12 @@ function App() {
           break
 
         case 'error':
+          intentRef.current = null
           showNotification(`❌ ${m.message}`)
           break
       }
     }
-  }, [msgVersion, drainMessages, sendMessage, showNotification, screen, room])
+  }, [msgVersion, drainMessages, sendMessage, showNotification, screen, room, account, connected])
 
   // 换身份（登录/注册/退出）之前先把当前席位退掉，并等服务端回执。不等着就重连的话，
   // 新连接一 hello 又把旧席位认领回来了，等于没退。
@@ -220,9 +236,10 @@ function App() {
   }, [room, sendMessage])
 
   const authRequest = async (path, name, password) => {
+    const url = getApiUrl(path)
     let res
     try {
-      res = await fetch(path, {
+      res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, password })
@@ -241,6 +258,7 @@ function App() {
     setAccount(data.user)
     setPlayerName(data.user.name)
     localStorage.setItem(NAME_KEY, data.user.name)
+    setRoom(null)
     setGameState(null)
     setMyPlayerId(null)
     setScreen('title')
@@ -266,9 +284,19 @@ function App() {
     reconnectNow()
   }
 
+  const handleConnectionRetry = () => {
+    intentRef.current = null
+    setAccount(null)
+    setRoom(null)
+    setGameState(null)
+    setMyPlayerId(null)
+    setScreen('title')
+    reconnectNow()
+  }
+
   const handleQuickStart = () => {
     intentRef.current = 'quick'
-    sendMessage({ type: 'create_room', playerName: currentName() })
+    if (!sendMessage({ type: 'create_room', playerName: currentName() })) intentRef.current = null
   }
 
   const handleCreateRoom = () => {
@@ -366,7 +394,7 @@ function App() {
 
       {/* 入口/大厅/等待室都挂测试开关（牌桌里那份在 GameBoard 内，层叠关系不动）；
           没有对局时面板只开放底色排 */}
-      {screen !== 'game' && <DebugPanel />}
+      {import.meta.env.DEV && screen !== 'game' && <DebugPanel />}
 
       {elsewhere && (
         <div className="sc-offline">
@@ -382,11 +410,22 @@ function App() {
         </div>
       )}
 
-      {screen !== 'title' && !connected && !elsewhere && (
+      {connectionError && !elsewhere && (
+        <div className="sc-offline">
+          <div className="sc-offline-box">
+            <h3>连接已暂停</h3>
+            <p>{connectionError}</p>
+            <p>自动重连已暂停。重新连接时，失效身份会以游客进入；账号用户可在入口重新登录。</p>
+            <button className="sc-btn primary" onClick={handleConnectionRetry}>返回入口并重新连接</button>
+          </div>
+        </div>
+      )}
+
+      {screen !== 'title' && !connected && !elsewhere && !connectionError && (
         <div className="sc-offline">
           <div className="sc-offline-box">
             <h3>与实验室服务器失去连接</h3>
-            <p>正在自动重连…你的席位先给你留着，连上就自动回到原来的房间和回合，进度不丢。</p>
+            <p>正在自动重连…连接成功后会尝试恢复席位。房间可能已过期或无法恢复；未确认的操作不会自动重发，请重连后核对牌桌。</p>
           </div>
         </div>
       )}

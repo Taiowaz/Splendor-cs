@@ -334,7 +334,7 @@ export default function GameBoard({
             <div className="tb-item">
               <img src={TIER_DECK[3]} alt="" />
               <b>发论文</b>
-              <span>花 AR 发表，获得永久折扣</span>
+              <span>花 AR 发表，获得永久AR</span>
             </div>
             <div className="tb-item">
               <div className="tb-token" style={{ backgroundImage: `url(${RESOURCE_INFO.coffee.gem})` }} aria-hidden="true" />
@@ -839,13 +839,13 @@ export default function GameBoard({
       )}
 
       {/* 测试开关：右下角点开，逐个玩家改手里的筹码和预留卡 */}
-      <DebugPanel
+      {import.meta.env.DEV && <DebugPanel
         gameState={gameState}
         myPlayerId={myPlayerId}
         onSetTokens={onDebugSetTokens}
         onSetReserved={onDebugSetReserved}
         onSetVc={onDebugSetVc}
-      />
+      />}
 
       {tooSmall && (
         <div className="gb-toosmall">

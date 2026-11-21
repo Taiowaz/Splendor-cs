@@ -1,6 +1,11 @@
 node_modules/
 dist/
 .env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+.wrangler/
 *.log
 .DS_Store
 # 账号库和签名密钥：密码哈希与 secret 不进版本库

@@ -1,0 +1,1101 @@
+import {
+  initializeGame,
+  createPlayer,
+  takeTokens,
+  returnTokens,
+  buyCard,
+  reserveCard,
+  canAffordCard,
+  checkNobleVisit,
+  endTurn,
+  refillTier,
+  RESOURCE_TYPES,
+  RESOURCE_NAMES,
+  FACE_UP
+} from './gameLogic.js';
+import { executeAiTurn } from './ai.js';
+
+export function createGameServer({ accounts, snapshot = null, debug = false,
+  now = Date.now, graceMs = 120000, roomHoldMs = 600000, maxRooms = Infinity }) {
+const { verifyToken, guestToken, renameGuest, nameRegistered } = accounts;
+const rooms = new Map((snapshot?.rooms || []).map(room => [room.id, room]));
+
+// 在线连接登记：游客昵称不落 users.json，查重得看「谁正用着这个名字」——包括还没进房、
+// 只在入口页/大厅挂着的人。连接一断就移除，名字随即释放给别人用。
+const liveConns = new Set();
+
+// 这个名字现在有没有人用着：注册账号（永久）＋在线连接＋房里保着的席位（掉线保席/
+// 空房保号/被 AI 代打期间名字也给他留着，本人回来还要认领）。exceptUid 跳过本人，
+// 刷新、改名、认领都不会被自己的名字挡下来。注册新账号时也用它查在线重名。
+function nameTaken(name, exceptUid = null) {
+  if (!name) return false;
+  if (nameRegistered(name)) return true;
+  for (const c of liveConns) {
+    if (c.identity && c.identity.id !== exceptUid && c.identity.name === name) return true;
+  }
+  for (const room of rooms.values()) {
+    for (const p of room.players) {
+      if ((!p.isAi || p.wasHuman) && p.id !== exceptUid && p.name === name) return true;
+    }
+  }
+  return false;
+}
+
+// 掉线保席：刷新/断网不立刻把席位交给 AI，先留一段时间等本人回来。
+// 测试可以用 GRACE_MS 缩短（见 probe-account.mjs 的超时用例）。
+const GRACE_MS = graceMs;
+const graceTimers = new Map(snapshot?.graceTimers || []);
+const ROOM_HOLD_MS = roomHoldMs;
+const roomHolds = new Map(snapshot?.roomHolds || []);
+
+function clearRoomHold(roomId) {
+  roomHolds.delete(roomId);
+}
+
+function holdEmptyRoom(room) {
+  roomHolds.set(room.id, now() + ROOM_HOLD_MS);
+  room.aiDueAt = null;
+}
+
+const graceKey = (roomId, playerId) => `${roomId}|${playerId}`;
+
+function clearGrace(roomId, playerId) {
+  const key = graceKey(roomId, playerId);
+  graceTimers.delete(key);
+}
+
+function clearRoomGrace(roomId) {
+  for (const key of [...graceTimers.keys()]) {
+    if (key.startsWith(`${roomId}|`)) clearGrace(roomId, key.split('|')[1]);
+  }
+}
+
+function connect(ws, saved = null) {
+    // 一条连接一份上下文。身份来自 hello 里的 token（账号或游客），席位按身份 id
+    // 认，所以刷新换一条 socket 也还是同一个人 —— 这是「刷新不丢房间」的根。
+    // token 存着当前身份签的那张，进房落定昵称时拿它重签（游客改名 uid 不变）。
+    const conn = { id: crypto.randomUUID(), token: null, identity: null, roomId: null,
+      playerId: null, detached: false, ...saved, ws };
+    liveConns.add(conn);
+    if (saved?.roomId) {
+      const seat = rooms.get(saved.roomId)?.players.find(p => p.id === saved.playerId);
+      if (!saved.detached && seat?.connectionId === conn.id) {
+        seat.ws = ws;
+        seat.conn = conn;
+      } else {
+        conn.roomId = null;
+        conn.playerId = null;
+      }
+    }
+
+    ws.on('message', (data) => {
+      try {
+        if (typeof data !== 'string') data = data.toString();
+        if (new TextEncoder().encode(data).byteLength > 8192) throw new Error('Message too large');
+        const message = JSON.parse(data);
+        if (!message || typeof message !== 'object' || Array.isArray(message) ||
+            typeof message.type !== 'string') throw new Error('Invalid message');
+        if (conn.detached) {
+          ws.send(JSON.stringify({ type: 'session_elsewhere' }));
+          return;
+        }
+        if (message.type !== 'hello' && !conn.identity) {
+          ws.send(JSON.stringify({ type: 'error', message: '请先握手（hello）' }));
+          return;
+        }
+        if (conn.identity && !verifyToken(conn.token)) {
+          conn.detached = true;
+          if (conn.roomId) leaveSeat(conn.roomId, conn.playerId, '掉线');
+          ws.send(JSON.stringify({ type: 'error', message: '登录已过期，请重新登录' }));
+          ws.close(1008, 'Session expired');
+          return;
+        }
+        if (message.type.startsWith('debug_') && !debug) {
+          ws.send(JSON.stringify({ type: 'error', message: '生产环境不开放调试操作' }));
+          return;
+        }
+
+        switch (message.type) {
+          case 'hello':
+            handleHello(message);
+            break;
+          case 'create_room':
+            handleCreateRoom(message);
+            break;
+          case 'join_room':
+            handleJoinRoom(message);
+            break;
+          case 'leave_room':
+            handleLeaveRoom();
+            break;
+          case 'add_ai':
+            handleAddAi(message);
+            break;
+          case 'remove_ai':
+            handleRemoveAi(message);
+            break;
+          case 'start_game':
+            handleStartGame();
+            break;
+          case 'take_tokens':
+            handleTakeTokens(message);
+            break;
+          case 'return_tokens':
+            handleReturnTokens(message);
+            break;
+          case 'buy_card':
+            handleBuyCard(message);
+            break;
+          case 'reserve_card':
+            handleReserveCard(message);
+            break;
+          case 'list_rooms':
+            handleListRooms();
+            break;
+          case 'debug_set_tokens':
+            handleDebugSetTokens(message);
+            break;
+          case 'debug_reserved':
+            handleDebugReserved(message);
+            break;
+          case 'debug_vc':
+            handleDebugVc(message);
+            break;
+          default:
+            ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }));
+        }
+      } catch (err) {
+        console.error('Message error:', err);
+        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
+      }
+    });
+
+    ws.on('close', () => {
+      // 先摘登记再走保席逻辑：被顶掉的旧连接、没进房的连接也得释放名字，别漏在集合里
+      liveConns.delete(conn);
+      if (conn.detached || !conn.roomId || !conn.playerId) return;
+      const room = rooms.get(conn.roomId);
+      const seat = room?.players.find(p => p.id === conn.playerId);
+      // 只有「这条连接确实是该席位当前的连接」才保席：被别的标签页顶掉的旧连接
+      // 关闭时，不能把新连接刚接上的席位又标记成离线。
+      if (!seat || seat.ws !== ws) return;
+
+      seat.ws = null;
+      seat.offline = true;
+      broadcastToRoom(room.id, {
+        type: 'player_offline',
+        playerId: seat.id,
+        playerName: seat.name,
+        graceMs: GRACE_MS
+      });
+      broadcastToRoom(room.id, roomUpdate(room));
+
+      clearGrace(room.id, seat.id);
+      graceTimers.set(graceKey(room.id, seat.id), now() + GRACE_MS);
+
+      console.log(`${seat.name} offline in room ${room.id}, seat held ${GRACE_MS}ms`);
+    });
+
+    // 握手：验 token（账号或游客），没带/验不过就发一张游客 token。然后看这个
+    // 身份有没有席位等着认领 —— 刷新回房、掉线重连都走这里。
+    // 昵称不在这里查重：打字阶段纯本地，名字进房那一刻（create_room/join_room）才落定，
+    // 见 applyEntryName。新游客先按带来的名字签一张临时 token（没带就随机游客名）。
+    function handleHello(message) {
+      if (conn.identity) {
+        ws.send(JSON.stringify({ type: 'error', message: '连接已完成身份验证' }));
+        return;
+      }
+      let token = message.token;
+      let identity = verifyToken(token);
+      if (!identity) {
+        const g = guestToken(String(message.name ?? '').trim());
+        token = g.token;
+        identity = verifyToken(token);
+      }
+      conn.token = token;
+      conn.identity = identity;
+      ws.send(JSON.stringify({ type: 'welcome', token, player: identity }));
+
+      const found = findSeat(identity.id);
+      if (!found) {
+        ws.send(JSON.stringify({ type: 'session_lost' }));
+        return;
+      }
+      const { room, seat } = found;
+
+      // 本人主动退出对局后（席位转 AI 代打，带 leftByUser）：任何 hello 都不该把他又拽回
+      // 牌桌 —— 改名不算，刷新页面也不算（标记在席位上，跨连接有效）。想回去得走大厅
+      // 「回到牌桌」(join_room) 显式认领。掉线保席中的真人席不带这个标记，刷新照常接回。
+      if (seat.isAi && seat.leftByUser) return;
+
+      // 同账号在别的标签页/设备还连着：把旧连接请下去，避免两条连接操纵同一席位
+      if (seat.conn && seat.conn !== conn && seat.conn.ws.readyState === 1) {
+        seat.conn.detached = true;
+        seat.conn.roomId = null;
+        seat.conn.playerId = null;
+        seat.conn.ws.send(JSON.stringify({ type: 'session_elsewhere' }));
+      }
+
+      resumeSeat(room, seat, ws, conn, identity);
+    }
+
+    // 找这个身份的席位：优先真人席（在线或保席中），其次是被 AI 代打但原本属于
+    // 他的席位（掉线超时之后回来，还能认领回自己的进度）。
+    function findSeat(uid) {
+      let fallback = null;
+      for (const room of rooms.values()) {
+        const seat = room.players.find(p => p.id === uid);
+        if (!seat) continue;
+        if (!seat.isAi) return { room, seat };
+        if (seat.wasHuman && !fallback) fallback = { room, seat };
+      }
+      return fallback;
+    }
+
+    function seatedElsewhere() {
+      return conn.roomId ? rooms.get(conn.roomId) || null : null;
+    }
+
+    // 进房那一刻才落定昵称并查重：打字阶段纯本地不拦，点快速开局/创建/加入/回到牌桌时
+    // 拿输入的名字查一道重。重名就回错误、中止进房（客户端输入框保留原名让用户改）；
+    // 通过就给游客重签 token（uid 不变，席位还认得他）并回 welcome 让客户端存新 token。
+    // 账号名注册时就定死且唯一，不参与改名/查重，直接放行。
+    function applyEntryName(message) {
+      if (!conn.identity.guest) return true;
+      const name = String(message.playerName ?? '').trim().slice(0, 12) || conn.identity.name;
+      if (nameTaken(name, conn.identity.id)) {
+        ws.send(JSON.stringify({ type: 'error', message: `名字「${name}」已经有人用了，换一个吧` }));
+        return false;
+      }
+      if (name !== conn.identity.name) {
+        const renamed = renameGuest(conn.token, name);
+        if (renamed) {
+          conn.token = renamed;
+          conn.identity = verifyToken(renamed);
+          ws.send(JSON.stringify({ type: 'welcome', token: renamed, player: conn.identity }));
+        }
+      }
+      return true;
+    }
+
+    function handleCreateRoom(message) {
+      if (seatedElsewhere()) {
+        ws.send(JSON.stringify({ type: 'error', message: `你已在房间 ${conn.roomId} 里，先退出再建新房` }));
+        return;
+      }
+      if (!applyEntryName(message)) return;
+      if (rooms.size >= maxRooms) {
+        ws.send(JSON.stringify({ type: 'error', message: '比赛体验房间已满，请稍后再试' }));
+        return;
+      }
+      let roomId;
+      do { roomId = Math.random().toString(36).substring(2, 8).toUpperCase(); }
+      while (rooms.has(roomId));
+      const playerId = conn.identity.id;
+
+      const room = {
+        id: roomId,
+        hostId: playerId,
+        hostName: conn.identity.name,
+        players: [{ id: playerId, name: conn.identity.name, ws, conn, wasHuman: true }],
+        game: null,
+        started: false
+      };
+
+      rooms.set(roomId, room);
+      conn.roomId = roomId;
+      conn.playerId = playerId;
+
+      ws.send(JSON.stringify({
+        type: 'room_created',
+        roomId,
+        playerId,
+        hostId: playerId,
+        players: rosterOf(room)
+      }));
+      broadcastToRoom(roomId, roomUpdate(room));
+
+      console.log(`Room created: ${roomId} by ${conn.identity.name}`);
+    }
+
+    function handleJoinRoom(message) {
+      if (seatedElsewhere()) {
+        ws.send(JSON.stringify({ type: 'error', message: `你已在房间 ${conn.roomId} 里，先退出再加入别的房` }));
+        return;
+      }
+      const room = rooms.get(message.roomId);
+
+      if (!room) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
+        return;
+      }
+      if (!applyEntryName(message)) return;
+
+      const playerId = conn.identity.id;
+      const existing = room.players.find(p => p.id === playerId);
+
+      if (room.started) {
+        // 开过局的房只认原席位本人回来认领（他的席位正由 AI 代打），别人不能中途加入
+        if (existing && existing.isAi && existing.wasHuman) {
+          clearRoomHold(room.id);
+          resumeSeat(room, existing, ws, conn, conn.identity);
+          return;
+        }
+        ws.send(JSON.stringify({ type: 'error', message: '游戏已开始，没法中途加入' }));
+        return;
+      }
+
+      if (room.players.length >= 4) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间已满' }));
+        return;
+      }
+
+      if (existing) {
+        ws.send(JSON.stringify({ type: 'error', message: '你已经在这个房间里了' }));
+        return;
+      }
+      // 空房保号期间进来的人接手房主：原房主退出后 hostId 还指着他，不移交的话
+      // 新房里没人能补 AI / 开局。
+      const wasEmpty = !room.players.some(p => !p.isAi);
+      room.players.push({ id: playerId, name: conn.identity.name, ws, conn, wasHuman: true });
+      if (wasEmpty) {
+        room.hostId = playerId;
+        room.hostName = conn.identity.name;
+      }
+      clearRoomHold(room.id);
+      conn.roomId = message.roomId;
+      conn.playerId = playerId;
+
+      // 通知新玩家
+      ws.send(JSON.stringify({
+        type: 'joined_room',
+        roomId: message.roomId,
+        playerId,
+        hostId: room.hostId,
+        players: rosterOf(room)
+      }));
+
+      // 房间里的人重新拿一遍名单
+      broadcastToRoom(message.roomId, roomUpdate(room));
+
+      console.log(`${conn.identity.name} joined room ${message.roomId}`);
+    }
+
+    // 主动退出房间（回大厅）。开完局之后退出＝把这席位交给 AI 代打，和掉线走同一条
+    // 清理逻辑；席位留认领标记，本人回来能从大厅「回到牌桌」接回自己的进度。
+    function handleLeaveRoom() {
+      if (!conn.roomId || !conn.playerId) return;
+      const room = rooms.get(conn.roomId);
+      if (!room) return;
+
+      clearGrace(room.id, conn.playerId);
+      leaveSeat(conn.roomId, conn.playerId, '离开');
+      ws.send(JSON.stringify({ type: 'left_room' }));
+      conn.roomId = null;
+      conn.playerId = null;
+    }
+
+    function handleAddAi(message) {
+      const room = rooms.get(conn.roomId);
+
+      if (!room) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
+        return;
+      }
+
+      if (room.hostId !== conn.playerId) {
+        ws.send(JSON.stringify({ type: 'error', message: '只有房主可以添加AI' }));
+        return;
+      }
+
+      if (room.started) {
+        ws.send(JSON.stringify({ type: 'error', message: '游戏已开始' }));
+        return;
+      }
+
+      if (room.players.length >= 4) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间已满' }));
+        return;
+      }
+
+      // 同一毫秒连加多个 AI 时 Date.now() 会撞 id，find 永远命中第一个：补随机后缀
+      const aiId = `ai_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const aiName = typeof message.aiName === 'string'
+        ? message.aiName.trim().slice(0, 12).replace(/[\u0000-\u001f\u007f]/g, '') || `AI玩家${room.players.length}`
+        : `AI玩家${room.players.length}`;
+      room.players.push({ id: aiId, name: aiName, ws: null, isAi: true });
+
+      broadcastToRoom(conn.roomId, roomUpdate(room));
+
+      console.log(`AI ${aiName} added to room ${conn.roomId}`);
+    }
+
+    // 等待室里反悔加多了的 AI。只允许摘 AI 席位——真人要走自己发 leave_room。
+    function handleRemoveAi(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
+        return;
+      }
+      if (room.hostId !== conn.playerId) {
+        ws.send(JSON.stringify({ type: 'error', message: '只有房主可以移除AI' }));
+        return;
+      }
+      if (room.started) {
+        ws.send(JSON.stringify({ type: 'error', message: '游戏已开始' }));
+        return;
+      }
+
+      const seat = room.players.find(p => p.id === message.playerId && p.isAi);
+      if (!seat) return;
+
+      room.players = room.players.filter(p => p.id !== seat.id);
+      broadcastToRoom(conn.roomId, roomUpdate(room));
+      console.log(`AI ${seat.name} removed from room ${conn.roomId}`);
+    }
+
+    function handleStartGame() {
+      const room = rooms.get(conn.roomId);
+
+      if (!room) {
+        ws.send(JSON.stringify({ type: 'error', message: '房间不存在' }));
+        return;
+      }
+
+      if (room.hostId !== conn.playerId) {
+        ws.send(JSON.stringify({ type: 'error', message: '只有房主可以开始游戏' }));
+        return;
+      }
+
+      if (room.players.length < 2) {
+        ws.send(JSON.stringify({ type: 'error', message: '至少需要2名玩家' }));
+        return;
+      }
+
+      // 局没打完就想重开，会把这些人的进度全冲掉 —— 结算之后才允许再来一局。
+      if (room.started && room.game && !room.game.gameOver) {
+        ws.send(JSON.stringify({ type: 'error', message: '本局还在进行' }));
+        return;
+      }
+
+      // 初始化游戏
+      const game = initializeGame(room.players.length);
+      game.players = room.players.map((p, i) => createPlayer(p.id, p.name));
+      room.game = game;
+      room.aiDueAt = null;
+      room.started = true;
+
+      // 为每个玩家单独发送游戏开始消息（包含各自的资源信息）
+      room.players.forEach(player => {
+        if (player.ws && player.ws.readyState === 1) {
+          player.ws.send(JSON.stringify({
+            type: 'game_started',
+            gameState: getSanitizedGameState(game)
+          }));
+        }
+      });
+
+      console.log(`Game started in room ${conn.roomId}`);
+
+      // 如果第一个玩家是AI，自动执行
+      checkAndExecuteAiTurn(room);
+    }
+
+    function canAct(game, allowDiscard = false) {
+      const error = game.gameOver ? '游戏已结束'
+        : game.players[game.currentPlayerIndex]?.id !== conn.playerId ? '不是你的回合'
+        : game.pendingDiscard && !allowDiscard ? '请先归还超出的筹码' : null;
+      if (!error) return true;
+      ws.send(JSON.stringify({ type: 'error', message: error }));
+      return false;
+    }
+
+    function handleTakeTokens(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!canAct(game)) return;
+      const player = game.players[game.currentPlayerIndex];
+      const { tokens } = message;
+      const result = takeTokens(player, tokens, game.bank.tokens);
+      if (!result.success) {
+        ws.send(JSON.stringify({ type: 'error', message: result.error }));
+        return;
+      }
+
+      finishTurn(room, { type: 'tokens_taken', playerId: conn.playerId, tokens });
+    }
+
+    function handleReturnTokens(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!canAct(game, true)) return;
+      const result = returnTokens(game, game.currentPlayerIndex, message.tokens);
+      if (!result.success) {
+        ws.send(JSON.stringify({ type: 'error', message: result.error }));
+        return;
+      }
+
+      finishTurn(room, { type: 'tokens_returned', playerId: conn.playerId, tokens: message.tokens });
+    }
+
+    function handleBuyCard(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!canAct(game)) return;
+      const playerIndex = game.currentPlayerIndex;
+
+      const player = game.players[playerIndex];
+      const { cardId, tier, fromReserved } = message;
+
+      let result;
+      if (fromReserved) {
+        // 从预留卡牌中购买
+        const reservedIndex = player.reservedCards.findIndex(c => c.id === cardId);
+        if (reservedIndex === -1) {
+          ws.send(JSON.stringify({ type: 'error', message: '卡牌不在预选区' }));
+          return;
+        }
+        if (!canAffordCard(player, player.reservedCards[reservedIndex])) {
+          ws.send(JSON.stringify({ type: 'error', message: '资源不足' }));
+          return;
+        }
+        result = buyCard(game, playerIndex, cardId, tier, true);
+      } else {
+        result = buyCard(game, playerIndex, cardId, tier);
+      }
+
+      if (result.success) {
+        // 检查贵族访问
+        const noble = checkNobleVisit(player, game.bank.nobles);
+        if (noble) {
+          player.prestige += noble.prestige;
+          player.nobles.push(noble);
+          game.bank.nobles = game.bank.nobles.filter(n => n.id !== noble.id);
+          broadcastToRoom(conn.roomId, {
+            type: 'noble_visit',
+            playerId: conn.playerId,
+            noble,
+            message: `${noble.cn} 认可了你的学术成就！+${noble.prestige} 声誉`
+          });
+        }
+
+        finishTurn(room, { type: 'card_bought', playerId: conn.playerId, card: result.card });
+      } else {
+        ws.send(JSON.stringify({ type: 'error', message: result.error }));
+      }
+    }
+
+    function handleReserveCard(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!canAct(game)) return;
+      const playerIndex = game.currentPlayerIndex;
+
+      const { tier, cardIndex } = message;
+      const result = reserveCard(game, playerIndex, tier, cardIndex);
+
+      if (result.success) {
+        finishTurn(room, { type: 'card_reserved', playerId: conn.playerId, card: result.card });
+      } else {
+        ws.send(JSON.stringify({ type: 'error', message: result.error }));
+      }
+    }
+
+    function rejectPendingDiscard(game) {
+      if (!game.pendingDiscard) return false;
+      ws.send(JSON.stringify({ type: 'error', message: '请先归还超出的筹码' }));
+      return true;
+    }
+
+    // 测试面板改资源：每色守恒，不改回合、不结算。
+    function handleDebugSetTokens(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      // 请求方得在这局里（面板只对本局玩家可见，别拿它去戳别人的房间）
+      if (!game.players.some(p => p.id === conn.playerId)) return;
+      if (rejectPendingDiscard(game)) return;
+      const player = game.players.find(p => p.id === message.playerId);
+      if (!player || !message.tokens) return;
+
+      const rejected = [];
+      let changed = false;
+      for (const [type, want] of Object.entries(message.tokens)) {
+        if (!(type in player.tokens)) continue;
+        if (!Number.isInteger(want) || want < 0) {
+          rejected.push(`${RESOURCE_NAMES[type] || type}只能填 0 以上的整数`);
+          continue;
+        }
+        const max = game.bank.tokens[type] + player.tokens[type];
+        if (want > max) {
+          rejected.push(`${RESOURCE_NAMES[type] || type}最多 ${max} 枚（牌堆 ${game.bank.tokens[type]} + 手里 ${player.tokens[type]}）`);
+          continue;
+        }
+        game.bank.tokens[type] -= want - player.tokens[type];
+        player.tokens[type] = want;
+        changed = true;
+      }
+
+      if (rejected.length) {
+        ws.send(JSON.stringify({ type: 'error', message: `设不进去：${rejected.join('、')}` }));
+      }
+      if (!changed) return;
+
+      broadcastToRoomWithPlayerState(conn.roomId, {
+        type: 'debug_update'
+      }, game);
+    }
+
+    // 测试面板发/收预留卡：+1 从牌桌明面随机抽一张（那一档补牌），−1 把最后一张
+    // 退回同档（明面不满 4 张就回明面，否则压回抽牌堆尾巴，卡不会丢）。
+    // 不像正式预留那样附送咖啡，也不改回合 —— 这就是个摆状态的工具。
+    function handleDebugReserved(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!game.players.some(p => p.id === conn.playerId)) return;
+      if (rejectPendingDiscard(game)) return;
+      const player = game.players.find(p => p.id === message.playerId);
+      if (!player) {
+        ws.send(JSON.stringify({ type: 'error', message: '找不到该玩家（牌桌可能已重开）' }));
+        return;
+      }
+
+      if (message.delta === 1) {
+        if (player.reservedCards.length >= 3) {
+          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 的预选已满（最多 3 张），只锁这一行` }));
+          return;
+        }
+        const tiers = [3, 2, 1].filter(t => game.bank[`tier${t}`].length > 0);
+        if (!tiers.length) {
+          ws.send(JSON.stringify({ type: 'error', message: '牌桌上没有可拿的卡了' }));
+          return;
+        }
+        const tier = tiers[Math.floor(Math.random() * tiers.length)];
+        const row = game.bank[`tier${tier}`];
+        player.reservedCards.push(row.splice(Math.floor(Math.random() * row.length), 1)[0]);
+        refillTier(game, tier);
+      } else if (message.delta === -1) {
+        const card = player.reservedCards.pop();
+        if (!card) {
+          ws.send(JSON.stringify({ type: 'error', message: `${player.name} 没有预选卡` }));
+          return;
+        }
+        const row = game.bank[`tier${card.tier}`];
+        if (row.length < FACE_UP) row.push(card);
+        else game.bank[`draw${card.tier}`].push(card);
+      } else {
+        return;
+      }
+
+      broadcastToRoomWithPlayerState(conn.roomId, {
+        type: 'debug_update'
+      }, game);
+    }
+
+    // 测试面板设 VC（已发表论文）张数：FC 判分只认 player.bonus（VC 产出累计），
+    // 光设筹码凑不出会士卡，所以这里按产出逐色设到目标张数：差额从明面/抽牌堆取该
+    // 产出的真卡进 player.cards（bonus/prestige 照买卡口径累加），每发一张立即判一次
+    // FC（来访动画与买卡同一条 noble_visit 广播）；调小则退最后一张同产出卡回牌桌。
+    // 已来的 FC 不收回。
+    const VC_CN = { data: '数据', compute: '算力', citation: '引用', collaborator: '合作者', funding: '经费' };
+    function vcGrant(game, player, type) {
+      let tier = 0, idx = -1, fromDraw = false;
+      for (const t of [1, 2, 3]) {
+        const i = game.bank[`tier${t}`].findIndex(c => c.bonus === type);
+        if (i !== -1) { tier = t; idx = i; break; }
+      }
+      if (idx === -1) {
+        for (const t of [1, 2, 3]) {
+          const i = game.bank[`draw${t}`].findIndex(c => c.bonus === type);
+          if (i !== -1) { tier = t; idx = i; fromDraw = true; break; }
+        }
+      }
+      if (idx === -1) return null;
+      const row = fromDraw ? game.bank[`draw${tier}`] : game.bank[`tier${tier}`];
+      const card = row.splice(idx, 1)[0];
+      if (!fromDraw) refillTier(game, tier);
+      player.cards.push(card);
+      player.bonus[type]++;
+      player.prestige += card.prestige;
+      const noble = checkNobleVisit(player, game.bank.nobles);
+      if (noble) {
+        player.prestige += noble.prestige;
+        player.nobles.push(noble);
+        game.bank.nobles = game.bank.nobles.filter(n => n.id !== noble.id);
+      }
+      return { card, noble };
+    }
+    function vcRevoke(game, player, type) {
+      let idx = -1;
+      for (let i = player.cards.length - 1; i >= 0; i--) {
+        if (player.cards[i].bonus === type) { idx = i; break; }
+      }
+      if (idx === -1) return null;
+      const card = player.cards.splice(idx, 1)[0];
+      player.bonus[type]--;
+      player.prestige -= card.prestige;
+      const row = game.bank[`tier${card.tier}`];
+      if (row.length < FACE_UP) row.push(card);
+      else game.bank[`draw${card.tier}`].push(card);
+      return card;
+    }
+    function handleDebugVc(message) {
+      const room = rooms.get(conn.roomId);
+      if (!room || !room.game) return;
+
+      const game = room.game;
+      if (!game.players.some(p => p.id === conn.playerId)) return;
+      if (rejectPendingDiscard(game)) return;
+      const player = game.players.find(p => p.id === message.playerId);
+      if (!player) {
+        ws.send(JSON.stringify({ type: 'error', message: '找不到该玩家（牌桌可能已重开）' }));
+        return;
+      }
+      const type = message.resource;
+      const count = message.count;
+      if (!VC_CN[type] || !Number.isInteger(count) || count < 0) return;
+
+      let exhausted = false;
+      while (player.bonus[type] < count) {
+        const r = vcGrant(game, player, type);
+        if (!r) { exhausted = true; break; }
+        if (r.noble) {
+          broadcastToRoom(conn.roomId, {
+            type: 'noble_visit',
+            playerId: player.id,
+            noble: r.noble,
+            message: `${r.noble.cn} 认可了 ${player.name} 的学术成就！+${r.noble.prestige} 声誉`
+          });
+        }
+      }
+      while (player.bonus[type] > count) vcRevoke(game, player, type);
+      if (exhausted) {
+        ws.send(JSON.stringify({
+          type: 'error',
+          message: `牌库里「${VC_CN[type]}」产出的 VC 不够，${player.name} 只设到 ${player.bonus[type]} 张`
+        }));
+      }
+
+      broadcastToRoomWithPlayerState(conn.roomId, {
+        type: 'debug_update'
+      }, game);
+    }
+
+    function handleListRooms() {
+      const uid = conn.identity.id;
+      // 未开局的房大家都能看；开过局的房只给「席位正由 AI 代打的原主人」看，让他能回来认领
+      const mineToReclaim = r => r.started && r.players.some(p => p.id === uid && p.isAi && p.wasHuman);
+      const roomList = Array.from(rooms.values())
+        .filter(r => !r.started || mineToReclaim(r))
+        .map(r => ({
+          id: r.id,
+          playerCount: r.players.length,
+          maxPlayers: 4,
+          hostName: r.players.find(p => p.id === r.hostId)?.name || r.hostName || r.players[0]?.name,
+          players: rosterOf(r),
+          started: r.started,
+          rejoinable: mineToReclaim(r)
+        }));
+
+      ws.send(JSON.stringify({
+        type: 'room_list',
+        rooms: roomList
+      }));
+    }
+  return conn;
+}
+
+function broadcastToRoom(roomId, message, exceptWs = null) {
+  const room = rooms.get(roomId);
+  if (!room) return;
+
+  const msg = JSON.stringify(message);
+  room.players.forEach(p => {
+    if (p.ws && p.ws !== exceptWs && p.ws.readyState === 1) { // WebSocket.OPEN
+      p.ws.send(msg);
+    }
+  });
+}
+
+// 房间名单：大厅和等待室都读这一份，带 isAi / offline 界面才标得出真人/AI/掉线
+function rosterOf(room) {
+  return room.players.map(p => ({
+    id: p.id,
+    name: p.name,
+    isAi: !!p.isAi,
+    offline: !p.isAi && !!p.offline
+  }));
+}
+
+function roomUpdate(room) {
+  return {
+    type: 'room_update',
+    roomId: room.id,
+    hostId: room.hostId,
+    started: room.started,
+    players: rosterOf(room)
+  };
+}
+
+// 把席位接回一条活连接：刷新回房、掉线重连、退出后认领都走这里。reclaimed 表示
+// 这席位之前是不是正由 AI 代打（是不是从 AI 手里接回来的）。
+function resumeSeat(room, seat, ws, conn, identity) {
+  const reclaimed = !!seat.isAi;
+  clearRoomHold(room.id);
+  clearGrace(room.id, seat.id);
+  seat.ws = ws;
+  seat.conn = conn;
+  seat.isAi = false;
+  seat.offline = false;
+  seat.wasHuman = true;
+  seat.leftByUser = false;
+  seat.name = identity.name;
+  const gamePlayer = room.game?.players.find(p => p.id === seat.id);
+  if (gamePlayer) gamePlayer.name = identity.name;
+  conn.roomId = room.id;
+  conn.playerId = seat.id;
+
+  ws.send(JSON.stringify({
+    type: 'session_restored',
+    roomId: room.id,
+    playerId: seat.id,
+    hostId: room.hostId,
+    started: room.started,
+    players: rosterOf(room),
+    gameState: room.started && room.game ? getSanitizedGameState(room.game) : null,
+    reclaimed
+  }));
+  broadcastToRoom(room.id, roomUpdate(room));
+  // 「回来了 / 认领回来了」是说给同桌其他人听的，本人那份提示在 session_restored 里，
+  // 发给自己会把「已回到房间 X」盖成「✅ 自己 回来了」
+  broadcastToRoom(room.id, {
+    type: reclaimed ? 'player_reclaimed' : 'player_online',
+    playerId: seat.id,
+    playerName: seat.name
+  }, ws);
+  console.log(`${seat.name} resumed seat in room ${room.id}${reclaimed ? ' (reclaimed from AI)' : ''}`);
+  // 认领回来时若正轮到 AI，把暂停的 AI 回合续上（无真人时 checkAndExecuteAiTurn 会停）
+  if (room.started) checkAndExecuteAiTurn(room);
+  return reclaimed;
+}
+
+// 席位离开（主动退出、保席超时走同一条）。
+function leaveSeat(roomId, playerId, reason = '离开') {
+  const room = rooms.get(roomId);
+  if (!room) return;
+  const seat = room.players.find(p => p.id === playerId);
+  if (!seat) return;
+  clearGrace(roomId, playerId);
+  seat.ws = null;
+  seat.conn = null;
+  seat.offline = false;
+
+  if (!room.started) {
+    room.players = room.players.filter(p => p.id !== playerId);
+  } else {
+    // 已经开局就不能摘席位了：回合顺序和牌堆都是按这桌人数发的。改由 AI 代打，
+    // 否则后面的人会干等一个页面早就关掉的客户端。
+    seat.isAi = true;
+    // 不论主动退出还是掉线超时都留认领标记：本人回来还能接回自己的进度。
+    seat.wasHuman = true;
+    // 只有主动退出（'离开'）才落 leftByUser：之后刷新页面也不自动接回，得走大厅「回到
+    // 牌桌」显式认领。掉线超时（'掉线'）不落 —— 那是被动断线，刷新/重连照常接回。
+    seat.leftByUser = reason === '离开';
+  }
+
+  // 一个真人都不剩（保席中的也算真人）：不管等待室还是开过局的房都先保号/保席 ——
+  // 房号可能已经发给同学了、牌局进度也还留着，本人退出去一趟也得能回来。超时没人再回收。
+  if (!room.players.some(p => !p.isAi)) {
+    holdEmptyRoom(room);
+    return;
+  }
+  if (room.hostId === playerId) {
+    const next = room.players.find(p => !p.isAi);
+    room.hostId = next.id;
+    room.hostName = next.name;
+  }
+
+  if (!room.started) {
+    broadcastToRoom(roomId, roomUpdate(room));
+  } else {
+    broadcastToRoom(roomId, {
+      type: 'player_left',
+      playerId,
+      playerName: seat.name,
+      takenOverByAi: true,
+      reason,
+      hostId: room.hostId
+    });
+    // 名单也得重发：这席位现在是 AI、不再离线，客户端的「离线」徽标靠这条撤掉
+    broadcastToRoom(roomId, roomUpdate(room));
+    checkAndExecuteAiTurn(room);
+  }
+}
+
+// 为每个玩家单独广播（包含各自的资源信息）
+function broadcastToRoomWithPlayerState(roomId, messageTemplate, game) {
+  const room = rooms.get(roomId);
+  if (!room) return;
+
+  room.players.forEach(player => {
+    if (player.ws && player.ws.readyState === 1) {
+      const gameState = getSanitizedGameState(game);
+      const message = {
+        ...messageTemplate,
+        gameState
+      };
+      player.ws.send(JSON.stringify(message));
+    }
+  });
+}
+
+function finishTurn(room, actionMessage = null) {
+  const game = room.game;
+  endTurn(game);
+  if (actionMessage) broadcastToRoomWithPlayerState(room.id, actionMessage, game);
+  broadcastToRoomWithPlayerState(room.id, {
+    type: game.pendingDiscard ? 'discard_required' : game.gameOver ? 'game_over' : 'turn_changed',
+    currentPlayerIndex: game.currentPlayerIndex,
+    winner: game.winner
+  }, game);
+  checkAndExecuteAiTurn(room);
+}
+
+// 检查并执行AI回合
+function checkAndExecuteAiTurn(room) {
+  if (!room) return;
+  const game = room.game;
+  const playerIndex = game?.currentPlayerIndex;
+  const currentPlayer = game?.players[playerIndex];
+  const playerInfo = room.players.find(p => p.id === currentPlayer?.id);
+  // 全 AI 时暂停，真人回来后继续；每桌只排一个 AI 操作。
+  if (rooms.get(room.id) !== room || !game || game.gameOver ||
+      !room.players.some(p => !p.isAi) || !playerInfo?.isAi) {
+    room.aiDueAt = null;
+    return;
+  }
+  room.aiDueAt ??= now() + 1000;
+}
+
+function runDueTasks() {
+  const timestamp = now();
+  for (const [key, dueAt] of graceTimers) {
+    if (dueAt > timestamp) continue;
+    graceTimers.delete(key);
+    const [roomId, playerId] = key.split('|');
+    const seat = rooms.get(roomId)?.players.find(p => p.id === playerId);
+    if (seat?.offline && !seat.ws) leaveSeat(roomId, playerId, '掉线');
+  }
+  for (const [roomId, dueAt] of roomHolds) {
+    if (dueAt > timestamp) continue;
+    roomHolds.delete(roomId);
+    const room = rooms.get(roomId);
+    if (room && !room.players.some(p => !p.isAi)) {
+      clearRoomGrace(roomId);
+      rooms.delete(roomId);
+    }
+  }
+  for (const room of rooms.values()) {
+    if (room.aiDueAt == null || room.aiDueAt > timestamp) continue;
+    room.aiDueAt = null;
+    const game = room.game;
+    const playerIndex = game?.currentPlayerIndex;
+    const seat = room.players.find(p => p.id === game?.players[playerIndex]?.id);
+    if (!game || game.gameOver || !seat?.isAi || !room.players.some(p => !p.isAi)) continue;
+    executeAiTurn(game, playerIndex, room, (roomId, message) => {
+      if (message.gameState !== undefined) {
+        const { gameState, ...template } = message;
+        broadcastToRoomWithPlayerState(roomId, template, game);
+      } else {
+        broadcastToRoom(roomId, message);
+      }
+    });
+    checkAndExecuteAiTurn(room);
+  }
+}
+
+function nextDeadline() {
+  const deadlines = [...graceTimers.values(), ...roomHolds.values(),
+    ...[...rooms.values()].map(room => room.aiDueAt).filter(t => t != null)];
+  return deadlines.length ? Math.min(...deadlines) : null;
+}
+
+function exportSnapshot() {
+  return {
+    rooms: [...rooms.values()].map(room => ({
+      ...room,
+      players: room.players.map(({ ws, conn, connectionId, ...seat }) => ({
+        ...seat, connectionId: conn?.id || connectionId || null
+      }))
+    })),
+    graceTimers: [...graceTimers],
+    roomHolds: [...roomHolds]
+  };
+}
+
+function exportConnection(conn) {
+  const { ws, ...saved } = conn;
+  return saved;
+}
+
+function reconcileConnections() {
+  for (const room of rooms.values()) {
+    for (const seat of room.players) {
+      if (seat.isAi || seat.ws) continue;
+      seat.offline = true;
+      const key = graceKey(room.id, seat.id);
+      if (!graceTimers.has(key)) graceTimers.set(key, now() + GRACE_MS);
+    }
+  }
+}
+
+function getSanitizedGameState(game) {
+  return {
+    players: game.players.map(p => ({
+      id: p.id,
+      name: p.name,
+      // 筹码是公开信息（官方规则如此，splendor-chinese 也全量下发），对手面板要显示
+      tokens: p.tokens,
+      cards: p.cards,
+      // 会士卡立在玩家面前，是公开信息
+      nobles: p.nobles,
+      // 预留卡是公开信息：我们的 reserveCard 只能从牌桌明面拿（没有「从牌堆盲抽
+      // 预留」这个动作），这张卡本来就翻给所有人看过。splendor-chinese 的
+      // hideReservedCardFaces 也只把 face-down（牌堆盲抽）那部分降级成 tier，
+      // 从牌面预留的连 id/cost 原样下发 —— 对手框要拿真卡面来显示就靠这条。
+      reservedCards: p.reservedCards,
+      prestige: p.prestige,
+      bonus: p.bonus
+    })),
+    bank: {
+      tokens: game.bank.tokens,
+      draw1Count: game.bank.draw1.length,
+      draw2Count: game.bank.draw2.length,
+      draw3Count: game.bank.draw3.length,
+      tier1: game.bank.tier1,
+      tier2: game.bank.tier2,
+      tier3: game.bank.tier3,
+      nobles: game.bank.nobles
+    },
+    currentPlayerIndex: game.currentPlayerIndex,
+    pendingDiscard: game.pendingDiscard,
+    gameOver: game.gameOver,
+    winner: game.winner,
+    turnCount: game.turnCount
+  };
+}
+
+return { connect, nameTaken, runDueTasks, nextDeadline, exportSnapshot,
+  exportConnection, reconcileConnections };
+}
