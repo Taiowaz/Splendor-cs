@@ -7,7 +7,7 @@
   "workers_dev": true,
   "preview_urls": false,
   "vars": {
-    "ALLOWED_ORIGINS": "",
+    "ALLOWED_ORIGINS": "https://academic-gems-vcocgj553ao.qoder.website",
     "MAX_ROOMS": "20",
     "MAX_CONNECTIONS": "100"
   },
